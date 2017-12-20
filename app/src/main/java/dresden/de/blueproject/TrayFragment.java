@@ -19,7 +19,7 @@ public class TrayFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.list_beladung,parent,false);
+        return inflater.inflate(R.layout.list_layout,parent,false);
     }
 
 }
