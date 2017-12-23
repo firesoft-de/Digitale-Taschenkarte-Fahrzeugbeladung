@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:showAsAction="always">
+
+    <item
+        android:id="@+id/OptionMenuItemData"
+        android:title="@string/option_menu_data"
+        app:showAsAction="never"/>
+
+</menu>
+
