@@ -1,5 +1,12 @@
 package dresden.de.blueproject;
 
+
+import android.app.SearchManager;
+import android.arch.persistence.room.Room;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,11 +17,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.SearchView;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener {
+public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener, SearchView.OnQueryTextListener {
 
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
@@ -34,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public ArrayList<TrayItem> trays;
     public ArrayList<EquipmentItem> equipmentItems;
 
-
+    public DatabaseEquipment databaseEquipment;
 
     //Override Methoden
 
@@ -52,6 +62,16 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         trays = Util_ExampleData.dummyDataTray();
         equipmentItems = Util_ExampleData.dummyDataEquipment();
+
+        databaseEquipment = Room.databaseBuilder(getApplicationContext(),DatabaseEquipment.class,"datenbank").build();
+
+        DatabaseEquipmentDAO daoAgent = databaseEquipment.equipmentDAO();
+
+        // daoAgent.insertItem(equipmentItems.get(0).toDatabaseObject());
+
+        daoAgent.insertItem(equipmentItems.get(0).toDatabaseObject());
+
+        DatabaseEquipmentMininmal item = databaseEquipment.equipmentDAO().findMinimalItemByID(0);
 
 /*        //Test um ein anderes Fragment darzustellen
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
@@ -74,10 +94,46 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.option_menu, menu);
-        return true;
+
+        // Suchfunktionalität mittels SearchManager hinzufügen
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconified(false);
+
+        //Verhindern das beim Starten der App die Tastatur angezeigt wird
+        searchView.clearFocus();
+
+        //http://nlopez.io/how-to-style-the-actionbar-searchview-programmatically/
+        int closeButtonId = getResources().getIdentifier("android:id/search_close_btn", null, null);
+        ImageView closeButtonImage = (ImageView) searchView.findViewById(closeButtonId);
+        closeButtonImage.setImageResource(R.drawable.ic_close_black_24dp);
+
+        int searchButtonId = getResources().getIdentifier("android:id/search_button", null, null);
+        ImageView searchButtonImage = (ImageView) searchView.findViewById(searchButtonId);
+        searchButtonImage.setImageResource(R.drawable.ic_search_black_24dp);
+
+        int searchButtonId2 = getResources().getIdentifier("android:id/search_mag_icon", null, null);
+        ImageView searchButtonImage2 = (ImageView) searchView.findViewById(searchButtonId2);
+        searchButtonImage2.setImageResource(R.drawable.ic_search_black_24dp);
+
+        //https://stackoverflow.com/questions/20323990/remove-the-searchicon-as-hint-in-the-searchview
+        int searchPlateId = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+        EditText searchPlate = (EditText) searchView.findViewById(searchPlateId);
+        searchPlate.setHint(R.string.search_hint);
+
+        //Den SearchView Listener aktivieren um eine eigene Intent Auslösung durchzuführen
+        searchView.setOnQueryTextListener(this);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     //Hier werden die Click-Events für die Menuitems gehandelt
@@ -98,7 +154,47 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     }
 
 
-    //Methoden
+    //Suchanfrage selbst starten um noch die ArrayListe anzuhängen
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+
+        Intent searchIntent = new Intent(this, SearchableActivity.class);
+        searchIntent.putExtra(SearchManager.QUERY, query);
+
+        Bundle bundle = new Bundle();
+
+        bundle.putParcelableArrayList("EL",equipmentItems);
+        searchIntent.putExtras(bundle); // pass the search context data
+        searchIntent.setAction(Intent.ACTION_SEARCH);
+
+        startActivity(searchIntent);
+
+        return true; // we start the search activity manually
+
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        return false;
+    }
+
+    //
+//    @Override
+//    public void startActivity(Intent intent) {
+//        // check if search intent
+//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+//            Bundle bundle = new Bundle();
+//
+//            bundle.putParcelableArrayList("EL",(ArrayList) equipmentItems);
+//
+//            intent.putExtras(bundle);
+//        }
+//
+//        super.startActivity(intent);
+//    }
+
+
+    //Klassen-Methoden
 
     /**
      * @handleBackButton bearbeitet das Zurückspringen auf ein vorheriges Fragment und nimmt notwendige Veränderungen an der ActionBar vor
@@ -126,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
                 default:
                     //Nichts tun
+                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                     break;
             }
 
@@ -170,17 +267,19 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public void switchFragment(int id, @Nullable Fragment fragment, String tag) {
 
         ft = getSupportFragmentManager().beginTransaction();
-
-/*        if (args != null && tag == FRAGMENT_LIST_ITEM) {
-
-            fragment = new ItemFragment();
-
-        }*/
-
-
+        if (tag == FRAGMENT_LIST_ITEM || tag == FRAGMENT_DATA) {
+            this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        else {
+            this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
         ft.replace (id, fragment, tag);
         ft.addToBackStack(null);
         ft.commit();
 
+
     }
+
+
+
 }
