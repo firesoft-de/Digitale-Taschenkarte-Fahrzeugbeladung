@@ -27,6 +27,7 @@
         android:paddingRight="16dp">
 
         <TextView
+            android:id="@+id/listItem_tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Latthammer "
@@ -34,6 +35,7 @@
             android:textSize="@dimen/text_size_highlight"/>
 
         <TextView
+            android:id="@+id/listItem_tv_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Geräteraum 6 - Kiste 6.3"

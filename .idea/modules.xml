@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BlueProject.iml" filepath="$PROJECT_DIR$/BlueProject.iml" />
-      <module fileurl="file://D:\Development\Android\BlueProject\GKWBeladung.iml" filepath="D:\Development\Android\BlueProject\GKWBeladung.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
