@@ -2,43 +2,170 @@ package dresden.de.blueproject;
 
 
 import android.media.Image;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * {@link EquipmentItem} Diese Klasse implementiert die Datenstruktur für einen einzelnen Ausstattungsgegenstand
  */
-public class EquipmentItem {
-    //TODO Implementieren
-
+public class EquipmentItem implements Parcelable {
     //Interne Variablen
 
-    String mName;
+    private static  final String LOG_TAG="EquipmentItem_LOG";
 
-    String mDescription;
+    //ID
+    private int mID;
 
-    int mID;
+    //Name
+    private String mName;
+
+    //Beschreibung
+    private String mDescription;
+
+    //ID des zugehörigen Behälters/Kategorie
+    private int mCategoryId;
+
+    //Zusätzliche Beschreibung, bspw. für Ausrüstungssätze
+    private String mSetName;
 
     //Enthält ein Bild des Items
-    Image mImage;
+    private Image mImage;
 
     //Verzeichnet die Position des Items
-    String mPosition;
+    private String mPosition;
+
+    //Wird für die Suche verwendet
+    private String[] mKeywords;
+
+
+    public static final Parcelable.Creator<EquipmentItem> CREATOR
+            = new Parcelable.Creator<EquipmentItem>() {
+        public EquipmentItem createFromParcel(Parcel in) {
+            return new EquipmentItem(in);
+        }
+
+        public EquipmentItem[] newArray(int size) {
+            return new EquipmentItem[size];
+        }
+    };
+
+
+    //Konstruktor
 
     /**
      * Datenklasse initialiseren
      * @param id ID des Items
      * @param name Name des Items
      * @param description Beschreibung zum Item
+     * @param position Position des Items
+     * @param categoryId Id des zugehörigen Behälters
      */
-    public void EquitmentItem(int id, String name, String description, String position) {
+    public EquipmentItem(int id, String name, String description, String position, int categoryId) {
 
         mID = id;
         mName = name;
         mDescription = description;
         mPosition = position;
+        mCategoryId = categoryId;
+
+    }
+
+    /**
+     * Datenklasse initialiseren
+     * @param id ID des Items
+     * @param name Name des Items
+     * @param description Beschreibung zum Item
+     * @param setName Der Name des Ausstattungssatzes
+     * @param position Position des Items
+     * @param categoryId Id des zugehörigen Behälters
+     */
+    public EquipmentItem(int id, String name, String description, String setName, String position, int categoryId, String[] keywords) {
+
+        mID = id;
+        mName = name;
+        mDescription = description;
+        mSetName = setName;
+        mPosition = position;
+        mCategoryId = categoryId;
+        mKeywords = keywords;
+        mSetName = "";
+        mImage = null;
+
 
     }
 
 
+    //FÜr Parcelable
+    public EquipmentItem(Parcel input) {
+        mID = input.readInt();
+        mName = input.readString();
+        mDescription = input.readString();
+        mPosition = input.readString();
+        mCategoryId = input.readInt();
+        mSetName = input.readString();
 
+
+        mKeywords= input.createStringArray();
+        Log.d(LOG_TAG,"Parcelinformation gelesen");
+
+    }
+
+    //Get Methoden
+
+    public String getName() {return mName;}
+
+    public String getDescription() {return mDescription;}
+
+    public  int getId() {return mID;}
+
+    public String getPosition() {return mPosition;}
+
+    public int getCategoryId() {return mCategoryId;}
+
+    public String getSetName() {return mSetName;}
+
+    public String[] getKeywords() {return mKeywords;}
+
+    //Set Methoden
+
+    public void setSetName(String setName) {mSetName = setName;}
+
+    public void setImage(Image image) {mImage = image;}
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(mID);
+        parcel.writeString(mName);
+        parcel.writeString(mDescription);
+        parcel.writeString(mPosition);
+        parcel.writeInt(mCategoryId);
+        parcel.writeString(mSetName);
+        parcel.writeStringArray(mKeywords);
+    }
+
+    @Override
+    public int describeContents() {
+         return 0;
+    }
+
+    public DatabaseEquipmentObject toDatabaseObject() {
+
+       DatabaseEquipmentObject object = new DatabaseEquipmentObject();
+       object.id = mID;
+       object.name = mName;
+       object.position = mPosition;
+       List<String> tmp =  Arrays.asList(mKeywords);
+       object.keywords = new ArrayList<String>();
+       object.keywords.addAll(tmp);
+       object.categoryId = mCategoryId;
+       object.setName = mSetName;
+
+        return object;
+    }
 
 }
