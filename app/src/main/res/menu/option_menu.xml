@@ -9,5 +9,16 @@
         android:title="@string/option_menu_data"
         app:showAsAction="never"/>
 
+    <item android:id="@+id/search"
+        android:title="@string/search_title"
+        app:showAsAction="collapseActionView|ifRoom"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:iconTint="@android:color/white"
+        app:actionViewClass="android.widget.SearchView" />
+
+
+
+
+
 </menu>
 
