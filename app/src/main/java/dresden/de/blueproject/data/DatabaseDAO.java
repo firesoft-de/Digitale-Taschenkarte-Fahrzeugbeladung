@@ -17,22 +17,22 @@ import java.util.List;
  * Database Access Object für die Equipment Datenbank
  */
 @Dao
-public interface DatabaseEquipmentDAO {
+public interface DatabaseDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertItem(DatabaseEquipmentObject... item); //Eventuell Long
+    void insertItem(EquipmentItem... item); //Eventuell Long
 
 /*    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertItemList(ArrayList<DatabaseEquipment> items);*/
+    void insertItemList(ArrayList<DatabaseClass> items);*/
 
     @Update
-    void upadteItem(DatabaseEquipmentObject... item);
+    void upadteItem(EquipmentItem... item);
 
     @Delete
-    void deleteItem(DatabaseEquipmentObject... item);
+    void deleteItem(EquipmentItem... item);
 
     @Query("SELECT * FROM equipment")
-    LiveData<List<DatabaseEquipmentObject>> getAllItems();
+    LiveData<List<EquipmentItem>> getAllItems();
 
     @Query("DELETE FROM equipment")
     void deleteAllItems();
@@ -41,10 +41,13 @@ public interface DatabaseEquipmentDAO {
     void deleteItem(int id);
 
     @Query("SELECT * FROM equipment WHERE id LIKE :id")
-    LiveData<DatabaseEquipmentObject> findItemByID(int id);
+    LiveData<EquipmentItem> findItemByID(int id);
 
     @Query("SELECT id, name, position FROM equipment WHERE id LIKE :id")
     DatabaseEquipmentMininmal findMinimalItemByID(int id);
+
+    @Query("SELECT id, name, position FROM equipment WHERE categoryId LIKE :id")
+    LiveData<List<DatabaseEquipmentMininmal>> findItemByCatID(int id);
 
     @Query("SELECT id, name, position FROM equipment")
     LiveData<List<DatabaseEquipmentMininmal>> getMinimalItems();

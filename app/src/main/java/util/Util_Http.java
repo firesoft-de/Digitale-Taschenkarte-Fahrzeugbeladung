@@ -12,8 +12,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-import dresden.de.blueproject.dataStructure.EquipmentItem;
-import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.data.EquipmentItem;
+import dresden.de.blueproject.data.TrayItem;
 
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen

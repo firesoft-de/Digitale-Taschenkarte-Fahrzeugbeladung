@@ -2,15 +2,14 @@ package dresden.de.blueproject.daggerDependencyInjection;
 
 import android.app.Application;
 import android.arch.lifecycle.ViewModelProvider;
-import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import dresden.de.blueproject.data.DatabaseEquipment;
-import dresden.de.blueproject.data.DatabaseEquipmentDAO;
+import dresden.de.blueproject.data.DatabaseClass;
+import dresden.de.blueproject.data.DatabaseDAO;
 import dresden.de.blueproject.data.DatabaseRepository;
 import dresden.de.blueproject.viewmodels.CustomViewModelFactory;
 
@@ -24,31 +23,31 @@ import dresden.de.blueproject.viewmodels.CustomViewModelFactory;
 public class RoomModule {
 
 
-    private final DatabaseEquipment database;
+    private final DatabaseClass database;
 
     public RoomModule(Application application) {
         this.database = Room.databaseBuilder(
                 application,
-                DatabaseEquipment.class,
+                DatabaseClass.class,
                 "equipment"
         ).build();
     }
 
     @Provides
     @Singleton
-    DatabaseRepository provideRepository(DatabaseEquipmentDAO itemDAO){
+    DatabaseRepository provideRepository(DatabaseDAO itemDAO){
         return new DatabaseRepository(itemDAO);
     }
 
     @Provides
     @Singleton
-    DatabaseEquipmentDAO provideDao(DatabaseEquipment database){
+    DatabaseDAO provideDao(DatabaseClass database){
         return database.equipmentDAO();
     }
 
     @Provides
     @Singleton
-    DatabaseEquipment provideDatabase(Application application){
+    DatabaseClass provideDatabase(Application application){
         return database;
     }
 

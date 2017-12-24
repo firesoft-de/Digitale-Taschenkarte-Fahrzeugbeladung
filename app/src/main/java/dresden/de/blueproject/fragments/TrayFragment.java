@@ -12,11 +12,11 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.data.EquipmentItem;
 import dresden.de.blueproject.MainActivity;
 import dresden.de.blueproject.R;
 import dresden.de.blueproject.dataStructure.TrayAdapter;
-import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.data.TrayItem;
 import util.Util_Data;
 
 /**
@@ -71,15 +71,15 @@ public class TrayFragment extends Fragment {
 
                 TrayItem item = trays.get(position);
 
-                ArrayList<EquipmentItem> mainItems = ((MainActivity) getActivity()).getEquipmentList();
+//                ArrayList<EquipmentItem> mainItems = ((MainActivity) getActivity()).getEquipmentList();
 
                 //Alle zum Behälter zugehörigen Gegenstände finden
-                ArrayList<EquipmentItem> foundItems =  Util_Data.findItemsByTray(item,mainItems);
+//                ArrayList<EquipmentItem> foundItems =  Util_Data.findItemsByTray(item,mainItems);
 
                 ItemFragment itemFragment = new ItemFragment();
 
                 Bundle args = new Bundle();
-                args.putParcelableArrayList(ItemFragment.BUNDLE_TAG_ITEMS, ((ArrayList)foundItems));
+                args.putInt(ItemFragment.BUNDLE_TAG_ITEMS, item.getID());
 
                 itemFragment.setArguments(args);
 

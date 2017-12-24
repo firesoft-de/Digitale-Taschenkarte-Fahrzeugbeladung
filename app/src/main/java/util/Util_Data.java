@@ -2,8 +2,8 @@ package util;
 
 import java.util.ArrayList;
 
-import dresden.de.blueproject.dataStructure.EquipmentItem;
-import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.data.EquipmentItem;
+import dresden.de.blueproject.data.TrayItem;
 
 public class Util_Data {
 

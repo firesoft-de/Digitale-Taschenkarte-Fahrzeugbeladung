@@ -9,7 +9,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.data.EquipmentItem;
 import dresden.de.blueproject.dataStructure.ItemAdapter;
 
 public class SearchableActivity extends AppCompatActivity {
@@ -61,13 +61,13 @@ public class SearchableActivity extends AppCompatActivity {
 
             for (int i = 0; i < searchArray.length; i++) {
 
-                String[] keywords = item.getKeywords();
+                ArrayList<String> keywords = item.getKeywords();
 
-                for (int x = 0; x < keywords.length; x++) {
-                    if (keywords[x].contains(searchArray[i]) ) {
+                for (int x = 0; x < keywords.size(); x++) {
+                    if (keywords.get(x).contains(searchArray[i]) ) {
                         resultList.add(item);
                         i = searchArray.length;
-                        x = keywords.length;
+                        x = keywords.size();
                     }
                 }
             }

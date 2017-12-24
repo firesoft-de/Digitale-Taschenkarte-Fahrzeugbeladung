@@ -2,8 +2,8 @@ package util;
 
 import java.util.ArrayList;
 
-import dresden.de.blueproject.dataStructure.EquipmentItem;
-import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.data.EquipmentItem;
+import dresden.de.blueproject.data.TrayItem;
 
 public class Util_ExampleData {
 
@@ -26,14 +26,29 @@ public class Util_ExampleData {
 
         ArrayList<EquipmentItem> items = new ArrayList<>();
 
+        ArrayList<String> keys = new ArrayList<String>();
+        keys.add("hydraulik");
+        keys.add("rettungsgerät");
+        keys.add("schere");
+
         items.add(new EquipmentItem(0,"Hydraulikschere", "Die Hydraulikschere gehört zum hydraulischen Rettungsgerät und wird vor allem während der Fahrzeugrettung verwendet.",
-                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mitte - Ausziehfach Hydraulisches Rettungsgerät",0,new String[] {"hydraulik", "rettungsgerät","schere"}));
+                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mitte - Ausziehfach Hydraulisches Rettungsgerät",0,keys));
+
+        keys = new ArrayList<String>();
+        keys.add("hydraulik");
+        keys.add("rettungsgerät");
+        keys.add("spreizer");
 
         items.add(new EquipmentItem(1,"Hydraulikspreizer", "Der Hydraulikspreizer gehört zum hydraulischen Rettungsgerät und wird vor allem während der Fahrzeugrettung verwendet.",
-                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mitte - Ausziehfach Hydraulisches Rettungsgerät",0,new String[] {"hydraulik", "rettungsgerät","spreizer"}));
+                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mitte - Ausziehfach Hydraulisches Rettungsgerät",0,keys));
+
+        keys = new ArrayList<String>();
+        keys.add("atemschutz");
+        keys.add("agt");
+        keys.add("ag");
 
         items.add(new EquipmentItem(2,"Atemschutzgerät", "Atemschutzgeräte werden zum Arbeiten in toxischen Atmosphären verwendet.",
-                "PSA-Atemschutz","Geräteraum 4 - Mitte - Schnellausrüstungsgestell Atemschutz",3,new String[] {"atemschutz", "agt","ag"}));
+                "PSA-Atemschutz","Geräteraum 4 - Mitte - Schnellausrüstungsgestell Atemschutz",3,keys));
 
         return items;
     }

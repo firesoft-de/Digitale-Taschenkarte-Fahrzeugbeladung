@@ -9,18 +9,18 @@ import javax.inject.Inject;
 
 public class DatabaseRepository {
 
-    private  final DatabaseEquipmentDAO daoObject;
+    private  final DatabaseDAO daoObject;
 
     @Inject
-    public DatabaseRepository(DatabaseEquipmentDAO daoObject) {
+    public DatabaseRepository(DatabaseDAO daoObject) {
         this.daoObject = daoObject;
     }
 
-    public void add(DatabaseEquipmentObject object) {
+    public void add(EquipmentItem object) {
         daoObject.insertItem(object);
     }
 
-    public LiveData<List<DatabaseEquipmentObject>> getItems() {
+    public LiveData<List<EquipmentItem>> getItems() {
         return daoObject.getAllItems();
     }
 
@@ -28,9 +28,11 @@ public class DatabaseRepository {
         return daoObject.getMinimalItems();
     }
 
-    public LiveData<DatabaseEquipmentObject> getItemByID(int id) {
+    public LiveData<EquipmentItem> getItemByID(int id) {
         return daoObject.findItemByID(id);
     }
+
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemByCatID(int id) {return daoObject.findItemByCatID(id);}
 
     public void deleteItem(int id) {
         daoObject.deleteItem(id);
