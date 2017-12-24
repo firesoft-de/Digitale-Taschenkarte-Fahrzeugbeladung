@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="dresden.de.blueproject.DataImportFragment"
+    tools:context="dresden.de.blueproject.fragments.DataImportFragment"
     android:id="@+id/DataImportFragment">
 
     <!-- TODO: Hier ein paar Buttons zum Aktualisieren, Anzeigen für die aktuelle Datenbankversion und vielleicht eine Progressbar hinmachen -->

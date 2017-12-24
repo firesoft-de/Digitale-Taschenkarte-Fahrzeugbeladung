@@ -1,5 +1,6 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.data;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -19,7 +20,7 @@ import java.util.List;
 public interface DatabaseEquipmentDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertItem(DatabaseEquipmentObject... item);
+    void insertItem(DatabaseEquipmentObject... item); //Eventuell Long
 
 /*    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertItemList(ArrayList<DatabaseEquipment> items);*/
@@ -31,19 +32,22 @@ public interface DatabaseEquipmentDAO {
     void deleteItem(DatabaseEquipmentObject... item);
 
     @Query("SELECT * FROM equipment")
-    DatabaseEquipmentObject[] getAllItems();
+    LiveData<List<DatabaseEquipmentObject>> getAllItems();
 
     @Query("DELETE FROM equipment")
     void deleteAllItems();
 
-    @Query("SELECT * FROM equipment WHERE id LIKE :id")
-    DatabaseEquipmentObject findItemByID(int id);
+    @Query("DELETE FROM equipment WHERE id LIKE :id")
+    void deleteItem(int id);
 
-    @Query("SELECT id, name, position FROM equipment WHERE :id")
+    @Query("SELECT * FROM equipment WHERE id LIKE :id")
+    LiveData<DatabaseEquipmentObject> findItemByID(int id);
+
+    @Query("SELECT id, name, position FROM equipment WHERE id LIKE :id")
     DatabaseEquipmentMininmal findMinimalItemByID(int id);
 
     @Query("SELECT id, name, position FROM equipment")
-    List<DatabaseEquipmentMininmal> getMinimalItems();
+    LiveData<List<DatabaseEquipmentMininmal>> getMinimalItems();
 
 
 /*    @Delete

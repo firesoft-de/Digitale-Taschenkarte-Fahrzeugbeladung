@@ -36,4 +36,19 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
 
     compile 'com.google.code.gson:gson:2.6.2'
+
+//    Datenbank
+
+    annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleCompilerVersion"
+    compile "android.arch.lifecycle:runtime:$rootProject.archLifecycleVersion"
+    compile "android.arch.lifecycle:extensions:$rootProject.archLifecycleExtensionsVersion"
+    compile "android.arch.persistence.room:runtime:$rootProject.roomVersion"
+    annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
+
+    //Dagger 2
+    compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
+    compile "com.google.dagger:dagger-android-support:$rootProject.daggerVersion" // if you use the support libraries
+    annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+
 }

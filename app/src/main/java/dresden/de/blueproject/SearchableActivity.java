@@ -1,6 +1,5 @@
 package dresden.de.blueproject;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -8,10 +7,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
+import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.dataStructure.ItemAdapter;
 
 public class SearchableActivity extends AppCompatActivity {
 

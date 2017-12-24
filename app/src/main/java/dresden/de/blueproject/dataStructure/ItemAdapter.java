@@ -1,4 +1,4 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.dataStructure;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
@@ -10,10 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
+
+import dresden.de.blueproject.R;
 
 public class ItemAdapter extends ArrayAdapter<EquipmentItem> {
 

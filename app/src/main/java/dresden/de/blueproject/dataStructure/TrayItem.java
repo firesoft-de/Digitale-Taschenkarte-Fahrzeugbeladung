@@ -1,4 +1,4 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.dataStructure;
 
 import android.media.Image;
 

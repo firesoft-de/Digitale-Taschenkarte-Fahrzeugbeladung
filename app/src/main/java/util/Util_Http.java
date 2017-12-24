@@ -1,4 +1,4 @@
-package dresden.de.blueproject;
+package util;
 
 import android.util.Log;
 
@@ -11,6 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+
+import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.dataStructure.TrayItem;
 
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen
