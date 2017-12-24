@@ -5,7 +5,7 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import java.util.List;
 
-import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.data.TrayItem;
 import util.Util_Http;
 
 /**

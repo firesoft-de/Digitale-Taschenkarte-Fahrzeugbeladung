@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import dresden.de.blueproject.R;
+import dresden.de.blueproject.data.EquipmentItem;
 
 public class ItemAdapter extends ArrayAdapter<EquipmentItem> {
 

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import dresden.de.blueproject.R;
+import dresden.de.blueproject.data.TrayItem;
 
 public class TrayAdapter extends ArrayAdapter<TrayItem> {
 

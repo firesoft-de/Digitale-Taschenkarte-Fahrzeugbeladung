@@ -6,9 +6,9 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
-import dresden.de.blueproject.data.DatabaseEquipment;
-import dresden.de.blueproject.data.DatabaseEquipmentObject;
+import dresden.de.blueproject.data.DatabaseEquipmentMininmal;
 import dresden.de.blueproject.data.DatabaseRepository;
+import dresden.de.blueproject.data.EquipmentItem;
 
 
 /**
@@ -22,7 +22,7 @@ public class ItemViewModel extends ViewModel{
         this.repository = repository;
     }
 
-    public LiveData<List<DatabaseEquipmentObject>> getItems() {
+    public LiveData<List<EquipmentItem>> getItems() {
         return repository.getItems();
     }
 
@@ -41,5 +41,7 @@ public class ItemViewModel extends ViewModel{
             return null;
         }
     }
+
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemsByCatID(int catID) {return repository.getItemByCatID(catID); }
 
 }

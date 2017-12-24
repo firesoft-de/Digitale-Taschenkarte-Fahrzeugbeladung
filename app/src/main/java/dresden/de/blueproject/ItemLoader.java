@@ -5,7 +5,7 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import java.util.List;
 
-import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.data.EquipmentItem;
 import util.Util_Http;
 
 

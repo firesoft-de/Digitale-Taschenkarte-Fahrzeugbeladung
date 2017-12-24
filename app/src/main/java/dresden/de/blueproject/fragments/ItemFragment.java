@@ -7,21 +7,21 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.view.menu.MenuView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import dresden.de.blueproject.daggerDependencyInjection.ApplicationForDagger;
-import dresden.de.blueproject.data.DatabaseEquipmentObject;
-import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.data.DatabaseEquipmentMininmal;
+import dresden.de.blueproject.data.EquipmentItem;
 import dresden.de.blueproject.dataStructure.ItemAdapter;
 import dresden.de.blueproject.MainActivity;
 import dresden.de.blueproject.R;
@@ -38,7 +38,7 @@ public class ItemFragment extends Fragment {
 
     private ItemAdapter itemAdapter;
 
-    private List<DatabaseEquipmentObject> itemList;
+    private List<DatabaseEquipmentMininmal> itemList;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -64,15 +64,25 @@ public class ItemFragment extends Fragment {
         itemViewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(ItemViewModel.class);
 
-        //Observer einrichten
-        itemViewModel.getItems().observe(this, new Observer<List<DatabaseEquipmentObject>>() {
-            @Override
-            public void onChanged(@Nullable List<DatabaseEquipmentObject> databaseEquipmentObjects) {
-                if (ItemFragment.this.itemList == null) {
+        if (this.getArguments() != null) {
 
+            Bundle args = this.getArguments();
+
+            int catID =  args.getInt(BUNDLE_TAG_ITEMS);
+            //Observer einrichten
+            itemViewModel.getItemsByCatID(catID).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+                @Override
+                public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
+                    if (ItemFragment.this.itemList == null) {
+                        insertData(null,items);
+                    }
                 }
-            }
-        });
+            });
+
+        }
+        else {
+            throw new IllegalArgumentException("Keine Behälter-ID angegeben!");
+        }
 
     }
 
@@ -81,33 +91,27 @@ public class ItemFragment extends Fragment {
 
         View result = inflater.inflate(R.layout.list_layout,parent,false);
 
-        ArrayList<EquipmentItem> equipmentItems = new ArrayList<>();
-
-        if (this.getArguments() != null) {
-
-            Bundle args = this.getArguments();
-
-            try {
-                equipmentItems = (ArrayList<EquipmentItem>) args.get(BUNDLE_TAG_ITEMS);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e(LOG_TAG,"Fehler beim Casten des Arguments in eine ArrayList!");
-            }
-
-        }
-        else {
-
-            equipmentItems = ((MainActivity) getActivity()).getEquipmentList();
-
-        }
-
-
-
         return result;
 
     }
 
-    private void insertData(ArrayList<EquipmentItem> equipmentItems) {
+    private void insertData(@Nullable ArrayList<EquipmentItem> equipmentItems, @Nullable List<DatabaseEquipmentMininmal> minimalItem) {
+
+        if (equipmentItems == null && minimalItem != null) {
+            //minimal zu equipment Item konevertieren
+            equipmentItems = new ArrayList<>();
+            for (int i = 0; i < minimalItem.size(); i++) {
+                EquipmentItem item = new EquipmentItem();
+                item.fromMinimal(minimalItem.get(i));
+                equipmentItems.add(item);
+            }
+        }
+        else if (equipmentItems != null && minimalItem == null) {
+
+        }
+        else {
+            throw new IllegalArgumentException("Es darf nur ein Argument der Methode insertData null sein!");
+        }
 
         itemAdapter = new ItemAdapter(this.getActivity(), equipmentItems);
 

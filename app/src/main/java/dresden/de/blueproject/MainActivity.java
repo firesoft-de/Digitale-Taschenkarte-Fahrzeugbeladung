@@ -2,7 +2,6 @@ package dresden.de.blueproject;
 
 
 import android.app.SearchManager;
-import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,11 +21,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import dresden.de.blueproject.data.DatabaseEquipment;
-import dresden.de.blueproject.data.DatabaseEquipmentDAO;
-import dresden.de.blueproject.data.DatabaseEquipmentMininmal;
-import dresden.de.blueproject.dataStructure.EquipmentItem;
-import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.data.DatabaseClass;
+import dresden.de.blueproject.data.EquipmentItem;
+import dresden.de.blueproject.data.TrayItem;
 import dresden.de.blueproject.fragments.DataImportFragment;
 import dresden.de.blueproject.fragments.ItemFragment;
 import dresden.de.blueproject.fragments.TrayFragment;
@@ -53,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public ArrayList<TrayItem> trays;
     public ArrayList<EquipmentItem> equipmentItems;
 
-    public DatabaseEquipment databaseEquipment;
+    public DatabaseClass databaseClass;
 
     //Override Methoden
 
@@ -62,28 +59,15 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        switchFragment(R.id.MainFrame,null,FRAGMENT_MAIN);
-
         manager = this.getSupportFragmentManager();
         ft = manager.beginTransaction();
 
         //Erstes Fragment einfügen
         Fragment trayFragment = new TrayFragment();
-        switchFragment(R.id.MainFrame,trayFragment,FRAGMENT_MAIN);
+        switchFragment(R.id.MainFrame,trayFragment,FRAGMENT_LIST_TRAY);
 
 
         trays = Util_ExampleData.dummyDataTray();
-        equipmentItems = Util_ExampleData.dummyDataEquipment();
-
-        databaseEquipment = Room.databaseBuilder(getApplicationContext(),DatabaseEquipment.class,"datenbank").build();
-
-        DatabaseEquipmentDAO daoAgent = databaseEquipment.equipmentDAO();
-
-        // daoAgent.insertItem(equipmentItems.get(0).toDatabaseObject());
-
-        daoAgent.insertItem(equipmentItems.get(0).toDatabaseObject());
-
-        DatabaseEquipmentMininmal item = databaseEquipment.equipmentDAO().findMinimalItemByID(0);
 
 /*        //Test um ein anderes Fragment darzustellen
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
@@ -322,6 +306,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 }
                 this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 break;
+
+            default:
+                throw new IllegalArgumentException("Kein passendes Fragment gefunden!");
 
         }
 

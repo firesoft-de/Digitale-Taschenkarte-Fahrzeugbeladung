@@ -1,7 +1,11 @@
 package dresden.de.blueproject.fragments;
 
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -11,9 +15,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
+import javax.inject.Inject;
+
 import dresden.de.blueproject.ItemLoader;
 import dresden.de.blueproject.R;
 import dresden.de.blueproject.TrayLoader;
+import dresden.de.blueproject.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.blueproject.data.EquipmentItem;
+import dresden.de.blueproject.viewmodels.DataFragViewModel;
+import dresden.de.blueproject.viewmodels.ItemViewModel;
+import util.Util_ExampleData;
 
 
 /**
@@ -22,6 +35,11 @@ import dresden.de.blueproject.TrayLoader;
 public class DataImportFragment extends Fragment implements LoaderManager.LoaderCallbacks {
 
     private static  final String LOG_TAG="DataImportFragment_LOG";
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    DataFragViewModel viewModel;
 
     public DataImportFragment() {
         // Required empty public constructor
@@ -44,6 +62,25 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 Log.e(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
                 return null;
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
+        ((ApplicationForDagger) getActivity().getApplication())
+                .getApplicationComponent()
+                .inject(this);
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
+        viewModel = ViewModelProviders.of(this,viewModelFactory)
+                .get(DataFragViewModel.class);
     }
 
     @Override
@@ -71,4 +108,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     public void onLoaderReset(Loader loader) {
         //TODO: Hier die Dinge zurücksetzen die zurückgesetzt werden müssen
     }
+
+    public void buttonAddClick(View view) {
+
+        //Beispieldaten erstellen und in die Datenbank schreiben
+        ArrayList<EquipmentItem> list = Util_ExampleData.dummyDataEquipment();
+        viewModel.addItems(list);
+
+    }
+
 }
+
