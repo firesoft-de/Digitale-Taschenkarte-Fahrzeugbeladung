@@ -1,4 +1,4 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.fragments;
 
 
 import android.os.Bundle;
@@ -10,6 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import dresden.de.blueproject.ItemLoader;
+import dresden.de.blueproject.R;
+import dresden.de.blueproject.TrayLoader;
 
 
 /**
@@ -29,7 +33,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         switch (id) {
             case 1:
                 //ID 1: Ein neuer ItemLoader wird gebraucht!
-                return new  ItemLoader(getContext());
+                return new ItemLoader(getContext());
 
             case 2:
                 //ID 2: Ein neuer TrayLoader wird gebraucht!

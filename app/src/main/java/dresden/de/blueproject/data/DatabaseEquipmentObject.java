@@ -1,4 +1,4 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.data;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
@@ -34,22 +34,6 @@ public class DatabaseEquipmentObject {
 
     @Ignore
     public String imagePath;
-
-}
-
-class DatabaseEquipmentMininmal {
-
-    @PrimaryKey
-    public int id;
-
-    public String name;
-    public String position;
-
-//    public DatabaseEquipmentMininmal(int id, String Name, String Position) {
-//        id = id;
-//        name = Name;
-//        position = Position;
-//    }
 
 }
 

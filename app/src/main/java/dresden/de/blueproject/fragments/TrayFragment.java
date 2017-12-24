@@ -1,7 +1,6 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.fragments;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +11,13 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+
+import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.MainActivity;
+import dresden.de.blueproject.R;
+import dresden.de.blueproject.dataStructure.TrayAdapter;
+import dresden.de.blueproject.dataStructure.TrayItem;
+import util.Util_Data;
 
 /**
  * Das {@link TrayFragment}Fragment zum Darstellen der Fächer in einem vordefinierten Listen Layout

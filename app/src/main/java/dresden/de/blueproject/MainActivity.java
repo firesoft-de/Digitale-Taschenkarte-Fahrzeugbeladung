@@ -5,8 +5,6 @@ import android.app.SearchManager;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,12 +15,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import dresden.de.blueproject.data.DatabaseEquipment;
+import dresden.de.blueproject.data.DatabaseEquipmentDAO;
+import dresden.de.blueproject.data.DatabaseEquipmentMininmal;
+import dresden.de.blueproject.dataStructure.EquipmentItem;
+import dresden.de.blueproject.dataStructure.TrayItem;
+import dresden.de.blueproject.fragments.DataImportFragment;
+import dresden.de.blueproject.fragments.ItemFragment;
+import dresden.de.blueproject.fragments.TrayFragment;
+import util.Util_ExampleData;
 
 public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener, SearchView.OnQueryTextListener {
 
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     //Globale Variablen
     private FragmentTransaction ft;
+    private FragmentManager manager;
 
     //Zentrale Datenvariablen
     public ArrayList<TrayItem> trays;
@@ -53,7 +62,10 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ft = this.getSupportFragmentManager().beginTransaction();
+        switchFragment(R.id.MainFrame,null,FRAGMENT_MAIN);
+
+        manager = this.getSupportFragmentManager();
+        ft = manager.beginTransaction();
 
         //Erstes Fragment einfügen
         Fragment trayFragment = new TrayFragment();
@@ -259,20 +271,60 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     //Interfacemethoden
 
     /**
-     * @switchFragment bietet die Möglichkeit das aktive Fragment zu wechseln
+     * @switchFragment bietet die Möglichkeit das aktive Fragment nach TAG oder per Objekt zu wechseln
      * @param id Die Resourcenid des Zielviews
      * @param fragment das anzuzeigende Fragment
      * @param tag Fragmenttag für die Behandlung der Zurückoperationen in der MainActivity Klasse
      */
-    public void switchFragment(int id, @Nullable Fragment fragment, String tag) {
+    public void switchFragment(int id, @Nullable Fragment fragment, String tag) { //FragmentManager manager,
 
-        ft = getSupportFragmentManager().beginTransaction();
-        if (tag == FRAGMENT_LIST_ITEM || tag == FRAGMENT_DATA) {
-            this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        boolean newFragment = false;
+
+        FragmentTransaction ft;
+
+        ft = manager.beginTransaction();
+
+        if (fragment == null) {
+            fragment = manager.findFragmentByTag(tag);
+
+            if (fragment == null) {
+                newFragment = true;
+            }
         }
-        else {
-            this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        switch (tag) {
+
+            case FRAGMENT_DATA:
+                if (newFragment == true) {
+                    fragment = new DataImportFragment();
+                }
+                this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                break;
+
+            case FRAGMENT_DETAIL:
+                if (newFragment == true) {
+                    //fragment = new DataImportFragment();
+                    Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
+                }
+                this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                break;
+
+            case FRAGMENT_LIST_TRAY:
+                if (newFragment == true) {
+                    fragment = new TrayFragment();
+                }
+                this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                break;
+
+            case FRAGMENT_LIST_ITEM:
+                if (newFragment == true) {
+                    fragment = new ItemFragment();
+                }
+                this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                break;
+
         }
+
         ft.replace (id, fragment, tag);
         ft.addToBackStack(null);
         ft.commit();

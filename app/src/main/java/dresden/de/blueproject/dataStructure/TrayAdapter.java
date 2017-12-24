@@ -1,4 +1,4 @@
-package dresden.de.blueproject;
+package dresden.de.blueproject.dataStructure;
 
 
 import android.app.Activity;
@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import dresden.de.blueproject.R;
 
 public class TrayAdapter extends ArrayAdapter<TrayItem> {
 

@@ -5,6 +5,9 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import java.util.List;
 
+import dresden.de.blueproject.dataStructure.EquipmentItem;
+import util.Util_Http;
+
 
 /**
  * Loader für die Gegenstände
