@@ -28,6 +28,15 @@ public class CustomViewModelFactory implements ViewModelProvider.Factory{
         //TODO ANPASSEN AN DIE ANDEREN
         else if (modelClass.isAssignableFrom(DataFragViewModel.class)) {
             return (T) new DataFragViewModel(repository);
+        }
+        else if (modelClass.isAssignableFrom(DebugViewModel.class)) {
+            return (T) new DebugViewModel(repository);
+        }
+        else if (modelClass.isAssignableFrom(SearchViewModel.class)) {
+            return (T) new SearchViewModel(repository);
+        }
+        else if (modelClass.isAssignableFrom(TrayViewModel.class)) {
+            return (T) new TrayViewModel(repository);
         } /*
         else if (modelClass.isAssignableFrom(ItemViewModel.class)) {
             return (T) new ItemViewModel(repository);

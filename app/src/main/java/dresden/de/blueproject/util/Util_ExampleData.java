@@ -1,4 +1,4 @@
-package util;
+package dresden.de.blueproject.util;
 
 import java.util.ArrayList;
 
@@ -32,7 +32,7 @@ public class Util_ExampleData {
         keys.add("schere");
 
         items.add(new EquipmentItem(0,"Hydraulikschere", "Die Hydraulikschere gehört zum hydraulischen Rettungsgerät und wird vor allem während der Fahrzeugrettung verwendet.",
-                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mitte - Ausziehfach Hydraulisches Rettungsgerät",0,keys));
+                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mittlerer Bereich - Ausziehfach \"Hydraulisches Rettungsgerät\"",0,keys));
 
         keys = new ArrayList<String>();
         keys.add("hydraulik");
@@ -40,7 +40,7 @@ public class Util_ExampleData {
         keys.add("spreizer");
 
         items.add(new EquipmentItem(1,"Hydraulikspreizer", "Der Hydraulikspreizer gehört zum hydraulischen Rettungsgerät und wird vor allem während der Fahrzeugrettung verwendet.",
-                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mitte - Ausziehfach Hydraulisches Rettungsgerät",0,keys));
+                "Hydraulisches Rettungsgerät","Geräteraum 1 - Mittlerer Bereich - Ausziehfach \"Hydraulisches Rettungsgerät\"",0,keys));
 
         keys = new ArrayList<String>();
         keys.add("atemschutz");
@@ -48,7 +48,7 @@ public class Util_ExampleData {
         keys.add("ag");
 
         items.add(new EquipmentItem(2,"Atemschutzgerät", "Atemschutzgeräte werden zum Arbeiten in toxischen Atmosphären verwendet.",
-                "PSA-Atemschutz","Geräteraum 4 - Mitte - Schnellausrüstungsgestell Atemschutz",3,keys));
+                "PSA-Atemschutz","Geräteraum 4 - Mittlerer Bereich - Schnellausrüstungsgestell Atemschutz",3,keys));
 
         return items;
     }

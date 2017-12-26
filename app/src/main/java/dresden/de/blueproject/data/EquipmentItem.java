@@ -14,8 +14,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
+import dresden.de.blueproject.dataStructure.DatabaseEquipmentMininmal;
 
 /**
  * {@link EquipmentItem} Diese Klasse implementiert die Datenstruktur für einen einzelnen Ausstattungsgegenstand

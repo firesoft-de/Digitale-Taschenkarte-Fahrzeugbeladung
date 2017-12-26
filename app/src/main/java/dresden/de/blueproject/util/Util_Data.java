@@ -1,6 +1,7 @@
-package util;
+package dresden.de.blueproject.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dresden.de.blueproject.data.EquipmentItem;
 import dresden.de.blueproject.data.TrayItem;
@@ -18,7 +19,7 @@ public class Util_Data {
 
         ArrayList<EquipmentItem> items = new ArrayList<>();
         
-        int searchId = tItem.getID();
+        int searchId = tItem.getId();
 
         for (int i=0;i<mainItems.size();i++) {
 
@@ -33,6 +34,28 @@ public class Util_Data {
 
         return items;
 
+    }
+
+    public static EquipmentItem[] castItemToArray(List<EquipmentItem> items) {
+
+        EquipmentItem[] result = new EquipmentItem[items.size()];
+
+        for (int i=0;i<items.size();i++) {
+            result[i] = items.get(i);
+        }
+
+        return result;
+    }
+
+    public static TrayItem[] castTrayToArray(List<TrayItem> items) {
+
+        TrayItem[] result = new TrayItem[items.size()];
+
+        for (int i=0;i<items.size();i++) {
+            result[i] = items.get(i);
+        }
+
+        return result;
     }
 
 }

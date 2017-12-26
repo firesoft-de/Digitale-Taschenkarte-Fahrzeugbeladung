@@ -1,14 +1,14 @@
 package dresden.de.blueproject.viewmodels;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
-import android.arch.persistence.room.Database;
 import android.os.AsyncTask;
 
 import java.util.List;
 
 import dresden.de.blueproject.data.DatabaseRepository;
 import dresden.de.blueproject.data.EquipmentItem;
+import dresden.de.blueproject.util.Util_Data;
+
 
 /**
  * ViewModel für das Datenimport Fragment
@@ -25,7 +25,8 @@ public class DataFragViewModel extends ViewModel {
     public void addItems(List<EquipmentItem> items) {
 
         addItemsTask task = new addItemsTask();
-        task.execute((EquipmentItem[]) items.toArray());
+
+        task.execute(Util_Data.castItemToArray(items));
 
     }
 

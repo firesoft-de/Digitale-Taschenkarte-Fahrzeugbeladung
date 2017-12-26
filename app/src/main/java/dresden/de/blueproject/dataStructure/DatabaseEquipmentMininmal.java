@@ -1,4 +1,4 @@
-package dresden.de.blueproject.data;
+package dresden.de.blueproject.dataStructure;
 
 import android.arch.persistence.room.PrimaryKey;
 

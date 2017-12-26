@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dresden.de.blueproject.dataStructure.DatabaseEquipmentMininmal;
+
 public class DatabaseRepository {
 
     private  final DatabaseDAO daoObject;
@@ -37,5 +39,19 @@ public class DatabaseRepository {
     public void deleteItem(int id) {
         daoObject.deleteItem(id);
     }
+
+    public void deleteAllItems() {daoObject.deleteAllItems();}
+
+    public LiveData<Integer> countItems() {return daoObject.countItems();}
+
+    public LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key) {return daoObject.searchItemsMinimal(key);}
+
+    public void add(TrayItem object) {daoObject.insertTray(object);}
+
+    public void deleteAllTrays() {daoObject.deleteTray();}
+
+    public LiveData<List<TrayItem>> getTrays() {return daoObject.getAllTrays();}
+
+    public LiveData<Integer> countTrays() {return daoObject.countTrays();}
 
 }

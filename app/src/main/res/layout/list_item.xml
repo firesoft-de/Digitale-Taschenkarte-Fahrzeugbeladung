@@ -33,16 +33,16 @@
             tools:text="Latthammer "
             android:maxLines="2"
             android:textSize="@dimen/text_size_highlight"
-            android:textColor="@color/colorTextItems"/>
+            android:textColor="@color/text"/>
 
         <TextView
             android:id="@+id/listItem_tv_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Geräteraum 6 - Kiste 6.3"
-            android:maxLines="1"
+            android:maxLines="3"
             android:textSize="@dimen/text_size_small"
-            android:textColor="@color/colorTextItems"/>
+            android:textColor="@color/text"/>
 
     </LinearLayout>
 

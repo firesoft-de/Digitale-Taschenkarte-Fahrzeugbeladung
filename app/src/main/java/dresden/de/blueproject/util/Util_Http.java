@@ -1,4 +1,4 @@
-package util;
+package dresden.de.blueproject.util;
 
 import android.util.Log;
 
@@ -18,20 +18,17 @@ import dresden.de.blueproject.data.TrayItem;
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen
 
-        //TODO: Server URL einfügen
-        private static final String SERVER_URL = "http://google.com";
         private static final String LOG_TRACE = "Util_Http";
 
         /**
-         *{@requestItems} führt eine Datenabfrage mittels HTTP-Protokoll durch
          * @return Liste
          */
         public ArrayList<EquipmentItem> requestItems() {
 
             String httpResponse = null;
 
-            //URL generieren
-            URL url = generateURL(SERVER_URL);
+            //URL generieren, Util_HTTP_URL im Git nicht enthalten
+            URL url = generateURL(Util_HTTP_URL.SERVER_URL);
 
             //HTTP Abfrage durchführen
             if (url != null) {
@@ -54,8 +51,8 @@ public class Util_Http {
 
             String httpResponse = null;
 
-            //URL generieren
-            URL url = generateURL(SERVER_URL);
+            //URL generieren, Util_HTTP_URL im Git nicht enthalten
+            URL url = generateURL(Util_HTTP_URL.SERVER_URL);
 
             //HTTP Abfrage durchführen
             if (url != null) {

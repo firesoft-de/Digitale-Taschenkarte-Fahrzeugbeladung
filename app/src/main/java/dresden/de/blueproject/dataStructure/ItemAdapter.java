@@ -47,7 +47,11 @@ public class ItemAdapter extends ArrayAdapter<EquipmentItem> {
 
             //Weiterpfeil ausblenden
             ImageView continueArrow = (ImageView) listItemView.findViewById(R.id.imageView2);
-            continueArrow.setVisibility(View.GONE);
+//            continueArrow.setVisibility(View.GONE);
+
+            //ImageView ausblenden
+            ImageView previewImage = (ImageView) listItemView.findViewById(R.id.imageView);
+            previewImage.setVisibility(View.GONE);
 
             return listItemView;
 

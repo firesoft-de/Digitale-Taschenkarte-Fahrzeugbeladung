@@ -1,8 +1,12 @@
 package dresden.de.blueproject.fragments;
 
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,13 +15,18 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import dresden.de.blueproject.data.EquipmentItem;
+import javax.inject.Inject;
+
 import dresden.de.blueproject.MainActivity;
 import dresden.de.blueproject.R;
+import dresden.de.blueproject.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.blueproject.dataStructure.TrayAdapter;
 import dresden.de.blueproject.data.TrayItem;
-import util.Util_Data;
+import dresden.de.blueproject.viewmodels.CustomViewModelFactory;
+import dresden.de.blueproject.viewmodels.ItemViewModel;
+import dresden.de.blueproject.viewmodels.TrayViewModel;
 
 /**
  * Das {@link TrayFragment}Fragment zum Darstellen der Fächer in einem vordefinierten Listen Layout
@@ -26,6 +35,24 @@ public class TrayFragment extends Fragment {
     fragmentCallbackListener masterCallback;
 
     private TrayAdapter trayAdapter;
+
+    private TrayViewModel viewModel;
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    ArrayList<TrayItem> trays;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
+        ((ApplicationForDagger) getActivity().getApplication())
+                .getApplicationComponent()
+                .inject(this);
+
+    }
 
     //Interfacedefinition um schneller mit der Mainactivity zu kommunizieren
     public  interface fragmentCallbackListener {
@@ -52,17 +79,19 @@ public class TrayFragment extends Fragment {
 
         View result = inflater.inflate(R.layout.list_layout,parent,false);
 
-        final ArrayList<TrayItem> trays = ((MainActivity) getActivity()).getTrayList();
+        viewModel = ViewModelProviders.of(this,viewModelFactory)
+                .get(TrayViewModel.class);
 
-        trayAdapter = new TrayAdapter(getActivity(), trays);
+        viewModel.getTrays().observe(this, new Observer<List<TrayItem>>() {
+            @Override
+            public void onChanged(@Nullable List<TrayItem> trayItems) {
+                setData(trayItems);
+            }
+        });
 
         ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
 
-        lv.setAdapter(trayAdapter);
-
-
         //ClickListener einrichten
-
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -79,7 +108,7 @@ public class TrayFragment extends Fragment {
                 ItemFragment itemFragment = new ItemFragment();
 
                 Bundle args = new Bundle();
-                args.putInt(ItemFragment.BUNDLE_TAG_ITEMS, item.getID());
+                args.putInt(ItemFragment.BUNDLE_TAG_ITEMS, item.getId());
 
                 itemFragment.setArguments(args);
 
@@ -90,6 +119,18 @@ public class TrayFragment extends Fragment {
         });
 
         return result;
+
+    }
+
+    private void setData(List<TrayItem> trayItems) {
+
+        trays = (ArrayList<TrayItem>) trayItems;
+
+        trayAdapter = new TrayAdapter(getActivity(), trays);
+
+        ListView lv = (ListView) getActivity().findViewById(R.id.ListViewMain);
+
+        lv.setAdapter(trayAdapter);
 
     }
 

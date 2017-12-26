@@ -8,8 +8,9 @@ import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import dresden.de.blueproject.dataStructure.DatabaseEquipmentMininmal;
 
 //TODO: App dahingehend umbauen, dass kein zentrales Datenobjekt als ArrayListe mehr vorgehalten wird, sondern das meiste über die Datenbank gehandelt wird!
 
@@ -18,6 +19,8 @@ import java.util.List;
  */
 @Dao
 public interface DatabaseDAO {
+
+    //DAO für die Items
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertItem(EquipmentItem... item); //Eventuell Long
@@ -52,8 +55,24 @@ public interface DatabaseDAO {
     @Query("SELECT id, name, position FROM equipment")
     LiveData<List<DatabaseEquipmentMininmal>> getMinimalItems();
 
+    @Query("SELECT COUNT(id) FROM equipment")
+    LiveData<Integer> countItems();
 
-/*    @Delete
-    void deleteAllItems();*/
+    //Query für das Suchfeld TODO: Einbinden!
+    @Query("SELECT id, name, position FROM equipment WHERE keywords LIKE :key OR name LIKE :key")
+    LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key);
 
+
+    //DAO für die Trays
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertTray(TrayItem tray);
+
+    @Query("SELECT * FROM tray")
+    LiveData<List<TrayItem>> getAllTrays();
+
+    @Query("DELETE FROM tray")
+    void deleteTray();
+
+    @Query("SELECT COUNT(id) FROM tray")
+    LiveData<Integer> countTrays();
 }
