@@ -16,7 +16,7 @@
  *
  */
 
-package util;
+package dresden.de.blueproject.util;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

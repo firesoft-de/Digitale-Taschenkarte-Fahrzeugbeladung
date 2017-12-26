@@ -5,8 +5,5 @@
     android:orientation="vertical"
     android:drawSelectorOnTop="true"
     android:id="@+id/ListViewMain">
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:text="HIER IST EIN FRAGMENT"/>-->
+
 </ListView>

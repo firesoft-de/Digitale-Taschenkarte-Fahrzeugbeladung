@@ -3,8 +3,8 @@ package dresden.de.blueproject.fragments;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 
@@ -25,8 +27,7 @@ import dresden.de.blueproject.TrayLoader;
 import dresden.de.blueproject.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.blueproject.data.EquipmentItem;
 import dresden.de.blueproject.viewmodels.DataFragViewModel;
-import dresden.de.blueproject.viewmodels.ItemViewModel;
-import util.Util_ExampleData;
+import dresden.de.blueproject.util.Util_ExampleData;
 
 
 /**
@@ -43,25 +44,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     public DataImportFragment() {
         // Required empty public constructor
-
-    }
-    @Override
-    public Loader onCreateLoader(int id, Bundle args) {
-
-        switch (id) {
-            case 1:
-                //ID 1: Ein neuer ItemLoader wird gebraucht!
-                return new ItemLoader(getContext());
-
-            case 2:
-                //ID 2: Ein neuer TrayLoader wird gebraucht!
-                return new TrayLoader(getContext());
-
-            default:
-                //Irgendwas ist schief gegangen -> Falsche ID
-                Log.e(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
-                return null;
-        }
     }
 
     @Override
@@ -87,6 +69,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        View result = inflater.inflate(R.layout.fragment_data, container, false);
+
         //Den Backbutton in der Actionbar hinzufügen
 /*        if (getActivity() instanceof AppCompatActivity) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -95,9 +79,44 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.fragment_title_data);
 
+
+        //ClickListener für das Hinzufügen der Daten einbauen
+
+        Button dataButton = result.findViewById(R.id.DataButton);
+        dataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonAddClick();
+            }
+        });
+
+        ProgressBar progressBar = result.findViewById(R.id.DataProgress);
+        progressBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_data, container, false);
+        return result;
     }
+
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+
+        switch (id) {
+            case 1:
+                //ID 1: Ein neuer ItemLoader wird gebraucht!
+                return new ItemLoader(getContext());
+
+            case 2:
+                //ID 2: Ein neuer TrayLoader wird gebraucht!
+                return new TrayLoader(getContext());
+
+            default:
+                //Irgendwas ist schief gegangen -> Falsche ID
+                Log.e(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
+                return null;
+        }
+    }
+
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
@@ -109,12 +128,15 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //TODO: Hier die Dinge zurücksetzen die zurückgesetzt werden müssen
     }
 
-    public void buttonAddClick(View view) {
+    public void buttonAddClick() {
 
-        //Beispieldaten erstellen und in die Datenbank schreiben
-        ArrayList<EquipmentItem> list = Util_ExampleData.dummyDataEquipment();
-        viewModel.addItems(list);
+        publishProgress(50);
 
+    }
+
+    private void publishProgress(int progress) {
+        ProgressBar progressBar = getActivity().findViewById(R.id.DataProgress);
+        progressBar.setProgress(progress);
     }
 
 }

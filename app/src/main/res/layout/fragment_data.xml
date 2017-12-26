@@ -1,22 +1,61 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DataImportFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="dresden.de.blueproject.fragments.DataImportFragment"
-    android:id="@+id/DataImportFragment">
+    android:layout_margin="@dimen/text_size_normal"
+    tools:context="dresden.de.blueproject.fragments.DataImportFragment">
+
+    <LinearLayout
+        android:id="@+id/DataLinLay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/DataTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/data_url"
+            android:textSize="@dimen/text_size_highlight" />
+
+        <EditText
+            android:id="@+id/text_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/EditTextTheme"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dataTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/data_progress"
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintTop_toBottomOf="@id/DataLinLay"
+        android:layout_marginTop="@dimen/margin_normal"/>
 
     <!-- TODO: Hier ein paar Buttons zum Aktualisieren, Anzeigen für die aktuelle Datenbankversion und vielleicht eine Progressbar hinmachen -->
-    <TextView
-        android:id="@+id/DataTextView"
+    <ProgressBar
+        android:id="@+id/DataProgress"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Das ist ein Test" />
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:max="100"
+        android:min="0"
+        app:layout_constraintTop_toBottomOf="@id/dataTextView2"
+        style="?android:attr/progressBarStyleHorizontal"/>
 
     <Button
         android:id="@+id/DataButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
-        android:onClick="buttonAddClick"/>
+        android:text="Daten abrufen"
+        app:layout_constraintTop_toBottomOf="@id/DataProgress"
+        android:layout_marginTop="@dimen/margin_normal"/>
+
 
 </android.support.constraint.ConstraintLayout>

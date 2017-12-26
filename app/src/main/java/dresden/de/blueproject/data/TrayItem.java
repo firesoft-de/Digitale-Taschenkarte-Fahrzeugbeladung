@@ -48,7 +48,7 @@ public class TrayItem {
 
 
     //Get-Methoden
-    public int getID() {return id;}
+    public int getId() {return id;}
 
     public String getName() {return name;}
 

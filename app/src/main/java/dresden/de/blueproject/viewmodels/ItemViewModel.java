@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
-import dresden.de.blueproject.data.DatabaseEquipmentMininmal;
+import dresden.de.blueproject.dataStructure.DatabaseEquipmentMininmal;
 import dresden.de.blueproject.data.DatabaseRepository;
 import dresden.de.blueproject.data.EquipmentItem;
 
@@ -25,6 +25,8 @@ public class ItemViewModel extends ViewModel{
     public LiveData<List<EquipmentItem>> getItems() {
         return repository.getItems();
     }
+
+    public LiveData<EquipmentItem> getItem(int id) {return repository.getItemByID(id);}
 
     public void deleteItem(int id) {
 

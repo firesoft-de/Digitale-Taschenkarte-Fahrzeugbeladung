@@ -9,6 +9,11 @@
         android:title="@string/option_menu_data"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/OptionMenuDebug"
+        android:title="@string/option_menu_debug"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/search"
         android:title="@string/search_title"
         app:showAsAction="collapseActionView|ifRoom"
