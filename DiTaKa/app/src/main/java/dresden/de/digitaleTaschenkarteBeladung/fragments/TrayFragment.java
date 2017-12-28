@@ -41,6 +41,8 @@ public class TrayFragment extends Fragment {
 
     ArrayList<TrayItem> trays;
 
+    //Overrides
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,13 +52,6 @@ public class TrayFragment extends Fragment {
                 .getApplicationComponent()
                 .inject(this);
 
-    }
-
-    //Interfacedefinition um schneller mit der Mainactivity zu kommunizieren
-    public  interface fragmentCallbackListener {
-        void switchFragment(int id, Fragment fragment, String tag);
-
-        //void sendToFragment(int fragmentID, Object message);
     }
 
     @Override
@@ -120,6 +115,17 @@ public class TrayFragment extends Fragment {
 
     }
 
+    //Interfaces
+
+    //Interfacedefinition um schneller mit der Mainactivity zu kommunizieren
+    public  interface fragmentCallbackListener {
+        void switchFragment(int id, Fragment fragment, String tag);
+
+        //void sendToFragment(int fragmentID, Object message);
+    }
+
+    //Methoden
+
     private void setData(List<TrayItem> trayItems) {
 
         trays = (ArrayList<TrayItem>) trayItems;
@@ -131,5 +137,7 @@ public class TrayFragment extends Fragment {
         lv.setAdapter(trayAdapter);
 
     }
+
+    //TODO: Überprüfen ob Datenbank gefüllt ist. Wenn nein-> Platzhalterlistitem einfügen und auf den Datendownload hinweisen. Eigene Datenbankversion = 0!
 
 }
