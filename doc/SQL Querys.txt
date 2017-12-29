@@ -1,0 +1,2 @@
+Query Equipment DB
+CREATE TABLE `taka`.`equipment` ( `id` INT NOT NULL , `categoryId` INT NOT NULL , `name` TEXT NOT NULL , `setName` TEXT NOT NULL , `description` TEXT NOT NULL , `position` TEXT NOT NULL , `keywords` TEXT NOT NULL , `version` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
