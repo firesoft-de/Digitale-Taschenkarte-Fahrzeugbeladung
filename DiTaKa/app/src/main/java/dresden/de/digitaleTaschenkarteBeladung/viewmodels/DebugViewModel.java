@@ -79,7 +79,6 @@ public class DebugViewModel extends ViewModel {
 
 
 
-
     //Tray Operationen
 
     public void addTrays(List<TrayItem> tray) {

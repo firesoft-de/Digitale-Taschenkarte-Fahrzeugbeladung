@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">TaKa - Beladung</string>
+    <string name="app_noConnection">Keine Internetverbindung gefunden!</string>
+    <string name="app_nodbRefresh">Datenbank bereits auf dem aktuellesten Stand!</string>
+    <string name="app_dbRefresh">Eine neue Datenbankversion ist verfügbar!</string>
+
     <string name="fragment_title_data">Datenimport</string>
     <string name="fragment_title_tray">Gerätefächer</string>
     <string name="fragment_title_item">Ausrüstung</string>
@@ -23,5 +27,12 @@
 
     <string name="data_url">Datenbank URL</string>
     <string name="data_progress">Fortschritt</string>
+    <string name="data_dbinfo">Datenbankinformationen</string>
+    <string name="data_itemcount">Datenbankeinträge Items</string>
+    <string name="data_traycount">Datenbankeinträge Trays</string>
+    <string name="data_version">Datenbankversion</string>
+    <string name="data_version_net">Globale Datenbankversion</string>
+
+
 
 </resources>

@@ -166,7 +166,17 @@ public class EquipmentItem implements Parcelable {
 
     public void setmSetName(String setName) {this.mSetName = setName;}
 
-    public void getKeywords(ArrayList<String> keywords) {this.keywords = keywords;}
+    public void setKeywords(ArrayList<String> keywords) {this.keywords = keywords;}
+
+    public void setKeywordsFromArray(String[] keywords) {
+        ArrayList<String> list = new ArrayList<>();
+
+        for (int i = 0; i < keywords.length; i++) {
+            list.add(keywords[i]);
+        }
+
+        this.keywords = list;
+    }
 
 
 

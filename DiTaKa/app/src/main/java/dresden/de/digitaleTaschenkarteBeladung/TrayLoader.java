@@ -13,11 +13,16 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
  */
 public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
 
-    private static final String LOG_TAG = "TrayLoader";
+    private static final String LOG_TAG = "TrayLoader_LOG";
 
-    public TrayLoader(Context context){
-            super(context);
-            }
+    private String url;
+    private int version;
+
+    public TrayLoader(Context context, String url, int version){
+        super(context);
+        this.url = url;
+        this.version = version;
+    }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
@@ -25,7 +30,15 @@ public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
 
         Util_Http utilities = new Util_Http();
 
-        return utilities.requestTray();
+        //TODO: URL weitergeben
+        //return utilities.requestTray();
+        return null;
     }
+
+    @Override
+    protected void onStartLoading() {
+        forceLoad();
+    }
+
 
 }

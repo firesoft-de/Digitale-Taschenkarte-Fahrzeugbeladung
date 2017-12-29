@@ -1,6 +1,14 @@
 package dresden.de.digitaleTaschenkarteBeladung.util;
 
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,19 +26,19 @@ import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen
 
-        private static final String LOG_TRACE = "Util_Http";
+    private static final String LOG_TRACE = "Util_Http";
 
-    public static final String SERVER_QUERY_GET = "/request";
+    public static final String SERVER_QUERY_GET = "/getDatabase.php?dbVersion=";
 
         /**
          * @return Liste
          */
-        public ArrayList<EquipmentItem> requestItems(String url) {
+        public ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
 
             String httpResponse = null;
 
             //URL generieren, Util_HTTP_URL im Git nicht enthalten
-            URL urlV = generateURL(url + SERVER_QUERY_GET);
+            URL urlV = generateURL(url + SERVER_QUERY_GET + dbVersion);
 
             //HTTP Abfrage durchführen
             if (url != null) {
@@ -49,12 +57,12 @@ public class Util_Http {
          *{@requestItems} führt eine Datenabfrage mittels HTTP-Protokoll durch
          * @return Liste
          */
-        public ArrayList<TrayItem> requestTray(String url) {
+        public ArrayList<TrayItem> requestTray(String url, int dbVersion) {
 
             String httpResponse = null;
 
             //URL generieren, Util_HTTP_URL im Git nicht enthalten
-            URL urlV = generateURL(url + SERVER_QUERY_GET);
+            URL urlV = generateURL(url + SERVER_QUERY_GET+ dbVersion);
 
             //HTTP Abfrage durchführen
             if (url != null) {
@@ -76,9 +84,39 @@ public class Util_Http {
          */
         private ArrayList<EquipmentItem> jsonItemParsing(String response) {
 
-            ArrayList<EquipmentItem> equipmentList = null;
+            ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
 
             //TODO JSON Verarbeitung für die Gegenstände implementieren!
+
+
+            try {
+                JSONObject baseJsonResponse = new JSONObject(response);
+
+
+                JSONArray responseArray = baseJsonResponse.getJSONArray("Equipment");
+
+                for (int i = 0; i < responseArray.length(); i ++) {
+                    JSONObject object =  responseArray.getJSONObject(i);
+
+                    EquipmentItem item = new EquipmentItem(object.getInt("id"),
+                            object.getString("name"),
+                            object.getString("description"),
+                            object.getString("setName"),
+                            object.getString("position"),
+                            object.getInt("categoryId"),null);
+
+                    String keywords = object.getString("keywords");
+                    String[] keys = keywords.split(",");
+                    item.setKeywordsFromArray(keys);
+
+                    equipmentList.add(item);
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                //TODO: Ordentliche Fehlerbehandlung
+            }
 
             return equipmentList;
         }
@@ -169,6 +207,7 @@ public class Util_Http {
 
                     while (line != null) {
                         builder.append(line);
+                        line = bReader.readLine();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -197,9 +236,27 @@ public class Util_Http {
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                Log.e(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
             }
 
             return generatedUrl;
+        }
+
+        public static boolean checkNetwork(Activity activity, Context context) {
+            // Get a reference to the ConnectivityManager to check state of network connectivity
+            ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(context.CONNECTIVITY_SERVICE);
+
+            // Get details on the currently active default data network
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+            // If there is a network connection, fetch data
+            if (networkInfo != null && networkInfo.isConnected()) {
+                // Verbindung
+                return true;
+            } else {
+                // Keine Verbindung
+                return false;
+            }
         }
 
 }
