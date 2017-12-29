@@ -16,8 +16,14 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
 
     private static final String LOG_TAG = "ItemLoader_LOG";
 
-    public ItemLoader(Context context){
+    private String url;
+    private int version;
+
+    public ItemLoader(Context context, String url, int version){
+
         super(context);
+        this.url = url;
+        this.version = version;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
@@ -26,9 +32,14 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
 
         Util_Http utilities = new Util_Http();
 
-        return utilities.requestItems();
+        //TODO: URL weitergeben
+        return utilities.requestItems(url, version);
     }
 
+    @Override
+    protected void onStartLoading() {
+        forceLoad();
+    }
 
 
 }

@@ -31,6 +31,8 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util_ExampleData;
 
 public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener, SearchView.OnQueryTextListener {
 
+    //TODO: Versionsabfrage vom Server beim Starten einfügen
+
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
 
@@ -47,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     private FragmentManager manager;
 
     //Zentrale Datenvariablen
-    public ArrayList<TrayItem> trays;
-    public ArrayList<EquipmentItem> equipmentItems;
+//    public ArrayList<TrayItem> trays;
+//    public ArrayList<EquipmentItem> equipmentItems;
 
     //Override Methoden
 
@@ -62,9 +64,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //Erstes Fragment einfügen
         Fragment trayFragment = new TrayFragment();
         switchFragment(R.id.MainFrame,trayFragment,FRAGMENT_LIST_TRAY);
-
-
-        trays = Util_ExampleData.dummyDataTray();
 
 /*        //Test um ein anderes Fragment darzustellen
         FragmentTransaction ft = this.getSupportFragmentManager().beginTransaction();
@@ -194,10 +193,10 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         Intent searchIntent = new Intent(this, SearchableActivity.class);
         searchIntent.putExtra(SearchManager.QUERY, query);
 
-        Bundle bundle = new Bundle();
-
-        bundle.putParcelableArrayList("EL",equipmentItems);
-        searchIntent.putExtras(bundle); // pass the search context data
+//        Bundle bundle = new Bundle();
+//
+//        bundle.putParcelableArrayList("EL",equipmentItems);
+//        searchIntent.putExtras(bundle); // pass the search context data
         searchIntent.setAction(Intent.ACTION_SEARCH);
 
         startActivity(searchIntent);
@@ -270,11 +269,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 //     */
 //    public ArrayList<EquipmentItem> getEquipmentList() {return equipmentItems;}
 
-    /**
-     * Reicht die Behälterdaten an eine andere Klasse weiter
-     * @return Liste der Trays
-     */
-    public ArrayList<TrayItem> getTrayList() {return trays;}
+//    /**
+//     * Reicht die Behälterdaten an eine andere Klasse weiter
+//     * @return Liste der Trays
+//     */
+//    public ArrayList<TrayItem> getTrayList() {return trays;}
 
 
     //Interfacemethoden

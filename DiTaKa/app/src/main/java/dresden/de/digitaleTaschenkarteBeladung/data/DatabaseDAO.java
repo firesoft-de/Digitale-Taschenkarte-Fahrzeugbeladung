@@ -12,8 +12,6 @@ import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
 
-//TODO: App dahingehend umbauen, dass kein zentrales Datenobjekt als ArrayListe mehr vorgehalten wird, sondern das meiste über die Datenbank gehandelt wird!
-
 /**
  * Database Access Object für die Equipment Datenbank
  */

@@ -65,8 +65,6 @@ public class DetailFragment extends Fragment {
             Bundle args = this.getArguments();
             int itemID = args.getInt(ItemFragment.BUNDLE_TAG_DETAIL);
 
-            //TODO: Detailfragment implementieren
-
             viewModel.getItem(itemID).observe(this, new Observer<EquipmentItem>() {
                 @Override
                 public void onChanged(@Nullable EquipmentItem equipmentItem) {

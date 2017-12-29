@@ -7,5 +7,4 @@
 	
 	print("Current DB Version:\n");
 	print($dbVersion);
-
 ?>

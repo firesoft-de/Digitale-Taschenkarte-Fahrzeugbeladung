@@ -11,8 +11,6 @@ import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 
 public class TrayViewModel extends ViewModel {
 
-    //TODO: TrayViewModel implementieren
-
     private DatabaseRepository repository;
 
     public TrayViewModel(DatabaseRepository repository) {
