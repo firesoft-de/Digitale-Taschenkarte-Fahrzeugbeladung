@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
-import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
+import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 

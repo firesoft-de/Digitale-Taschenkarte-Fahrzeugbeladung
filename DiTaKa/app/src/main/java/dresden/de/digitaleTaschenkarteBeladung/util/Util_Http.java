@@ -28,235 +28,288 @@ public class Util_Http {
 
     private static final String LOG_TRACE = "Util_Http";
 
-    public static final String SERVER_QUERY_GET = "/getDatabase.php?dbVersion=";
+    public static final String SERVER_QUERY_GET = "/getDatabase.php?";
+    public static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
+    public static final String SERVER_QUERY_GET_TABLE = "db_table=";
 
-        /**
-         * @return Liste
-         */
-        public ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
 
-            String httpResponse = null;
+    public static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
 
-            //URL generieren, Util_HTTP_URL im Git nicht enthalten
-            URL urlV = generateURL(url + SERVER_QUERY_GET + dbVersion);
+    public static final String SERVER_TABLE_ITEM = "equipment";
+    public static final String SERVER_TABLE_TRAY = "tray";
 
-            //HTTP Abfrage durchführen
-            if (url != null) {
-                httpResponse = httpRequester(urlV);
-            }
+    /**
+     * @return Liste
+     */
+    public static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
 
-            //Antwort mittels JSON Parser verarbeiten
-            if (httpResponse != null) {
-                return jsonItemParsing(httpResponse);
-            }
+        String httpResponse = null;
 
-            return null;
+        //URL generieren, Util_HTTP_URL im Git nicht enthalten
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION + dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM);
+
+        //HTTP Abfrage durchführen
+        if (urlV != null) {
+            httpResponse = httpRequester(urlV);
         }
 
-        /**
-         *{@requestItems} führt eine Datenabfrage mittels HTTP-Protokoll durch
-         * @return Liste
-         */
-        public ArrayList<TrayItem> requestTray(String url, int dbVersion) {
-
-            String httpResponse = null;
-
-            //URL generieren, Util_HTTP_URL im Git nicht enthalten
-            URL urlV = generateURL(url + SERVER_QUERY_GET+ dbVersion);
-
-            //HTTP Abfrage durchführen
-            if (url != null) {
-                httpResponse = httpRequester(urlV);
-            }
-
-            //Antwort mittels JSON Parser verarbeiten
-            if (httpResponse != null) {
-                return jsonTrayParsing(httpResponse);
-            }
-
-            return null;
+        //Antwort mittels JSON Parser verarbeiten
+        if (httpResponse != null) {
+            return jsonItemParsing(httpResponse);
         }
 
-        /**
-         * {@jsonItemParsing} verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste
-         * @param response Die Serverantwort
-         * @return ArrayListe mit den Ausrüstungsgegenständen
-         */
-        private ArrayList<EquipmentItem> jsonItemParsing(String response) {
+        return null;
+    }
 
-            ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
+    /**
+     *{@requestItems} führt eine Datenabfrage mittels HTTP-Protokoll durch
+     * @return Liste
+     */
+    public static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
 
-            //TODO JSON Verarbeitung für die Gegenstände implementieren!
+        String httpResponse = null;
 
+        //URL generieren, Util_HTTP_URL im Git nicht enthalten
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION + dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY);
+
+        //HTTP Abfrage durchführen
+        if (urlV != null) {
+            httpResponse = httpRequester(urlV);
+        }
+
+        //Antwort mittels JSON Parser verarbeiten
+        if (httpResponse != null) {
+            return jsonTrayParsing(httpResponse);
+        }
+
+        return null;
+    }
+
+    /**
+     * Ruft die aktuelle Datenbankversion vom Server ab
+     * @param url
+     * @return Im Fehlerfall wird -1 zurück gegeben
+     */
+    public static int checkVersion(String url) {
+            int result = -1;
+
+            URL urlV = generateURL(url + SERVER_QUERY_VERSION);
+
+            if (urlV != null) {
+                try {
+                    String response = httpRequester(urlV);
+                    Integer integer = new Integer(response);
+                    result = integer;
+                } catch (Exception e) {
+                    Log.e(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
+                }
+            }
+
+            return result;
+        }
+
+
+    /**
+     * {@jsonItemParsing} verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste
+     * @param response Die Serverantwort
+     * @return ArrayListe mit den Ausrüstungsgegenständen
+     */
+    private static ArrayList<EquipmentItem> jsonItemParsing(String response) {
+
+        ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
+
+        //TODO JSON Verarbeitung für die Gegenstände implementieren!
+
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(response);
+
+            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+
+            for (int i = 0; i < responseArray.length(); i ++) {
+                JSONObject object =  responseArray.getJSONObject(i);
+
+                EquipmentItem item = new EquipmentItem(object.getInt("id"),
+                        object.getString("name"),
+                        object.getString("description"),
+                        object.getString("setName"),
+                        object.getString("position"),
+                        object.getInt("categoryId"),null);
+
+                String keywords = object.getString("keywords");
+                String[] keys = keywords.split(",");
+                item.setKeywordsFromArray(keys);
+
+                equipmentList.add(item);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+
+        return equipmentList;
+    }
+
+    /**
+     * {@jsonTrayParsing} verarbeitet den Antwortstring des Servers und generiert eine ArrayListe mit den Behältern
+     * @param response Die Serverantwort
+     * @return Liste mit den Ausrüstungsgegenständen
+     */
+    private static ArrayList<TrayItem> jsonTrayParsing(String response) {
+
+        ArrayList<TrayItem> trayList  = new ArrayList<>();
+
+        //TODO JSON Verarbeitung für die Gegenstände implementieren!
+
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(response);
+
+
+            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+
+            for (int i = 0; i < responseArray.length(); i ++) {
+                JSONObject object =  responseArray.getJSONObject(i);
+
+                TrayItem item = new TrayItem(object.getInt("id"),
+                        object.getString("name"),
+                        object.getString("description"));
+
+                trayList.add(item);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+
+        return trayList;
+    }
+
+
+    /**
+     * {@httpRequester} führt den HTTP Request durch
+     * @param url die Server-URL
+     * @return Antwort des Servers als String
+     */
+    private static String httpRequester(URL url) {
+
+        //Response Variable
+        String response = null;
+
+        //Interne Variablen
+        HttpURLConnection connection = null;
+
+        //HTTP Verbindung aufbauen
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (connection != null) {
 
             try {
-                JSONObject baseJsonResponse = new JSONObject(response);
 
+                //Verbindungseinstellungen
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+                connection.setRequestMethod("GET");
 
-                JSONArray responseArray = baseJsonResponse.getJSONArray("Equipment");
+                //Verbindung herstellen
+                connection.connect();
 
-                for (int i = 0; i < responseArray.length(); i ++) {
-                    JSONObject object =  responseArray.getJSONObject(i);
+                //Verbindungsantwort prüfen
+                if (connection.getResponseCode() == 200) {
+                    //Verbindung erfolgreich hergestellt
 
-                    EquipmentItem item = new EquipmentItem(object.getInt("id"),
-                            object.getString("name"),
-                            object.getString("description"),
-                            object.getString("setName"),
-                            object.getString("position"),
-                            object.getInt("categoryId"),null);
-
-                    String keywords = object.getString("keywords");
-                    String[] keys = keywords.split(",");
-                    item.setKeywordsFromArray(keys);
-
-                    equipmentList.add(item);
+                    //Übergabe des InputStreams zur Verarbeitung
+                    response = readStream( connection.getInputStream());
 
                 }
 
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-                //TODO: Ordentliche Fehlerbehandlung
+                Log.e(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
             }
-
-            return equipmentList;
         }
+        return response;
+    }
 
-        /**
-         * {@jsonTrayParsing} verarbeitet den Antwortstring des Servers und generiert eine ArrayListe mit den Behältern
-         * @param response Die Serverantwort
-         * @return Liste mit den Ausrüstungsgegenständen
-         */
-        private ArrayList<TrayItem> jsonTrayParsing(String response) {
+    /**
+     * Hilfsmethode um die Streamverarbeitung der HTTP-Verbindung zu übernehmen
+     * @param input Der Stream des Servers als InputStream
+     * @return die vom Server gesendeten Daten als String
+     */
+    private static String readStream(InputStream input) {
 
-            ArrayList<TrayItem> trayList = null;
+        String response = null;
+        StringBuilder builder = new StringBuilder();
 
-            //TODO JSON Verarbeitung für die Behälter implementieren!
+        if (input != null) {
 
-            return trayList;
-        }
+            //reader erstellen und diesen buffern
+            InputStreamReader reader = new InputStreamReader(input, Charset.forName("UTF-8"));
+            BufferedReader bReader = new BufferedReader(reader);
 
 
-        /**
-         * {@httpRequester} führt den HTTP Request durch
-         * @param url die Server-URL
-         * @return Antwort des Servers als String
-         */
-        private String httpRequester(URL url) {
-
-            //Response Variable
-            String response = null;
-
-            //Interne Variablen
-            HttpURLConnection connection = null;
-
-            //HTTP Verbindung aufbauen
             try {
-                connection = (HttpURLConnection) url.openConnection();
+                String line = bReader.readLine();
+
+                while (line != null) {
+                    builder.append(line);
+                    line = bReader.readLine();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e(LOG_TRACE,"IOException während des auslesens des InputStreams im BufferedReader! Meldung: " + e.getMessage());
             }
 
-            if (connection != null) {
-
-                try {
-
-                    //Verbindungseinstellungen
-                    connection.setConnectTimeout(10000);
-                    connection.setReadTimeout(10000);
-                    connection.setRequestMethod("GET");
-
-                    //Verbindung herstellen
-                    connection.connect();
-
-                    //Verbindungsantwort prüfen
-                    if (connection.getResponseCode() == 200) {
-                        //Verbindung erfolgreich hergestellt
-
-                        //Übergabe des InputStreams zur Verarbeitung
-                        response = readStream( connection.getInputStream());
-
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
-                }
-            }
-            return response;
         }
 
-        /**
-         * Hilfsmethode um die Streamverarbeitung der HTTP-Verbindung zu übernehmen
-         * @param input Der Stream des Servers als InputStream
-         * @return die vom Server gesendeten Daten als String
-         */
-        private String readStream(InputStream input) {
+        response = builder.toString();
 
-            String response = null;
-            StringBuilder builder = new StringBuilder();
+        return response;
+    }
 
-            if (input != null) {
+    /**
+     * Hilfsmethode um schnell eine URL zu erzeugen
+     * @param url URL als String
+     * @return URL als URL-Objekt
+     */
+    private static URL generateURL(String url) {
 
-                //reader erstellen und diesen buffern
-                InputStreamReader reader = new InputStreamReader(input, Charset.forName("UTF-8"));
-                BufferedReader bReader = new BufferedReader(reader);
+        URL generatedUrl = null;
 
+        try {
 
-                try {
-                    String line = bReader.readLine();
+            generatedUrl = new URL(url);
 
-                    while (line != null) {
-                        builder.append(line);
-                        line = bReader.readLine();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.e(LOG_TRACE,"IOException während des auslesens des InputStreams im BufferedReader! Meldung: " + e.getMessage());
-                }
-
-            }
-
-            response = builder.toString();
-
-            return response;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            Log.e(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
         }
 
-        /**
-         * Hilfsmethode um schnell eine URL zu erzeugen
-         * @param url URL als String
-         * @return URL als URL-Objekt
-         */
-        private URL generateURL(String url) {
+        return generatedUrl;
+    }
 
-            URL generatedUrl = null;
+    public static boolean checkNetwork(Activity activity, Context context) {
+        // Get a reference to the ConnectivityManager to check state of network connectivity
+        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(context.CONNECTIVITY_SERVICE);
 
-            try {
+        // Get details on the currently active default data network
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-                generatedUrl = new URL(url);
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                Log.e(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
-            }
-
-            return generatedUrl;
+        // If there is a network connection, fetch data
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Verbindung
+            return true;
+        } else {
+            // Keine Verbindung
+            return false;
         }
-
-        public static boolean checkNetwork(Activity activity, Context context) {
-            // Get a reference to the ConnectivityManager to check state of network connectivity
-            ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(context.CONNECTIVITY_SERVICE);
-
-            // Get details on the currently active default data network
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-            // If there is a network connection, fetch data
-            if (networkInfo != null && networkInfo.isConnected()) {
-                // Verbindung
-                return true;
-            } else {
-                // Keine Verbindung
-                return false;
-            }
-        }
-
+    }
 }

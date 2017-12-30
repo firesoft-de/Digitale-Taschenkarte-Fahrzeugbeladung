@@ -7,7 +7,7 @@ import android.arch.lifecycle.ViewModel;
 import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
-import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
+import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 
 public class SearchViewModel extends ViewModel {
 

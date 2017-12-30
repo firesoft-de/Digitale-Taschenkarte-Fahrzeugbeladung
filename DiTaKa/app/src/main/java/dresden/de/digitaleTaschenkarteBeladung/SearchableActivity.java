@@ -20,7 +20,7 @@ import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
-import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
+import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.ItemAdapter;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.SearchViewModel;
 
@@ -41,6 +41,8 @@ public class SearchableActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchable);
+
+        this.getSupportActionBar().setTitle(R.string.search_title);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
         ((ApplicationForDagger) this.getApplication())

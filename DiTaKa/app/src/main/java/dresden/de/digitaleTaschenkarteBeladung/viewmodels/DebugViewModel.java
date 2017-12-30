@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
-import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
+import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Data;
@@ -104,7 +104,7 @@ public class DebugViewModel extends ViewModel {
 
     public void deleteTrays() {
         deleteTrayTask task = new deleteTrayTask();
-        task.doInBackground();
+        task.execute();
     }
 
 

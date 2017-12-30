@@ -50,6 +50,13 @@ public class TrayAdapter extends ArrayAdapter<TrayItem> {
         ImageView previewImage = (ImageView) listItemView.findViewById(R.id.imageView);
         previewImage.setVisibility(View.GONE);
 
+        //Beim ersten Start soll das Weiter Icon ausgeblendet werden
+
+        if (currentItem.getId() == -1) {
+            ImageView continueImage = (ImageView) listItemView.findViewById(R.id.imageView2);
+            continueImage.setVisibility(View.GONE);
+        }
+
         return listItemView;
     }
 }

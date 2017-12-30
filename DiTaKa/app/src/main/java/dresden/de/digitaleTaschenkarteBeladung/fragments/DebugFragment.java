@@ -4,6 +4,8 @@ package dresden.de.digitaleTaschenkarteBeladung.fragments;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,11 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
@@ -117,6 +122,53 @@ public class DebugFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 debugViewModel.deleteTrays();
+            }
+        });
+
+        Button insertBigDummyItem = result.findViewById(R.id.btInsertBigDummyItem);
+        insertBigDummyItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<EquipmentItem> list = new ArrayList<>();
+                for (int i = 0; i<100; i++) {
+                    EquipmentItem item = new EquipmentItem(i+100,"Dummy Item " + i, "Dummy Beschreibung " + i,"Dummy Position " + i, 0);
+                    list.add(item);
+                }
+                debugViewModel.addItems(list);
+            }
+        });
+
+        Button btResetVersion = result.findViewById(R.id.btResetVersion);
+        btResetVersion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity activity = (MainActivity) getActivity();
+                activity.dbVersion = 0;
+                activity.liveNetDBVersion.postValue(0);
+            }
+        });
+
+        Button btRevertVersion = result.findViewById(R.id.btRevertVersion);
+        btRevertVersion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity activity = (MainActivity) getActivity();
+                activity.liveNetDBVersion.postValue(activity.liveNetDBVersion.getValue()-1);
+            }
+        });
+
+        Button btdeletePrefs = result.findViewById(R.id.btDeletePrefs);
+        btdeletePrefs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity activity = (MainActivity) getActivity();
+                SharedPreferences.Editor editor = activity.getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
+                editor.remove(MainActivity.PREFS_URL);
+                editor.remove(MainActivity.PREFS_DBVERSION);
+
+                editor.commit();
+
+                Toast.makeText(getContext(),"Prefs gelöscht!",Toast.LENGTH_SHORT).show();
             }
         });
 

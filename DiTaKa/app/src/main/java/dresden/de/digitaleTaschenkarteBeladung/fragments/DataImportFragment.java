@@ -1,6 +1,7 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -24,13 +25,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
-import dresden.de.digitaleTaschenkarteBeladung.ItemLoader;
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
+import dresden.de.digitaleTaschenkarteBeladung.util.ItemLoader;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.TrayLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.TrayLoader;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
@@ -45,19 +46,16 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     private static final String LOG_TAG="DataImportFragment_LOG";
 
-    private static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
-    private static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
-    private static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
-
-    private static final String ARGS_URL="ARGS_URL";
-    private static final String ARGS_VERSION="ARGS_VERSION";
-
     private static final int ITEM_LOADER = 1;
     private static final int TRAY_LOADER = 2;
 
     //Datenbankversion
     private int dbversion;
     private String url;
+
+    private boolean initLoaderAfterNetVersionRefresh;
+
+    private int downloadsCompleted;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -79,7 +77,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 .getApplicationComponent()
                 .inject(this);
 
-        settings = getActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        downloadsCompleted = 0;
 
     }
 
@@ -93,7 +91,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View result = inflater.inflate(R.layout.fragment_data, container, false);
+        final View result = inflater.inflate(R.layout.fragment_data, container, false);
+
+        initLoaderAfterNetVersionRefresh = false;
 
         //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
         viewModel = ViewModelProviders.of(this,viewModelFactory)
@@ -102,6 +102,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.fragment_title_data);
 
+
+        url = this.getArguments().getString(MainActivity.ARGS_URL);
+        dbversion = this.getArguments().getInt(MainActivity.ARGS_VERSION);
 
         //ClickListener für das Hinzufügen der Daten einbauen
 
@@ -115,9 +118,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         ProgressBar progressBar = result.findViewById(R.id.DataProgress);
         progressBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
-
-        //URL aus Preference abrufen
-        url = settings.getString(PREFS_URL,"");
 
         EditText editText = result.findViewById(R.id.text_url);
         editText.setText(url);
@@ -139,11 +139,24 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
-        //URL aus Preference abrufen
-        dbversion = settings.getInt(PREFS_DBVERSION,0);
+        MainActivity activity = (MainActivity) getActivity();
 
-        TextView tvDBVersion = result.findViewById(R.id.dataTextViewDBVersion);
-        tvDBVersion.setText(Integer.toString(dbversion));
+//        TextView tvNetDBVersion = result.findViewById(R.id.dataTextViewDBNetVersion);
+
+        activity.liveNetDBVersion.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer integer) {
+                if (initLoaderAfterNetVersionRefresh ==false) {
+                    updateNetVersion(integer);
+                }
+                else {
+                    updateNetVersion(integer);
+                  initateLoader(integer);
+                }
+            }
+        });
+
+        updateDBVersion(dbversion, result);
 
         // Inflate the layout for this fragment
         return result;
@@ -153,8 +166,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
 
-        String url = args.getString(ARGS_URL);
-        Integer version = args.getInt(ARGS_VERSION);
+        String url = args.getString(MainActivity.ARGS_URL);
+        Integer version = args.getInt(MainActivity.ARGS_VERSION);
 
         switch (id) {
             case 1:
@@ -180,15 +193,35 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         switch (loader.getId()) {
             case ITEM_LOADER:
                 viewModel.addItems((ArrayList<EquipmentItem>) data);
+                downloadsCompleted += 1;
                 break;
 
             case TRAY_LOADER:
                 viewModel.addTrays((ArrayList<TrayItem>) data);
+                downloadsCompleted += 1;
                 break;
         }
 
-        //Datenbankversion aktualiseren
-        //TODO: Datenbankversion aktualiseren
+        if (downloadsCompleted == 2) {
+            //Datenbankversion aktualiseren
+            MainActivity activity = (MainActivity) getActivity();
+
+            activity.dbVersion = activity.liveNetDBVersion.getValue();
+            activity.dbState = MainActivity.dbstate.VALID;
+            dbversion = activity.dbVersion;
+
+            SharedPreferences.Editor editor = activity.getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
+            editor.putInt(MainActivity.PREFS_DBVERSION,activity.dbVersion);
+            editor.commit();
+
+            //Datenbanksversionsnummer aktualiseren
+            updateDBVersion(dbversion, null);
+
+            publishProgress(100);
+        }
+        else if (downloadsCompleted == 1) {
+            publishProgress(50);
+        }
 
     }
 
@@ -198,6 +231,11 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     }
 
+    public void updateNetVersion(Integer integer) {
+        TextView tvNetDBVersion = getActivity().findViewById(R.id.dataTextViewDBNetVersion);
+        tvNetDBVersion.setText(integer.toString());
+    }
+
     public void buttonAddClick() {
         //Ablauf
         //1. Netzwerküberprüfung
@@ -205,51 +243,36 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //3. -> Neue Version, dann Daten abfragen und verarbeiten
         //Ansonsten Ende
 
+        //Parameter für die Loader fertig machen
+        EditText editText = getActivity().findViewById(R.id.text_url);
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
+        url = editText.getText().toString();
+
+        if (!url.contains("http://")) {
+            url = "http://" + url;
+        }
+        editor.putString(MainActivity.PREFS_URL, url);
+        editor.apply();
 
         //Netzwerkstatus überpüfen
 
         if (Util_Http.checkNetwork(getActivity(),getContext())) {
             //Netzwerkverbindung i.O.
 
-            //Loader initialiseren
-            LoaderManager loaderManager = getLoaderManager();
+            MainActivity activity = (MainActivity) getActivity();
 
-            // Initialize the loader. Pass in the int ID constant defined above and pass in null for
-            // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
-            // because this activity implements the LoaderCallbacks interface).
+            if (activity.dbState == MainActivity.dbstate.CLEAN) {
+                activity.getNetDBState(url, false);
 
-            //TODO: DB Version abfragen -> Prüfen ob Download notwendig
-
-            int netVersion = 1;
-
-            if (dbversion < netVersion) {
-
-                //Parameter für die Loader fertig machen
-                EditText editText = getActivity().findViewById(R.id.text_url);
-                SharedPreferences.Editor editor = settings.edit();
-                url = editText.getText().toString();
-
-                if (!url.contains("http://")) {
-                    url = "http://" + url;
-                }
-
-                editor.putString(PREFS_URL, url);
-                editor.apply();
-
-                publishProgress(50);
-
-                Bundle args = new Bundle();
-                args.putString(ARGS_URL, url);
-                args.putInt(ARGS_VERSION, dbversion);
-
-                //Loader anwerfen TODO: TrayLoader implementieren und aktivieren
-                loaderManager.initLoader(ITEM_LOADER, args, this);
-       //         loaderManager.initLoader(TRAY_LOADER, args, this);
-
+                //Marker für den Observer setzen. Mit diesem werden bei einer Änderung der Live-Variable netVersion die Loader gestartet.
+                initLoaderAfterNetVersionRefresh = true;
             }
             else {
-                Toast.makeText(getContext(),R.string.app_nodbRefresh,Toast.LENGTH_LONG).show();
+                int netVersion = activity.liveNetDBVersion.getValue();
+                initateLoader(netVersion);
             }
+
+            publishProgress(15);
         }
         else {
             //Keine Netzwerkverbindung -> Nachricht und Ende
@@ -257,9 +280,57 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    //Eigene Methode, damit auf Statusänderung der Livedata-Variable reagiert werden kann
+    private void initateLoader(int netVersion) {
+
+        if (netVersion == -1) {
+            //Irgendwas stimmt nicht!
+
+        }
+        else {
+            if (dbversion < netVersion) {
+
+                //Loader initialiseren
+                LoaderManager loaderManager = getLoaderManager();
+
+                Bundle args = new Bundle();
+                args.putString(MainActivity.ARGS_URL, url);
+                args.putInt(MainActivity.ARGS_VERSION, dbversion);
+
+                //Loader anwerfen
+                if (loaderManager.getLoader(ITEM_LOADER) == null) {
+                    loaderManager.initLoader(ITEM_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(ITEM_LOADER, args, this);
+                }
+
+                //TODO: TrayLoader implementieren und aktivieren
+                if (loaderManager.getLoader(TRAY_LOADER) == null) {
+                    loaderManager.initLoader(TRAY_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(TRAY_LOADER, args, this);
+                }
+
+            } else {
+                Toast.makeText(getContext(), R.string.app_nodbRefresh, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     private void publishProgress(int progress) {
         ProgressBar progressBar = getActivity().findViewById(R.id.DataProgress);
         progressBar.setProgress(progress);
+    }
+
+    private void updateDBVersion(int version, @Nullable View view) {
+        TextView tvDBVersion;
+        if (view != null) {
+            tvDBVersion = view.findViewById(R.id.dataTextViewDBVersion);
+        }
+        else {
+            tvDBVersion = getActivity().findViewById(R.id.dataTextViewDBVersion);
+        }
+        tvDBVersion.setText(Integer.toString(version));
     }
 
 }

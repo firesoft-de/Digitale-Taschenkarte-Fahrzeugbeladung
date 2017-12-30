@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
@@ -65,7 +66,6 @@ public class DataFragViewModel extends ViewModel {
     public LiveData<Integer> countTrays() {
         return repository.countTrays();
     }
-
 
     public LiveData<Integer> countItems() {
         return repository.countItems();

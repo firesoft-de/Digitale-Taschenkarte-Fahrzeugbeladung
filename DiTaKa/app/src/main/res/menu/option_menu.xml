@@ -21,9 +21,5 @@
         android:iconTint="@android:color/white"
         app:actionViewClass="android.widget.SearchView" />
 
-
-
-
-
 </menu>
 

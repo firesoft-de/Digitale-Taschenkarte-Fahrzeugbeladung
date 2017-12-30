@@ -10,8 +10,6 @@ import android.arch.persistence.room.Update;
 
 import java.util.List;
 
-import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
-
 /**
  * Database Access Object für die Equipment Datenbank
  */

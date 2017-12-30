@@ -68,48 +68,54 @@ public class TrayFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle args) {
 
         View result = inflater.inflate(R.layout.list_layout,parent,false);
 
         viewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(TrayViewModel.class);
 
-        viewModel.getTrays().observe(this, new Observer<List<TrayItem>>() {
-            @Override
-            public void onChanged(@Nullable List<TrayItem> trayItems) {
-                setData(trayItems);
-            }
-        });
+        String arg = this.getArguments().getString(MainActivity.ARGS_DBSTATE);
 
-        ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
+        MainActivity.dbstate dbState;
+        if (arg != "") {
+            dbState = MainActivity.dbstate.valueOf(arg);
+        }
+        else {
+            dbState = MainActivity.dbstate.UNKNOWN;
+        }
 
-        //ClickListener einrichten
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        final ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
 
-                //Clickhandling übernehmen
+        if (dbState == MainActivity.dbstate.VALID || dbState == MainActivity.dbstate.EXPIRED || dbState == MainActivity.dbstate.UNKNOWN) {
+            viewModel.getTrays().observe(this, new Observer<List<TrayItem>>() {
+                @Override
+                public void onChanged(@Nullable List<TrayItem> trayItems) {
+                    setData(trayItems, lv);
+                }
+            });
 
-                TrayItem item = trays.get(position);
+            //ClickListener einrichten
 
-//                ArrayList<EquipmentItem> mainItems = ((MainActivity) getActivity()).getEquipmentList();
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    //Clickhandling übernehmen
+                    TrayItem item = trays.get(position);
 
-                //Alle zum Behälter zugehörigen Gegenstände finden
-//                ArrayList<EquipmentItem> foundItems =  Util_Data.findItemsByTray(item,mainItems);
+                    Bundle args = new Bundle();
+                    args.putInt(ItemFragment.BUNDLE_TAG_ITEMS, item.getId());
 
-                ItemFragment itemFragment = new ItemFragment();
+                    ItemFragment itemFragment = new ItemFragment();
+                    itemFragment.setArguments(args);
 
-                Bundle args = new Bundle();
-                args.putInt(ItemFragment.BUNDLE_TAG_ITEMS, item.getId());
-
-                itemFragment.setArguments(args);
-
-                masterCallback.switchFragment(R.id.MainFrame,itemFragment,MainActivity.FRAGMENT_LIST_ITEM);
-
-
-            }
-        });
+                    masterCallback.switchFragment(R.id.MainFrame,itemFragment,MainActivity.FRAGMENT_LIST_ITEM);
+                }
+            });
+        }
+        else {
+            setItemFirstRun(lv);
+        }
 
         return result;
 
@@ -126,18 +132,27 @@ public class TrayFragment extends Fragment {
 
     //Methoden
 
-    private void setData(List<TrayItem> trayItems) {
+    private void setData(List<TrayItem> trayItems, @Nullable ListView lv) {
 
         trays = (ArrayList<TrayItem>) trayItems;
 
         trayAdapter = new TrayAdapter(getActivity(), trays);
 
-        ListView lv = (ListView) getActivity().findViewById(R.id.ListViewMain);
+        if (lv == null) {
+            lv = (ListView) getActivity().findViewById(R.id.MainFrame);
+        }
 
         lv.setAdapter(trayAdapter);
-
     }
 
-    //TODO: Überprüfen ob Datenbank gefüllt ist. Wenn nein-> Platzhalterlistitem einfügen und auf den Datendownload hinweisen. Eigene Datenbankversion = 0!
+    private void setItemFirstRun(ListView lv) {
+        TrayItem trayItem;
+        trayItem = new TrayItem(-1,
+                "Erster Start",
+                "Bitte starte über das Optionsmenü den Datenimport.");
 
+        ArrayList<TrayItem> list = new ArrayList<>();
+        list.add(trayItem);
+        setData(list,lv);
+    }
 }
