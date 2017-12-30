@@ -1,0 +1,112 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment"
+    android:layout_margin="@dimen/margin_normal">
+
+    <!--TODO: Hinweisfeld einfügen-->
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/detailGrid"
+        android:orientation="horizontal"
+        android:columnCount="2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/detail_name"
+            android:textSize="@dimen/text_size_normal"
+            android:layout_column="0"
+            android:layout_row="0"
+            android:layout_marginRight="@dimen/margin_normal"/>
+
+        <TextView
+            android:id="@+id/detailName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:textSize="@dimen/text_size_highlight"
+            android:layout_column="1"
+            android:layout_row="0"
+            android:text="Platzhalter"
+            android:layout_marginBottom="@dimen/margin_small"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_normal"
+            android:text="@string/detail_description"
+            android:layout_column="0"
+            android:layout_row="1"
+            android:layout_marginRight="@dimen/margin_normal"/>
+
+        <TextView
+            android:id="@+id/detailDescription"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:textSize="@dimen/text_size_normal"
+            android:layout_column="1"
+            android:layout_row="1"
+            android:maxLines="10"
+            android:ellipsize="end"
+            android:text="Platzhalter"
+            android:layout_marginBottom="@dimen/margin_small"/>
+
+        <TextView
+            android:id="@+id/detailSetNameStatic"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_normal"
+            android:text="@string/detail_setname"
+            android:layout_column="0"
+            android:layout_row="2"
+            android:layout_marginRight="@dimen/margin_normal"/>
+
+        <TextView
+            android:id="@+id/detailSetName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:textSize="@dimen/text_size_normal"
+            android:layout_column="1"
+            android:layout_row="2"
+            android:maxLines="1"
+            android:text="Platzhalter"
+            android:layout_marginBottom="@dimen/margin_small"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_normal"
+            android:text="@string/detail_position"
+            android:layout_column="0"
+            android:layout_row="3"
+            android:layout_marginRight="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_small"/>
+
+        <TextView
+            android:id="@+id/detailPosition"
+            android:layout_width="0dp"
+            android:layout_gravity="fill_horizontal"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_highlight"
+            android:layout_column="1"
+            android:layout_row="3"
+            android:textColor="@color/text_highlight"
+            android:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
+
+    </GridLayout>
+
+    <ImageView
+        android:id="@+id/detailItemImage"
+        android:layout_width= "match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toBottomOf="@+id/detailGrid"/>
+
+</android.support.constraint.ConstraintLayout>

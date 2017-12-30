@@ -1,0 +1,150 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DataImportFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/text_size_normal"
+    tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment">
+
+    <LinearLayout
+        android:id="@+id/DataLinLay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/DataTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/data_url"
+            android:textSize="@dimen/text_size_highlight" />
+
+        <EditText
+            android:id="@+id/text_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/EditTextTheme"
+            />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/dataTextView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/data_progress"
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintTop_toBottomOf="@id/DataLinLay"
+        android:layout_marginTop="@dimen/margin_normal"/>
+
+    <!-- TODO: Hier ein paar Buttons zum Aktualisieren, Anzeigen für die aktuelle Datenbankversion und vielleicht eine Progressbar hinmachen -->
+    <ProgressBar
+        android:id="@+id/DataProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:max="100"
+        android:min="0"
+        app:layout_constraintTop_toBottomOf="@id/dataTextView2"
+        style="?android:attr/progressBarStyleHorizontal"/>
+
+    <Button
+        android:id="@+id/DataButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Daten abrufen"
+        app:layout_constraintTop_toBottomOf="@id/DataProgress"
+        android:layout_marginTop="@dimen/margin_normal"/>
+
+
+    <TextView
+        android:id="@+id/dataTextView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/data_dbinfo"
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintTop_toBottomOf="@id/DataButton"
+        android:layout_marginTop="@dimen/margin_normal"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/dataTextView3"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:columnCount="2"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/data_version"
+            android:layout_column="0"
+            android:layout_row="0"/>
+
+        <TextView
+            android:id="@+id/dataTextViewDBVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Platzhalter"
+            android:layout_column="1"
+            android:layout_row="0"
+            android:layout_marginLeft="@dimen/margin_normal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/data_version_net"
+            android:layout_column="0"
+            android:layout_row="1"/>
+
+        <TextView
+            android:id="@+id/dataTextViewDBNetVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:layout_column="1"
+            android:layout_row="1"
+            android:layout_marginLeft="@dimen/margin_normal"/>
+
+        <TextView
+            android:layout_width="@dimen/margin_small"
+            android:layout_height="@dimen/margin_small"
+            android:layout_row="2"
+            android:layout_column="0"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/data_itemcount"
+            android:layout_column="0"
+            android:layout_row="3"/>
+
+        <TextView
+            android:id="@+id/dataTextViewItemCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Platzhalter"
+            android:layout_column="1"
+            android:layout_row="3"
+            android:layout_marginLeft="@dimen/margin_normal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/data_traycount"
+            android:layout_column="0"
+            android:layout_row="4"/>
+
+        <TextView
+            android:id="@+id/dataTextViewTrayCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Platzhalter"
+            android:layout_column="1"
+            android:layout_row="4"
+            android:layout_marginLeft="@dimen/margin_normal"/>
+    </GridLayout>
+
+
+</android.support.constraint.ConstraintLayout>
