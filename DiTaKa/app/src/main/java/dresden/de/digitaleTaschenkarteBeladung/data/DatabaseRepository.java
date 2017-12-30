@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import dresden.de.digitaleTaschenkarteBeladung.dataStructure.DatabaseEquipmentMininmal;
-
 public class DatabaseRepository {
 
     private  final DatabaseDAO daoObject;

@@ -1,4 +1,4 @@
-package dresden.de.digitaleTaschenkarteBeladung;
+package dresden.de.digitaleTaschenkarteBeladung.util;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
@@ -27,12 +27,7 @@ public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<TrayItem> loadInBackground() {
-
-        Util_Http utilities = new Util_Http();
-
-        //TODO: URL weitergeben
-        //return utilities.requestTray();
-        return null;
+        return Util_Http.requestTray(url, version);
     }
 
     @Override

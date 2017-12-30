@@ -114,6 +114,48 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2mm">
+
+            <Button
+                android:id="@+id/btInsertBigDummyItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100 Dummyitems hinzufügen"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/btDeletePrefs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Prefs löschen"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2mm">
+
+            <Button
+                android:id="@+id/btResetVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Datenbankversion zurücksetzen"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/btRevertVersion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Version Datenbank - 1"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

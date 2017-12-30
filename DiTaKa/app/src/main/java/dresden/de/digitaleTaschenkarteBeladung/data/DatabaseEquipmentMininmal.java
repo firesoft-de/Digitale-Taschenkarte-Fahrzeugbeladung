@@ -1,4 +1,4 @@
-package dresden.de.digitaleTaschenkarteBeladung.dataStructure;
+package dresden.de.digitaleTaschenkarteBeladung.data;
 
 import android.arch.persistence.room.PrimaryKey;
 

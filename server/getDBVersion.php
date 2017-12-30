@@ -1,10 +1,9 @@
 <?php
-	$dbFile = fopen("db_Version.txt");
+	$dbFile = fopen("db_Version.txt",'r');
 	
 	$dbVersion = fgets($dbFile);
 	
 	fclose($dbFile);
 	
-	print("Current DB Version:\n");
-	print($dbVersion);
+	echo "Current DB Version:" . PHP_EOL . $dbVersion;
 ?>
