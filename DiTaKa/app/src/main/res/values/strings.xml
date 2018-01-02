@@ -12,6 +12,8 @@
 
     <string name="option_menu_data">Datenbank importieren</string>
     <string name="option_menu_debug">Debug</string>
+    <string name="option_menu_settings">Einstellungen</string>
+    <string name="option_menu_about">Über</string>
 
     <string name="search_title">Suchergebnisse</string>
     <string name="search_hint">Suche starten...</string>
@@ -20,6 +22,7 @@
     <string name="detail_description">Beschreibung</string>
     <string name="detail_setname">Gerätesatz</string>
     <string name="detail_position">Position</string>
+    <string name="detail_additionalNotes">Hinweise</string>
 
     <string name="debug_db_info">Datenbankstatus</string>
     <string name="debug_db_info_item">Einträge Tabelle Item</string>

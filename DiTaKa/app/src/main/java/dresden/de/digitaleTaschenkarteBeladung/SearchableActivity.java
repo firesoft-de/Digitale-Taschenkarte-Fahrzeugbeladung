@@ -24,6 +24,8 @@ import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.ItemAdapter;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.SearchViewModel;
 
+import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogError;
+
 public class SearchableActivity extends AppCompatActivity {
 
     private static final String LOG_TAG="SearchableActivity_LOG";
@@ -65,7 +67,7 @@ public class SearchableActivity extends AppCompatActivity {
                 equipmentItems =  bundle.getParcelableArrayList("EL");
             } catch (NullPointerException e) {
                 e.printStackTrace();
-                Log.e(LOG_TAG, "Fehler beim Abrufen des Bundles in der SearchActivity! Cause: "+e.getCause() + " | Nachricht: " + e.getMessage());
+                LogError(LOG_TAG, "Fehler beim Abrufen des Bundles in der SearchActivity! Cause: "+e.getCause() + " | Nachricht: " + e.getMessage());
             }
 
             String searchQuery = intent.getStringExtra(SearchManager.QUERY);

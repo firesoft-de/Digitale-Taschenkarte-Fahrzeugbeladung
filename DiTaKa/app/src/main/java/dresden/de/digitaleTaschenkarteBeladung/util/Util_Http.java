@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 
+import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogError;
+
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen
 
@@ -101,7 +103,7 @@ public class Util_Http {
                     Integer integer = new Integer(response);
                     result = integer;
                 } catch (Exception e) {
-                    Log.e(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
+                    LogError(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
                 }
             }
 
@@ -233,7 +235,7 @@ public class Util_Http {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+                LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
             }
         }
         return response;
@@ -265,7 +267,7 @@ public class Util_Http {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e(LOG_TRACE,"IOException während des auslesens des InputStreams im BufferedReader! Meldung: " + e.getMessage());
+                LogError(LOG_TRACE,"IOException während des auslesens des InputStreams im BufferedReader! Meldung: " + e.getMessage());
             }
 
         }
@@ -290,7 +292,7 @@ public class Util_Http {
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            Log.e(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
+            LogError(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
         }
 
         return generatedUrl;

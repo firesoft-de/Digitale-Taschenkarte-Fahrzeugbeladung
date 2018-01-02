@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +38,8 @@ import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogError;
 
 
 /**
@@ -119,8 +122,23 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         ProgressBar progressBar = result.findViewById(R.id.DataProgress);
         progressBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
 
-        EditText editText = result.findViewById(R.id.text_url);
-        editText.setText(url);
+        final EditText editText = result.findViewById(R.id.text_url);
+
+        if (url != "NO_URL_FOUND") {
+            editText.setText(url);
+        }
+        else {
+            editText.setText("Gib hier die Server-URL ein!");
+            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    EditText editTexter = (EditText) v;
+                    if (url == "NO_URL_FOUND") {
+                        editTexter.setText("");
+                    }
+                }
+            });
+        }
 
         //Datenbankinformaitonen laden
         viewModel.countItems().observe(this, new Observer<Integer>() {
@@ -180,7 +198,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             default:
                 //Irgendwas ist schief gegangen -> Falsche ID
-                Log.e(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
+                LogError(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
                 return null;
         }
     }
@@ -205,6 +223,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         if (downloadsCompleted == 2) {
             //Datenbankversion aktualiseren
             MainActivity activity = (MainActivity) getActivity();
+            publishProgress(90);
 
             activity.dbVersion = activity.liveNetDBVersion.getValue();
             activity.dbState = MainActivity.dbstate.VALID;
@@ -216,6 +235,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             //Datenbanksversionsnummer aktualiseren
             updateDBVersion(dbversion, null);
+
+            activity.FirstDownloadCompleted = true;
 
             publishProgress(100);
         }
@@ -330,7 +351,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         else {
             tvDBVersion = getActivity().findViewById(R.id.dataTextViewDBVersion);
         }
-        tvDBVersion.setText(Integer.toString(version));
+        if (version != -1) {
+            tvDBVersion.setText(Integer.toString(version));
+        }
+        else {
+            tvDBVersion.setText("0");
+        }
     }
 
 }

@@ -1,2 +1,5 @@
 
-server/access.txt
+server/skripte/access.txt
+*.csv
+*.sql
+server/Datenbank

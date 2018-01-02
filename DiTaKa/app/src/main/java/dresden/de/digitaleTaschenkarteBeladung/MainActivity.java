@@ -23,19 +23,27 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import java.util.List;
+
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.util.VersionLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.util;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogDebug;
+import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogError;
 
 public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener, SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
-    //TODO: Versionsabfrage vom Server beim Starten einfügen
+
 
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
+    //TODO: Debug ausschalten
+    public final static Boolean DEBUG_ENABLED = true;
 
     //Konstanten für die Fragmenterkennung
 //    public static final String FRAGMENT_MAIN = "100";
@@ -73,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     }
 
     private boolean NetDBVersionCallForUser;
+    public boolean FirstDownloadCompleted;
 
     //Zentrale Datenvariablen
 //    public ArrayList<TrayItem> trays;
@@ -122,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
         }
 
+        FirstDownloadCompleted = false;
+
         //Erstes Fragment einfügen
         Fragment trayFragment = new TrayFragment();
         switchFragment(R.id.MainFrame,trayFragment,FRAGMENT_LIST_TRAY);
@@ -131,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     @Override
     public void onBackPressed() {
 
-        Log.d(LOG_TAG,"onBackPressed called!");
+        LogDebug(LOG_TAG,"onBackPressed called!");
         handleBackButton();
 
     }
@@ -198,6 +209,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //Den SearchView Listener aktivieren um eine eigene Intent Auslösung durchzuführen
         searchView.setOnQueryTextListener(this);
 
+        //Debug Menüs ausblenden
+        if (!DEBUG_ENABLED) {
+            menu.findItem(R.id.OptionMenuDebug).setVisible(false);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -214,9 +230,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 switchFragment(R.id.MainFrame,null, FRAGMENT_DEBUG);
                 return true;
 
-
             case android.R.id.home:
                 handleBackButton();
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -250,7 +266,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-
         String url = args.getString(ARGS_URL);
 
         return new VersionLoader(this,url);
@@ -273,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 dbState = dbstate.VALID;
             } else {
                 dbState = dbstate.UNKNOWN;
-                Log.e(LOG_TAG, "Datenbankstatus ist unbekannt! Irgendwas stimmt hier nicht o.O");
+                LogError(LOG_TAG, "Datenbankstatus ist unbekannt! Irgendwas stimmt hier nicht o.O");
             }
         }
         else {
@@ -302,6 +317,14 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             //Im BackStack einen Schritt zurück gehen
             manager.popBackStack();
 
+            if (FirstDownloadCompleted) {
+                Fragment newFrag = manager.findFragmentByTag(FRAGMENT_LIST_TRAY);
+                TrayFragment trayFragment = (TrayFragment) newFrag;
+                Bundle args = new Bundle();
+                args.putString(ARGS_DBSTATE,dbState.toString());
+                trayFragment.setArguments(args);
+                FirstDownloadCompleted = false;
+            }
 
             //Herausfinden welches Fragment angezeigt wurde um dann entsprechend die Titelleiste einzustellen
             switch (currentFragment.getTag()) {
@@ -332,9 +355,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
 
         } else if (currentFragment.getTag() != FRAGMENT_LIST_TRAY) {
+            //Wenn zum ersten Mal Daten heruntergeladen wurden, muss das Trayfragment mit einem neuen Satz Argumente versorgt werden, da der alte noch den falschen dbState enthält
             super.onBackPressed();
         }
-
     }
 
     /**
@@ -351,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         else {
             args.putString(ARGS_URL,url); }
 
+        //Soll mit dem Wert eine Anzeige für den Benutzer gefüttert werden?
         NetDBVersionCallForUser = callForUser;
 
         if (lManager.getLoader(0) == null) {
@@ -454,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
-            Log.e(LOG_TAG,"Fehler in der Methode switchFragment!");
+            LogError(LOG_TAG,"Fehler in der Methode switchFragment!");
         }
 
         ft.replace (id, fragment, tag);
