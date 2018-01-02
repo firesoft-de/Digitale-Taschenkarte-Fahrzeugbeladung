@@ -92,23 +92,27 @@ public class DetailFragment extends Fragment {
         TextView tvSetName = activity.findViewById(R.id.detailSetName);
         TextView tvPosition = activity.findViewById(R.id.detailPosition);
         TextView tvNotes = activity.findViewById(R.id.detailAdditionalNotes);
+        TextView tvSetNameStatic = activity.findViewById(R.id.detailSetNameStatic);
+        TextView tvNotesStatic = activity.findViewById(R.id.detailAdditionalNotesStatic);
 
         tvName.setText(item.getName());
         tvDescription.setText(item.getDescription());
 
-        if (item.getMSetName() != "") {
-            tvSetName.setText(item.getMSetName()); }
+        if (item.getMSetName() != ""  &&  item.getMSetName() != null) {
+            tvSetName.setText(item.getMSetName());
+            tvSetName.setVisibility(View.VISIBLE);
+            tvSetNameStatic.setVisibility(View.VISIBLE);}
         else {
             tvSetName.setVisibility(View.GONE);
-            TextView tvSetNameStatic = activity.findViewById(R.id.detailSetNameStatic);
             tvSetNameStatic.setVisibility(View.GONE);
         }
 
-        if (item.getAdditionalNotes() != "") {
-            tvNotes.setText(item.getMSetName()); }
+        if (item.getAdditionalNotes() != "" &&  item.getAdditionalNotes() != null) {
+            tvNotes.setText(item.getMSetName());
+            tvNotes.setVisibility(View.VISIBLE);
+            tvNotesStatic.setVisibility(View.VISIBLE);}
         else {
             tvNotes.setVisibility(View.GONE);
-            TextView tvNotesStatic = activity.findViewById(R.id.detailAdditionalNotesStatic);
             tvNotesStatic.setVisibility(View.GONE);
         }
 

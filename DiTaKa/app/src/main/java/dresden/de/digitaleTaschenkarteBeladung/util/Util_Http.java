@@ -120,9 +120,6 @@ public class Util_Http {
 
         ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
 
-        //TODO JSON Verarbeitung für die Gegenstände implementieren!
-
-
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
 
