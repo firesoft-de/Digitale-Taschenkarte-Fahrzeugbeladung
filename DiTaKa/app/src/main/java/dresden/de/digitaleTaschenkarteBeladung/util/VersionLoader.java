@@ -8,6 +8,8 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogDebug;
+
 public class VersionLoader extends AsyncTaskLoader<Integer> {
 
     private static final String LOG_TAG = "VersionLoader_LOG";
@@ -24,14 +26,14 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
     @Override
     public Integer loadInBackground() {
 
-        Log.d(LOG_TAG,"Start");
+        LogDebug(LOG_TAG,"Start");
 
         //TODO: Pausieren verbessern
 //        for (int i = 0; i < 20000000; i++) {
 //            int x = 1+1;
 //        }
 
-        Log.d(LOG_TAG,"End");
+        LogDebug(LOG_TAG,"End");
 
         return Util_Http.checkVersion(url);
     }

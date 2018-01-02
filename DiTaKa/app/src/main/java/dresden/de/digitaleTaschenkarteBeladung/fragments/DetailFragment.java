@@ -91,6 +91,7 @@ public class DetailFragment extends Fragment {
         TextView tvDescription = activity.findViewById(R.id.detailDescription);
         TextView tvSetName = activity.findViewById(R.id.detailSetName);
         TextView tvPosition = activity.findViewById(R.id.detailPosition);
+        TextView tvNotes = activity.findViewById(R.id.detailAdditionalNotes);
 
         tvName.setText(item.getName());
         tvDescription.setText(item.getDescription());
@@ -101,7 +102,14 @@ public class DetailFragment extends Fragment {
             tvSetName.setVisibility(View.GONE);
             TextView tvSetNameStatic = activity.findViewById(R.id.detailSetNameStatic);
             tvSetNameStatic.setVisibility(View.GONE);
-//            tvSetName.setText("...");
+        }
+
+        if (item.getAdditionalNotes() != "") {
+            tvNotes.setText(item.getMSetName()); }
+        else {
+            tvNotes.setVisibility(View.GONE);
+            TextView tvNotesStatic = activity.findViewById(R.id.detailAdditionalNotesStatic);
+            tvNotesStatic.setVisibility(View.GONE);
         }
 
         String position = item.getPosition();
