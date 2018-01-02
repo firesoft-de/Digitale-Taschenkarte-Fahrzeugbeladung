@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7b606ee7896a7aa046bfc0d1090530f9",
+    "identityHash": "8bb730f64364aeaccecb4f4c62685f60",
     "entities": [
       {
         "tableName": "equipment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -47,6 +47,12 @@
           {
             "fieldPath": "keywords",
             "columnName": "keywords",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "additionalNotes",
+            "columnName": "additionalNotes",
             "affinity": "TEXT",
             "notNull": false
           }
@@ -107,7 +113,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"7b606ee7896a7aa046bfc0d1090530f9\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8bb730f64364aeaccecb4f4c62685f60\")"
     ]
   }
 }

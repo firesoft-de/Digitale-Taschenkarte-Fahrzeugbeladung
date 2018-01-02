@@ -111,7 +111,7 @@ public class EquipmentItem implements Parcelable {
         this.position = position;
         this.categoryId = categoryId;
         this.keywords = keywords;
-        this.mSetName = "";
+        this.mSetName = setName;
 //        mImage = null;
 
 
