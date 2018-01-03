@@ -26,6 +26,7 @@ import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DebugViewModel;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_ExampleData;
 
@@ -145,6 +146,7 @@ public class DebugFragment extends Fragment {
                 MainActivity activity = (MainActivity) getActivity();
                 activity.dbVersion = 0;
                 activity.liveNetDBVersion.postValue(0);
+                activity.getNetDBState(null,true);
             }
         });
 
@@ -153,7 +155,7 @@ public class DebugFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MainActivity activity = (MainActivity) getActivity();
-                activity.liveNetDBVersion.postValue(activity.liveNetDBVersion.getValue()-1);
+                activity.dbVersion -= 1;
             }
         });
 
@@ -162,9 +164,9 @@ public class DebugFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 MainActivity activity = (MainActivity) getActivity();
-                SharedPreferences.Editor editor = activity.getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
-                editor.remove(MainActivity.PREFS_URL);
-                editor.remove(MainActivity.PREFS_DBVERSION);
+                SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+                editor.remove(Util.PREFS_URL);
+                editor.remove(Util.PREFS_DBVERSION);
 
                 editor.commit();
 

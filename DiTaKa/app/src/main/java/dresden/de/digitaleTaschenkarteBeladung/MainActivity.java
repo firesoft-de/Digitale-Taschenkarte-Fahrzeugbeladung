@@ -2,7 +2,6 @@ package dresden.de.digitaleTaschenkarteBeladung;
 
 
 import android.app.SearchManager;
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,44 +21,25 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import java.util.List;
-
+import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.util.VersionLoader;
-import dresden.de.digitaleTaschenkarteBeladung.util.util;
 
-import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogDebug;
-import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogError;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
 public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener, SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
-
-
 
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
     //TODO: Debug ausschalten
     public final static Boolean DEBUG_ENABLED = true;
-
-    //Konstanten für die Fragmenterkennung
-//    public static final String FRAGMENT_MAIN = "100";
-    public static final String FRAGMENT_DATA  = "101";
-    public static final String FRAGMENT_LIST_TRAY = "102";
-    public static final String FRAGMENT_LIST_ITEM = "103";
-    public static final String FRAGMENT_DETAIL = "104";
-    public static final String FRAGMENT_DEBUG = "105";
-
-    public static final String ARGS_URL = "ARGS_URL";
-    public static final String ARGS_VERSION = "ARGS_VERSION";
-    public static final String ARGS_DBSTATE = "ARGS_DBSTATE";
-    public static final String ARGS_CALLFORUSER = "ARGS_CALLFORUSER";
-
-    public static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
-    public static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
-    public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
 
     //Globale Variablen
     private FragmentManager fManager;
@@ -98,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         lManager = this.getSupportLoaderManager();
 
-        dbVersion = this.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(PREFS_DBVERSION,-1);
-        url = this.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getString(PREFS_URL,"NO_URL_FOUND");
+        dbVersion = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getInt(Util.PREFS_DBVERSION,-1);
+        url = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getString(Util.PREFS_URL,"NO_URL_FOUND");
 
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
         liveNetDBVersion = new MutableLiveData<>();
@@ -135,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         //Erstes Fragment einfügen
         Fragment trayFragment = new TrayFragment();
-        switchFragment(R.id.MainFrame,trayFragment,FRAGMENT_LIST_TRAY);
+        switchFragment(R.id.MainFrame,trayFragment, Util.FRAGMENT_LIST_TRAY);
     }
 
     //Festlegen was passiert wenn der BackButton gedrückt wird
@@ -153,6 +132,17 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.option_menu, menu);
+
+        //Die verschiedenen Menüeinträge anzeigenoder verstecken
+        if (DEBUG_ENABLED) {
+            menu.findItem(R.id.OptionMenuDebug).setVisible(true);
+        }
+        else {
+            menu.findItem(R.id.OptionMenuDebug).setVisible(false);
+        }
+
+        //TODO: Einstellungsdialog wieder einschalten
+        menu.findItem(R.id.OptionMenuSettings).setVisible(false);
 
         // Suchfunktionalität mittels SearchManager hinzufügen
         final SearchManager searchManager =
@@ -223,11 +213,19 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         switch (item.getItemId()) {
             case R.id.OptionMenuItemData:
-                switchFragment(R.id.MainFrame,null,FRAGMENT_DATA);
+                switchFragment(R.id.MainFrame,null, Util.FRAGMENT_DATA);
                 return true;
 
             case R.id.OptionMenuDebug:
-                switchFragment(R.id.MainFrame,null, FRAGMENT_DEBUG);
+                switchFragment(R.id.MainFrame,null, Util.FRAGMENT_DEBUG);
+                return true;
+
+            case R.id.OptionMenuAbout:
+                switchFragment(R.id.MainFrame,null, Util.FRAGMENT_ABOUT);
+                return true;
+
+            case R.id.OptionMenuSettings:
+                switchFragment(R.id.MainFrame,null, Util.FRAGMENT_SETTINGS);
                 return true;
 
             case android.R.id.home:
@@ -247,15 +245,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         Intent searchIntent = new Intent(this, SearchableActivity.class);
         searchIntent.putExtra(SearchManager.QUERY, query);
 
-//        Bundle bundle = new Bundle();
-//
-//        bundle.putParcelableArrayList("EL",equipmentItems);
-//        searchIntent.putExtras(bundle); // pass the search context data
         searchIntent.setAction(Intent.ACTION_SEARCH);
 
         startActivity(searchIntent);
 
-        return true; // we start the search activity manually
+        return true;
 
     }
 
@@ -266,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
-        String url = args.getString(ARGS_URL);
+        String url = args.getString(Util.ARGS_URL);
 
         return new VersionLoader(this,url);
     }
@@ -298,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     @Override
     public void onLoaderReset(Loader loader) {
+        //Hier gibt es nichts zu tun
     }
 
     //Klassen-Methoden
@@ -311,17 +306,17 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         Fragment currentFragment =  manager.findFragmentById(R.id.MainFrame);
 
-        if (manager.getBackStackEntryCount() > 0 && currentFragment.getTag() != FRAGMENT_LIST_TRAY) {
+        if (manager.getBackStackEntryCount() > 0 && currentFragment.getTag() != Util.FRAGMENT_LIST_TRAY) {
             //Sind im BackStack Einträge vorhanden?
 
             //Im BackStack einen Schritt zurück gehen
             manager.popBackStack();
 
             if (FirstDownloadCompleted) {
-                Fragment newFrag = manager.findFragmentByTag(FRAGMENT_LIST_TRAY);
+                Fragment newFrag = manager.findFragmentByTag(Util.FRAGMENT_LIST_TRAY);
                 TrayFragment trayFragment = (TrayFragment) newFrag;
                 Bundle args = new Bundle();
-                args.putString(ARGS_DBSTATE,dbState.toString());
+                args.putString(Util.ARGS_DBSTATE,dbState.toString());
                 trayFragment.setArguments(args);
                 FirstDownloadCompleted = false;
             }
@@ -329,32 +324,32 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             //Herausfinden welches Fragment angezeigt wurde um dann entsprechend die Titelleiste einzustellen
             switch (currentFragment.getTag()) {
 
-/*                case (FRAGMENT_DATA):
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
-                    //Zurückanzeige ausblenden
-                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                    break;
-
-                case (FRAGMENT_LIST_ITEM):
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
-                    //Zurückanzeige einblenden
-                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                    break;*/
-
-                case (FRAGMENT_DETAIL):
+                case (Util.FRAGMENT_DETAIL):
                     this.getSupportActionBar().setTitle(R.string.fragment_title_item);
                     //Zurückanzeige einblenden
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                     break;
 
                 default:
-                    //Nichts tun
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
-                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                    //Überprüfen ob das nächste Fragment das TrayFragment ist. Die Überprüfung der backStackCount Größe ist notwendig um zu verhindern, dass ein Index < 0 abgerufen wird
+                    int backStackCount = manager.getBackStackEntryCount();
+                    String backStackTag;
+                    if (backStackCount >= 2) {
+                        backStackTag = manager.getBackStackEntryAt(backStackCount-2).getName();
+                        if (backStackTag == Util.FRAGMENT_LIST_TRAY) {
+                            //Nichts tun
+                            this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
+                            this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                        }
+                        else {
+                            //Den passenden Namen zuweisen
+                            setTitle(backStackTag);
+                        }
+                    }
                     break;
             }
 
-        } else if (currentFragment.getTag() != FRAGMENT_LIST_TRAY) {
+        } else if (currentFragment.getTag() != Util.FRAGMENT_LIST_TRAY) {
             //Wenn zum ersten Mal Daten heruntergeladen wurden, muss das Trayfragment mit einem neuen Satz Argumente versorgt werden, da der alte noch den falschen dbState enthält
             super.onBackPressed();
         }
@@ -370,9 +365,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         Bundle args = new Bundle();
 
         if (url == null) {
-        args.putString(ARGS_URL,this.url); }
+        args.putString(Util.ARGS_URL,this.url);
+        }
         else {
-            args.putString(ARGS_URL,url); }
+            args.putString(Util.ARGS_URL,url);
+        }
 
         //Soll mit dem Wert eine Anzeige für den Benutzer gefüttert werden?
         NetDBVersionCallForUser = callForUser;
@@ -414,18 +411,17 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             //Hier wird anhand des gesendeten Tags das passende Fragment gesucht und angezeigt. Gleichzeitig wird der BackButton in den passenden Status gesetzt.
             switch (tag) {
 
-                case FRAGMENT_DATA:
+                case Util.FRAGMENT_DATA:
                     if (newFragment) {
                        fragment = new DataImportFragment();
                     }
                     if (url != "" || dbVersion == -1) {
                         Bundle args = new Bundle();
-                        args.putString(ARGS_URL,url);
-                        args.putInt(ARGS_VERSION,dbVersion);
+                        args.putString(Util.ARGS_URL,url);
+                        args.putInt(Util.ARGS_VERSION,dbVersion);
                         fragment.setArguments(args);
 
                         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                        this.getSupportActionBar().setTitle(R.string.fragment_title_data);
                     }
                     else {
                         Toast.makeText(this, "Fehler beim Erstellen des Import-Fragmentes!", Toast.LENGTH_SHORT).show();
@@ -433,61 +429,108 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                     }
                     break;
 
-                case FRAGMENT_DETAIL:
+                case Util.FRAGMENT_DETAIL:
                     if (newFragment) {
                         //fragment = new DataImportFragment();
                         Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_detail);
                     break;
 
-                case FRAGMENT_LIST_TRAY:
+                case Util.FRAGMENT_LIST_TRAY:
                     if (newFragment) {
                         fragment = new TrayFragment();
                     }
                     Bundle args = new Bundle();
                     if (dbState != null) {
-                        args.putString(ARGS_DBSTATE,dbState.toString()); }
+                        args.putString(Util.ARGS_DBSTATE,dbState.toString()); }
                     else {
-                        args.putString(ARGS_DBSTATE,""); }
+                        args.putString(Util.ARGS_DBSTATE,""); }
                     fragment.setArguments(args);
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
                     break;
 
-                case FRAGMENT_LIST_ITEM:
+                case Util.FRAGMENT_LIST_ITEM:
                     if (newFragment) {
                         fragment = new ItemFragment();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_item);
                     break;
 
-                case FRAGMENT_DEBUG:
+                case Util.FRAGMENT_DEBUG:
                     if (newFragment) {
                         fragment = new DebugFragment();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                    this.getSupportActionBar().setTitle(R.string.fragment_title_debug);
+                    break;
+
+                case Util.FRAGMENT_SETTINGS:
+                    if (newFragment) {
+                        fragment = new SettingsFragment();
+                    }
+                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    break;
+
+                case Util.FRAGMENT_ABOUT:
+                    if (newFragment) {
+                        fragment = new AboutFragment();
+                    }
+                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                     break;
 
                 default:
                     throw new IllegalArgumentException("Kein passendes Fragment gefunden!");
 
             }
+
+            setTitle(tag);
+
         } catch (NullPointerException e) {
             e.printStackTrace();
             LogError(LOG_TAG,"Fehler in der Methode switchFragment!");
         }
 
-        ft.replace (id, fragment, tag);
-        ft.addToBackStack(null);
+        ft.replace(id, fragment, tag);
+        ft.addToBackStack(tag);
         ft.commit();
 
     }
 
+    private void setTitle(String tag) {
+        switch (tag) {
+            case Util.FRAGMENT_DATA:
+                    this.getSupportActionBar().setTitle(R.string.fragment_title_data);
 
+            case Util.FRAGMENT_DETAIL:
+                this.getSupportActionBar().setTitle(R.string.fragment_title_detail);
+                break;
+
+            case Util.FRAGMENT_LIST_TRAY:
+                this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
+                break;
+
+            case Util.FRAGMENT_LIST_ITEM:
+                this.getSupportActionBar().setTitle(R.string.fragment_title_item);
+                break;
+
+            case Util.FRAGMENT_DEBUG:
+                this.getSupportActionBar().setTitle(R.string.fragment_title_debug);
+                break;
+
+            case Util.FRAGMENT_SETTINGS:
+                this.getSupportActionBar().setTitle(R.string.fragment_title_settings);
+                break;
+
+            case Util.FRAGMENT_ABOUT:
+                String title = this.getString(R.string.fragment_title_about)  + " " + this.getString(R.string.app_name);
+                this.getSupportActionBar().setTitle(title);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Kein passendes Fragment gefunden!");
+
+        }
+    }
 
 
 }

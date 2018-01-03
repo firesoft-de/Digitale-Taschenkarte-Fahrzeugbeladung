@@ -7,7 +7,6 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverter;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,7 +15,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogDebug;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
 
 /**
  * {@link EquipmentItem} Diese Klasse implementiert die Datenstruktur für einen einzelnen Ausstattungsgegenstand

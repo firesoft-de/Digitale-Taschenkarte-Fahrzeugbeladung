@@ -34,10 +34,10 @@
 	$queryString = "SELECT * FROM " . $db_table . " WHERE version > ".$clientdbVersion;
 	
 	//Ausgabe per print
-	// foreach ($pdo->query($queryString as $row) {
-		// //Ausgabe vorerst per print
-		// print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#";
-	// }
+	 // foreach ($pdo->query($queryString) as $row) {
+		 // //Ausgabe vorerst per print
+		 // print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
+	 // }
 	
 	//Ausgabe per JSON
 	//https://stackoverflow.com/questions/2770273/pdostatement-to-json
@@ -46,15 +46,41 @@
 	$results = array();
 	
 	while($row=$statement->fetch(PDO::FETCH_ASSOC)){
-	  
-			$results["OUTPUT"][] = $row;
-			// $json = json_encode($row,JSON_PRETTY_PRINT);
-			// echo json_last_error();
-			// echo $json;
-	 
+		
+		//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
+		$results["OUTPUT"][] = $row;
+ 
 	}
 	
 	$json = json_encode($results,JSON_PRETTY_PRINT);
+	
+	//DEBUG
+	//print_r($results);
+		
+	// switch (json_last_error()) {
+        // case JSON_ERROR_NONE:
+            // echo ' - No errors';
+        // break;
+        // case JSON_ERROR_DEPTH:
+            // echo ' - Maximum stack depth exceeded';
+        // break;
+        // case JSON_ERROR_STATE_MISMATCH:
+            // echo ' - Underflow or the modes mismatch';
+        // break;
+        // case JSON_ERROR_CTRL_CHAR:
+            // echo ' - Unexpected control character found';
+        // break;
+        // case JSON_ERROR_SYNTAX:
+            // echo ' - Syntax error, malformed JSON';
+        // break;
+        // case JSON_ERROR_UTF8:
+            // echo ' - Malformed UTF-8 characters, possibly incorrectly encoded';
+        // break;
+        // default:
+            // echo ' - Unknown error';
+        // break;
+    // }
+	
 	
 	print($json);
 ?>
