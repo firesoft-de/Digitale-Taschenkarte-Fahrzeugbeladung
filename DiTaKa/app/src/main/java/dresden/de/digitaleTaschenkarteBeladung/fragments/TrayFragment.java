@@ -24,6 +24,7 @@ import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.TrayAdapter;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.TrayViewModel;
 
 /**
@@ -75,7 +76,7 @@ public class TrayFragment extends Fragment {
         viewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(TrayViewModel.class);
 
-        String arg = this.getArguments().getString(MainActivity.ARGS_DBSTATE);
+        String arg = this.getArguments().getString(Util.ARGS_DBSTATE);
 
         MainActivity.dbstate dbState;
         if (arg != "") {
@@ -109,7 +110,7 @@ public class TrayFragment extends Fragment {
                     ItemFragment itemFragment = new ItemFragment();
                     itemFragment.setArguments(args);
 
-                    masterCallback.switchFragment(R.id.MainFrame,itemFragment,MainActivity.FRAGMENT_LIST_ITEM);
+                    masterCallback.switchFragment(R.id.MainFrame,itemFragment, Util.FRAGMENT_LIST_ITEM);
                 }
             });
         }

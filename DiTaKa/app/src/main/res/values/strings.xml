@@ -9,6 +9,8 @@
     <string name="fragment_title_item">Ausrüstung</string>
     <string name="fragment_title_detail">Detailansicht</string>
     <string name="fragment_title_debug">Debug</string>
+    <string name="fragment_title_settings">Debug</string>
+    <string name="fragment_title_about">Über</string>
 
     <string name="option_menu_data">Datenbank importieren</string>
     <string name="option_menu_debug">Debug</string>
@@ -35,5 +37,8 @@
     <string name="data_traycount">Datenbankeinträge Trays</string>
     <string name="data_version">Datenbankversion</string>
     <string name="data_version_net">Globale Datenbankversion</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
 
 </resources>

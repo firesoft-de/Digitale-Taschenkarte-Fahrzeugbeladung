@@ -1,7 +1,6 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
-import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -14,14 +13,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,16 +27,17 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
-import dresden.de.digitaleTaschenkarteBeladung.util.ItemLoader;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.util.TrayLoader;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.ItemLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.TrayLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
-import static dresden.de.digitaleTaschenkarteBeladung.util.util.LogError;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
 
 /**
@@ -64,8 +62,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     ViewModelProvider.Factory viewModelFactory;
 
     DataFragViewModel viewModel;
-
-    SharedPreferences settings;
 
     public DataImportFragment() {
         // Required empty public constructor
@@ -102,12 +98,17 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         viewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(DataFragViewModel.class);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.fragment_title_data);
+
+        try {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.fragment_title_data);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
 
 
-        url = this.getArguments().getString(MainActivity.ARGS_URL);
-        dbversion = this.getArguments().getInt(MainActivity.ARGS_VERSION);
+        url = this.getArguments().getString(Util.ARGS_URL);
+        dbversion = this.getArguments().getInt(Util.ARGS_VERSION);
 
         //ClickListener für das Hinzufügen der Daten einbauen
 
@@ -184,8 +185,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
 
-        String url = args.getString(MainActivity.ARGS_URL);
-        Integer version = args.getInt(MainActivity.ARGS_VERSION);
+        String url = args.getString(Util.ARGS_URL);
+        Integer version = args.getInt(Util.ARGS_VERSION);
 
         switch (id) {
             case 1:
@@ -229,9 +230,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             activity.dbState = MainActivity.dbstate.VALID;
             dbversion = activity.dbVersion;
 
-            SharedPreferences.Editor editor = activity.getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
-            editor.putInt(MainActivity.PREFS_DBVERSION,activity.dbVersion);
-            editor.commit();
+            SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+            editor.putInt(Util.PREFS_DBVERSION,activity.dbVersion);
+            editor.apply();
 
             //Datenbanksversionsnummer aktualiseren
             updateDBVersion(dbversion, null);
@@ -266,13 +267,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         //Parameter für die Loader fertig machen
         EditText editText = getActivity().findViewById(R.id.text_url);
-        SharedPreferences.Editor editor = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, Context.MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = getActivity().getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
         url = editText.getText().toString();
 
-        if (!url.contains("http://")) {
+        if (!url.contains("http://") && !url.contains("https://")) {
             url = "http://" + url;
         }
-        editor.putString(MainActivity.PREFS_URL, url);
+        editor.putString(Util.PREFS_URL, url);
         editor.apply();
 
         //Netzwerkstatus überpüfen
@@ -304,19 +305,15 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     //Eigene Methode, damit auf Statusänderung der Livedata-Variable reagiert werden kann
     private void initateLoader(int netVersion) {
 
-        if (netVersion == -1) {
-            //Irgendwas stimmt nicht!
-
-        }
-        else {
+        if (netVersion != -1) {
             if (dbversion < netVersion) {
 
                 //Loader initialiseren
                 LoaderManager loaderManager = getLoaderManager();
 
                 Bundle args = new Bundle();
-                args.putString(MainActivity.ARGS_URL, url);
-                args.putInt(MainActivity.ARGS_VERSION, dbversion);
+                args.putString(Util.ARGS_URL, url);
+                args.putInt(Util.ARGS_VERSION, dbversion);
 
                 //Loader anwerfen
                 if (loaderManager.getLoader(ITEM_LOADER) == null) {
@@ -325,7 +322,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     loaderManager.restartLoader(ITEM_LOADER, args, this);
                 }
 
-                //TODO: TrayLoader implementieren und aktivieren
                 if (loaderManager.getLoader(TRAY_LOADER) == null) {
                     loaderManager.initLoader(TRAY_LOADER, args, this);
                 } else {

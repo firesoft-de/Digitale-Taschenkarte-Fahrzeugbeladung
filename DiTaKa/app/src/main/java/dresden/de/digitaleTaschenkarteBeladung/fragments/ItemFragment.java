@@ -19,12 +19,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.ItemAdapter;
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
 /**
@@ -40,7 +40,7 @@ public class ItemFragment extends Fragment {
 
     private ItemAdapter itemAdapter;
 
-    private ArrayList<EquipmentItem> itemList;
+    private ArrayList<DatabaseEquipmentMininmal> itemList;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -108,29 +108,24 @@ public class ItemFragment extends Fragment {
 
     }
 
+    @Override
+    public void onDetach() {
+        itemList.clear();
+        itemAdapter.clear();
+        super.onDetach();
+    }
+
     private void insertData(@Nullable ArrayList<EquipmentItem> equipmentItems, @Nullable List<DatabaseEquipmentMininmal> minimalItem) {
 
         if (equipmentItems == null && minimalItem != null) {
-            //minimal zu equipment Item konvertieren
-            equipmentItems = new ArrayList<>();
+            itemList = (ArrayList<DatabaseEquipmentMininmal>) minimalItem;
 
-            itemList = new ArrayList<>();
-
-            for (int i = 0; i < minimalItem.size(); i++) {
-                EquipmentItem item = new EquipmentItem();
-                item.fromMinimal(minimalItem.get(i));
-                itemList.add(item);
-                equipmentItems.add(item);
-            }
         }
-//        else if (equipmentItems != null && minimalItem == null) {
-//
-//        }
         else {
             throw new IllegalArgumentException("Es darf nur ein Argument der Methode insertData null sein!");
         }
 
-        itemAdapter = new ItemAdapter(this.getActivity(), equipmentItems);
+        itemAdapter = new ItemAdapter(this.getActivity(), (ArrayList) minimalItem);
 
         ListView lv = getActivity().findViewById(R.id.ListViewMain);
 
@@ -141,7 +136,7 @@ public class ItemFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                EquipmentItem item = itemList.get(i);
+                DatabaseEquipmentMininmal item = itemList.get(i);
 
                 DetailFragment detailFragment = new DetailFragment();
                 Bundle bundle = new Bundle();
@@ -150,11 +145,9 @@ public class ItemFragment extends Fragment {
 
                 detailFragment.setArguments(bundle);
 
-                masterCallback.switchFragment(R.id.MainFrame,detailFragment, MainActivity.FRAGMENT_DETAIL);
+                masterCallback.switchFragment(R.id.MainFrame,detailFragment, Util.FRAGMENT_DETAIL);
 
             }
         });
-
     }
-
 }
