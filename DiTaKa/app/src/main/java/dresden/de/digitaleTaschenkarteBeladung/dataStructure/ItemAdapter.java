@@ -13,14 +13,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 
-public class ItemAdapter extends ArrayAdapter<EquipmentItem> {
+public class ItemAdapter extends ArrayAdapter<DatabaseEquipmentMininmal> {
 
     private static  final String LOG_TAG="ItemAdapter_LOG";
 
 
-    public ItemAdapter(Activity context, ArrayList<EquipmentItem> items) {
+    public ItemAdapter(Activity context, ArrayList<DatabaseEquipmentMininmal> items) {
 
         super(context,0,items);
 
@@ -36,14 +37,14 @@ public class ItemAdapter extends ArrayAdapter<EquipmentItem> {
                 listItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
             }
 
-            EquipmentItem currentItem = getItem(position);
+            DatabaseEquipmentMininmal currentItem = getItem(position);
 
             TextView tvItemName = (TextView) listItemView.findViewById(R.id.listItem_tv_name);
 
-            tvItemName.setText(currentItem.getName());
+            tvItemName.setText(currentItem.name);
 
             TextView tvItemPosition = (TextView) listItemView.findViewById(R.id.listItem_tv_position);
-            tvItemPosition.setText(currentItem.getPosition());
+            tvItemPosition.setText(currentItem.position);
 
             //Weiterpfeil ausblenden
             ImageView continueArrow = (ImageView) listItemView.findViewById(R.id.imageView2);

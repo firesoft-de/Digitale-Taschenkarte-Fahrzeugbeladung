@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,10 +17,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen
@@ -50,7 +54,7 @@ public class Util_Http {
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
-            httpResponse = httpRequester(urlV);
+            httpResponse = httpsRequester(urlV);
         }
 
         //Antwort mittels JSON Parser verarbeiten
@@ -74,7 +78,7 @@ public class Util_Http {
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
-            httpResponse = httpRequester(urlV);
+            httpResponse = httpsRequester(urlV);
         }
 
         //Antwort mittels JSON Parser verarbeiten
@@ -97,11 +101,11 @@ public class Util_Http {
 
             if (urlV != null) {
                 try {
-                    String response = httpRequester(urlV);
+                    String response = httpsRequester(urlV);
                     Integer integer = new Integer(response);
                     result = integer;
                 } catch (Exception e) {
-                    Log.e(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
+                    LogError(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
                 }
             }
 
@@ -117,9 +121,6 @@ public class Util_Http {
     private static ArrayList<EquipmentItem> jsonItemParsing(String response) {
 
         ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
-
-        //TODO JSON Verarbeitung für die Gegenstände implementieren!
-
 
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
@@ -191,24 +192,25 @@ public class Util_Http {
 
 
     /**
-     * {@httpRequester} führt den HTTP Request durch
+     * Diese Methode ist für den eigentliche Request zuständig. Es wird eine SSL Verbindung mittels HTTPS genutzt.
      * @param url die Server-URL
      * @return Antwort des Servers als String
      */
-    private static String httpRequester(URL url) {
+    private static String httpsRequester(URL url) {
 
         //Response Variable
         String response = null;
 
         //Interne Variablen
-        HttpURLConnection connection = null;
+            HttpsURLConnection connection = null;
 
-        //HTTP Verbindung aufbauen
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            //HTTPS Verbindung aufbauen
+            try {
+                connection = (HttpsURLConnection) url.openConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
         if (connection != null) {
 
@@ -227,13 +229,73 @@ public class Util_Http {
                     //Verbindung erfolgreich hergestellt
 
                     //Übergabe des InputStreams zur Verarbeitung
-                    response = readStream( connection.getInputStream());
+                    response = readStream(connection.getInputStream());
 
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+                if (e.getMessage().contains("java.security.cert.CertPathValidatorException")) {
+                    //Validierungspfad Fehler -> Umschwenken auf HTTP Verbindung
+                    URL newURL = null;
+                    try {
+                        newURL = new URL("http", url.getHost(), url.getFile());
+                    } catch (MalformedURLException e1) {
+                        e1.printStackTrace();
+                    }
+                    response = httpRequester(newURL);
+                }
+
+                LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Diese Methode ist für den eigentliche Request zuständig. Sie wird genutzt wenn keine SSL Verbindung aufgebaut werden kann
+     * @param url die Server-URL
+     * @return Antwort des Servers als String
+     */
+    private static String httpRequester(URL url) {
+
+        //Response Variable
+        String response = null;
+
+        //Interne Variablen
+        HttpURLConnection connection = null;
+
+        //HTTPS Verbindung aufbauen
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        if (connection != null) {
+
+            try {
+
+                //Verbindungseinstellungen
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+                connection.setRequestMethod("GET");
+
+                //Verbindung herstellen
+                connection.connect();
+
+                //Verbindungsantwort prüfen
+                if (connection.getResponseCode() == 200) {
+                    //Verbindung erfolgreich hergestellt
+
+                    //Übergabe des InputStreams zur Verarbeitung
+                    response = readStream(connection.getInputStream());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
             }
         }
         return response;
@@ -265,7 +327,7 @@ public class Util_Http {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e(LOG_TRACE,"IOException während des auslesens des InputStreams im BufferedReader! Meldung: " + e.getMessage());
+                LogError(LOG_TRACE,"IOException während des auslesens des InputStreams im BufferedReader! Meldung: " + e.getMessage());
             }
 
         }
@@ -290,7 +352,7 @@ public class Util_Http {
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
-            Log.e(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
+            LogError(LOG_TRACE, "Konnte URL für den Loader nicht erstellen! Nachricht: " + e.getMessage());
         }
 
         return generatedUrl;

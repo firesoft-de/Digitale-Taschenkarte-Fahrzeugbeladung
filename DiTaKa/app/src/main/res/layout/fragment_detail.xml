@@ -80,12 +80,34 @@
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
+            android:id="@+id/detailAdditionalNotesStatic"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/text_size_normal"
+            android:text="@string/detail_additionalNotes"
+            android:layout_column="0"
+            android:layout_row="3"
+            android:layout_marginRight="@dimen/margin_normal"/>
+
+        <TextView
+            android:id="@+id/detailAdditionalNotes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="fill_horizontal"
+            android:textSize="@dimen/text_size_normal"
+            android:layout_column="1"
+            android:layout_row="3"
+            android:maxLines="1"
+            android:text="Platzhalter"
+            android:layout_marginBottom="@dimen/margin_small"/>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="@dimen/text_size_normal"
             android:text="@string/detail_position"
             android:layout_column="0"
-            android:layout_row="3"
+            android:layout_row="4"
             android:layout_marginRight="@dimen/margin_normal"
             android:layout_marginBottom="@dimen/margin_small"/>
 
@@ -96,7 +118,7 @@
             android:layout_height="match_parent"
             android:textSize="@dimen/text_size_highlight"
             android:layout_column="1"
-            android:layout_row="3"
+            android:layout_row="4"
             android:textColor="@color/text_highlight"
             android:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
 

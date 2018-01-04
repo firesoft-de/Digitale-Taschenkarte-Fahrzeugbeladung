@@ -5,5 +5,5 @@
 	
 	fclose($dbFile);
 	
-	echo "Current DB Version:" . PHP_EOL . $dbVersion;
+	echo $dbVersion;
 ?>

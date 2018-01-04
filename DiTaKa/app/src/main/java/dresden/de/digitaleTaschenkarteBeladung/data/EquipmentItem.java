@@ -7,13 +7,15 @@ import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverter;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
 
 /**
  * {@link EquipmentItem} Diese Klasse implementiert die Datenstruktur für einen einzelnen Ausstattungsgegenstand
@@ -48,6 +50,9 @@ public class EquipmentItem implements Parcelable {
 
     //Wird für die Suche verwendet
     private ArrayList<String> keywords;
+
+    //Zusätzliche Hinweise zum Gerät
+    private String additionalNotes;
 
 
     public static final Parcelable.Creator<EquipmentItem> CREATOR
@@ -105,7 +110,7 @@ public class EquipmentItem implements Parcelable {
         this.position = position;
         this.categoryId = categoryId;
         this.keywords = keywords;
-        this.mSetName = "";
+        this.mSetName = setName;
 //        mImage = null;
 
 
@@ -125,11 +130,9 @@ public class EquipmentItem implements Parcelable {
         String[] keys = input.createStringArray();
         keywords = new ArrayList<>();
 
-        for (int i = 0; i < keys.length; i++) {
-            keywords.add(keys[i]);
-        }
+        keywords.addAll(Arrays.asList(keys));
 
-        Log.d(LOG_TAG,"Parcelinformation gelesen");
+        LogDebug(LOG_TAG,"Parcelinformation gelesen");
 
     }
 
@@ -150,6 +153,8 @@ public class EquipmentItem implements Parcelable {
 
     public ArrayList<String> getKeywords() {return keywords;}
 
+    public String getAdditionalNotes() {return additionalNotes;}
+
     //Set Methoden
 
     public void setId(int id) {}
@@ -165,6 +170,8 @@ public class EquipmentItem implements Parcelable {
     public void setmSetName(String setName) {this.mSetName = setName;}
 
     public void setKeywords(ArrayList<String> keywords) {this.keywords = keywords;}
+
+    public  void setAdditionalNotes(String additionalNotes) {this.additionalNotes = additionalNotes;}
 
     public void setKeywordsFromArray(String[] keywords) {
         ArrayList<String> list = new ArrayList<>();
