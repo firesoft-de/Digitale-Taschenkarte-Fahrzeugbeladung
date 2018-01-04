@@ -1,6 +1,7 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -30,7 +31,9 @@ import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.ImageLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.ItemLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.TrayLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
@@ -43,12 +46,14 @@ import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 /**
  * A simple {@link Fragment} subclass.
  */
+@SuppressWarnings("ConstantConditions")
 public class DataImportFragment extends Fragment implements LoaderManager.LoaderCallbacks {
 
     private static final String LOG_TAG="DataImportFragment_LOG";
 
     private static final int ITEM_LOADER = 1;
     private static final int TRAY_LOADER = 2;
+    private static final int IMAGE_LOADER = 3;
 
     //Datenbankversion
     private int dbversion;
@@ -141,7 +146,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             });
         }
 
-        //Datenbankinformaitonen laden
+        //Die Observer initalisieren um die Datenbankinformationen anzuzeigen
         viewModel.countItems().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
@@ -158,6 +163,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
+        viewModel.countImages().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(@Nullable Integer integer) {
+                TextView tv =  getActivity().findViewById(R.id.dataTextViewImageCount);
+                tv.setText(Integer.toString(integer));
+            }
+        });
+
         MainActivity activity = (MainActivity) getActivity();
 
 //        TextView tvNetDBVersion = result.findViewById(R.id.dataTextViewDBNetVersion);
@@ -165,7 +178,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         activity.liveNetDBVersion.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
-                if (initLoaderAfterNetVersionRefresh ==false) {
+                if (!initLoaderAfterNetVersionRefresh) {
                     updateNetVersion(integer);
                 }
                 else {
@@ -189,13 +202,17 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         Integer version = args.getInt(Util.ARGS_VERSION);
 
         switch (id) {
-            case 1:
+            case ITEM_LOADER:
                 //ID 1: Ein neuer ItemLoader wird gebraucht!
                 return new ItemLoader(getContext(),url,version);
 
-            case 2:
+            case TRAY_LOADER:
                 //ID 2: Ein neuer TrayLoader wird gebraucht!
                 return new TrayLoader(getContext(),url,version);
+
+            case IMAGE_LOADER:
+                //ID 3: Ein neuer ImageLoader wird gebraucht!
+                return new ImageLoader(getContext(),url,version);
 
             default:
                 //Irgendwas ist schief gegangen -> Falsche ID
@@ -209,42 +226,70 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     public void onLoadFinished(Loader loader, Object data) {
         //Die Loader haben ihre Arbeit abgeschlossen
         //Runtergeladene Daten in die Datenbank schreiben
+
+        //Es ist etwas schief gelaufen
+        boolean error = false;
+
         switch (loader.getId()) {
             case ITEM_LOADER:
-                viewModel.addItems((ArrayList<EquipmentItem>) data);
-                downloadsCompleted += 1;
+                if (data != null) {
+                    viewModel.addItems((ArrayList<EquipmentItem>) data);
+                    downloadsCompleted += 1;
+                } else {
+                    error = true;
+                }
                 break;
 
             case TRAY_LOADER:
-                viewModel.addTrays((ArrayList<TrayItem>) data);
-                downloadsCompleted += 1;
+                if (data != null) {
+                    viewModel.addTrays((ArrayList<TrayItem>) data);
+                    downloadsCompleted += 1;
+                } else {
+                    error = true;
+                }
+                break;
+
+            case IMAGE_LOADER:
+                if (data != null) {
+                    viewModel.addImage((ArrayList<ImageItem>) data);
+                    downloadsCompleted += 1;
+                } else {
+                    error = true;
+                }
                 break;
         }
 
-        if (downloadsCompleted == 2) {
-            //Datenbankversion aktualiseren
-            MainActivity activity = (MainActivity) getActivity();
-            publishProgress(90);
+        if (error) {
+            publishProgress(0);
+            Toast.makeText(getContext(), "Es ist ein Fehler beim Herunterladen der Daten aufgetreten!", Toast.LENGTH_SHORT).show();
+        } else {
+            if (downloadsCompleted == 1) {
+                publishProgress(40);
+            } else if (downloadsCompleted == 2) {
+                publishProgress(65);
+            } else if (downloadsCompleted == 3) {
+                //Datenbankversion aktualiseren
+                MainActivity activity = (MainActivity) getActivity();
+                publishProgress(90);
 
-            activity.dbVersion = activity.liveNetDBVersion.getValue();
-            activity.dbState = MainActivity.dbstate.VALID;
-            dbversion = activity.dbVersion;
+                //Variablen aktualisieren
+                activity.dbVersion = activity.liveNetDBVersion.getValue();
+                activity.dbState = MainActivity.dbstate.VALID;
+                dbversion = activity.dbVersion;
 
-            SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-            editor.putInt(Util.PREFS_DBVERSION,activity.dbVersion);
-            editor.apply();
+                //Preferences aktualisieren
+                SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+                editor.putInt(Util.PREFS_DBVERSION, activity.dbVersion);
+                editor.apply();
 
-            //Datenbanksversionsnummer aktualiseren
-            updateDBVersion(dbversion, null);
+                //Angezeigte Datenbankversion aktualisieren
+                updateDBVersion(dbversion, null);
 
-            activity.FirstDownloadCompleted = true;
+                activity.FirstDownloadCompleted = true;
 
-            publishProgress(100);
+                publishProgress(100);
+            }
         }
-        else if (downloadsCompleted == 1) {
-            publishProgress(50);
-        }
-
     }
 
     @Override
@@ -265,14 +310,21 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //3. -> Neue Version, dann Daten abfragen und verarbeiten
         //Ansonsten Ende
 
-        //Parameter für die Loader fertig machen
+        //URL speichern und für die Loader aufbereiten
         EditText editText = getActivity().findViewById(R.id.text_url);
         SharedPreferences.Editor editor = getActivity().getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
         url = editText.getText().toString();
 
+        //https einfügen falls nicht vorhanden
         if (!url.contains("http://") && !url.contains("https://")) {
-            url = "http://" + url;
+            url = "https://" + url;
         }
+
+        //Prüfen ob als letztes Zeichen ein / vorhanden ist und dieses ggf. entfernen
+        if ((url.charAt(url.length() - 2)) == '/') {
+            url = (String) url.subSequence(0, url.length() - 3);
+        }
+
         editor.putString(Util.PREFS_URL, url);
         editor.apply();
 
@@ -302,7 +354,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
-    //Eigene Methode, damit auf Statusänderung der Livedata-Variable reagiert werden kann
+    //Die Loader werden in einer eigenen Methode gestartet, damit auf Statusänderung der Livedata-Variable reagiert werden kann
     private void initateLoader(int netVersion) {
 
         if (netVersion != -1) {
@@ -328,6 +380,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     loaderManager.restartLoader(TRAY_LOADER, args, this);
                 }
 
+                if (loaderManager.getLoader(IMAGE_LOADER) == null) {
+                    loaderManager.initLoader(IMAGE_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(IMAGE_LOADER, args, this);
+                }
+
             } else {
                 Toast.makeText(getContext(), R.string.app_nodbRefresh, Toast.LENGTH_LONG).show();
             }
@@ -339,6 +397,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         progressBar.setProgress(progress);
     }
 
+    @SuppressLint("SetTextI18n")
     private void updateDBVersion(int version, @Nullable View view) {
         TextView tvDBVersion;
         if (view != null) {

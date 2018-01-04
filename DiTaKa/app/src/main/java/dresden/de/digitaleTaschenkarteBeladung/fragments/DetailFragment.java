@@ -5,12 +5,15 @@ import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -18,6 +21,8 @@ import javax.inject.Inject;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
 /**
@@ -95,11 +100,15 @@ public class DetailFragment extends Fragment {
         TextView tvSetNameStatic = activity.findViewById(R.id.detailSetNameStatic);
         TextView tvNotesStatic = activity.findViewById(R.id.detailAdditionalNotesStatic);
 
+        ImageView imageView = activity.findViewById(R.id.detailItemImage);
+
         tvName.setText(item.getName());
         tvDescription.setText(item.getDescription());
 
-        if (item.getMSetName() != ""  &&  item.getMSetName() != null) {
-            tvSetName.setText(item.getMSetName());
+        String setName = item.getMSetName();
+
+        if (setName != ""  &&  setName != null) {
+            tvSetName.setText(setName);
             tvSetName.setVisibility(View.VISIBLE);
             tvSetNameStatic.setVisibility(View.VISIBLE);}
         else {
@@ -107,13 +116,17 @@ public class DetailFragment extends Fragment {
             tvSetNameStatic.setVisibility(View.GONE);
         }
 
-        if (item.getAdditionalNotes() != "" &&  item.getAdditionalNotes() != null) {
-            tvNotes.setText(item.getMSetName());
-            tvNotes.setVisibility(View.VISIBLE);
-            tvNotesStatic.setVisibility(View.VISIBLE);}
-        else {
+        String additionNotes = item.getAdditionalNotes();
+        int length = additionNotes.length();
+
+        if (length == 0) {
             tvNotes.setVisibility(View.GONE);
             tvNotesStatic.setVisibility(View.GONE);
+        }
+        else {
+            tvNotes.setText(additionNotes);
+            tvNotes.setVisibility(View.VISIBLE);
+            tvNotesStatic.setVisibility(View.VISIBLE);
         }
 
         String position = item.getPosition();
@@ -128,6 +141,24 @@ public class DetailFragment extends Fragment {
 
         }
 
+        viewModel.getImageByCatID(item.getCategoryId()).observe(this, new Observer<ImageItem>() {
+            @Override
+            public void onChanged(@Nullable ImageItem imageItem) {
+                if (imageItem != null) {
+                    ImageView imageView = getActivity().findViewById(R.id.detailItemImage);
+                    Bitmap image = Util.openImage(imageItem, getContext());
+                    if (image != null) {
+                        imageView.setImageBitmap(image);
+                    }
+                }
+            }
+        });
+
     }
 
+    @Override
+    public void onDetach() {
+        item = null;
+        super.onDetach();
+    }
 }

@@ -52,4 +52,16 @@ public class DatabaseRepository {
 
     public LiveData<Integer> countTrays() {return daoObject.countTrays();}
 
+
+
+    public LiveData<Integer> countImage(){return daoObject.countImage();}
+
+    public LiveData<ImageItem> getImageByID(int id) {return daoObject.findImageByID(id);}
+
+    public void deleteAllImages() {daoObject.deleteImage();}
+
+    public void add(ImageItem imageItem) {daoObject.insertImages(imageItem);}
+
+    public LiveData<ImageItem> getImageByCatID(int catID) {return daoObject.getImageByCatID(catID);}
+
 }
