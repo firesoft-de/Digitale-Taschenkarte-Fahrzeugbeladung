@@ -9,6 +9,7 @@ import java.util.List;
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Data;
 
@@ -63,12 +64,31 @@ public class DataFragViewModel extends ViewModel {
         }
     }
 
+    public void addImage(List<ImageItem> images) {
+        addImageTask task = new addImageTask();
+        task.execute(Util_Data.castImageToArray(images));
+    }
+
+    private class addImageTask extends AsyncTask<ImageItem,Void,Void> {
+        @Override
+        protected Void doInBackground(ImageItem... images) {
+            for (int i = 0; i< images.length; i++) {
+                repository.add(images[i]);
+            }
+            return null;
+        }
+    }
+
     public LiveData<Integer> countTrays() {
         return repository.countTrays();
     }
 
     public LiveData<Integer> countItems() {
         return repository.countItems();
+    }
+
+    public LiveData<Integer> countImages() {
+        return repository.countImage();
     }
 
 

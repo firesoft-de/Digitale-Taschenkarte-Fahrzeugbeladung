@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8bb730f64364aeaccecb4f4c62685f60",
+    "identityHash": "112e61743125c07f32ecc9dd466841c9",
     "entities": [
       {
         "tableName": "equipment",
@@ -109,11 +109,43 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "image",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `path` TEXT, `categoryID` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "categoryID",
+            "columnName": "categoryID",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8bb730f64364aeaccecb4f4c62685f60\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"112e61743125c07f32ecc9dd466841c9\")"
     ]
   }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 
 public class Util_Data {
@@ -50,6 +51,17 @@ public class Util_Data {
     public static TrayItem[] castTrayToArray(List<TrayItem> items) {
 
         TrayItem[] result = new TrayItem[items.size()];
+
+        for (int i=0;i<items.size();i++) {
+            result[i] = items.get(i);
+        }
+
+        return result;
+    }
+
+    public static ImageItem[] castImageToArray(List<ImageItem> items) {
+
+        ImageItem[] result = new ImageItem[items.size()];
 
         for (int i=0;i<items.size();i++) {
             result[i] = items.get(i);

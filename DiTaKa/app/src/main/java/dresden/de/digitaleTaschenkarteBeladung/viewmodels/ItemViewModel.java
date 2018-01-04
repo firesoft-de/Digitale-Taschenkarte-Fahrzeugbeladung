@@ -9,6 +9,7 @@ import java.util.List;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 
 
 /**
@@ -45,5 +46,7 @@ public class ItemViewModel extends ViewModel{
     }
 
     public LiveData<List<DatabaseEquipmentMininmal>> getItemsByCatID(int catID) {return repository.getItemByCatID(catID); }
+
+    public LiveData<ImageItem> getImageByCatID(int catID) {return repository.getImageByCatID(catID);}
 
 }

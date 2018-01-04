@@ -35,6 +35,7 @@
     <string name="data_dbinfo">Datenbankinformationen</string>
     <string name="data_itemcount">Datenbankeinträge Items</string>
     <string name="data_traycount">Datenbankeinträge Trays</string>
+    <string name="data_imagecount">Datenbankeinträge Bilder</string>
     <string name="data_version">Datenbankversion</string>
     <string name="data_version_net">Globale Datenbankversion</string>
 

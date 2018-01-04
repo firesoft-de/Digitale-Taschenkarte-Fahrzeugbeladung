@@ -11,20 +11,14 @@
 	$clientdbVersion = $_GET['dbVersion'];;
 	
 	$db_table = $_GET['db_table'];;
+
 	
-	//Zugangsdaten abrufen
-	$dbFile = fopen("access.txt",'r');
-	
-	$db_user = fgets($dbFile);
-	$db_password = fgets($dbFile);
-	//$db_server = "rdbms.strato.de";
+	//Datenbankzugangsdaten
 	$db_server = "localhost";
 	$db_name = "taka";
-		
-	fclose($dbFile);
 	
-	$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
-	$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
+	$db_user = "XXXXX";
+	$db_password = "XXXXX";
 	
 	
 	//TODO: Anpassen!
@@ -80,7 +74,6 @@
             // echo ' - Unknown error';
         // break;
     // }
-	
 	
 	print($json);
 ?>
