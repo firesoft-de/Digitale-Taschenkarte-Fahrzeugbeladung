@@ -2,23 +2,36 @@
 	
 	//Mitgegebene Paramter abrufen
 	$clientdbVersion = $_GET['dbVersion'];;
-
-	$db_server = "localhost";
-	$db_name = "taka";
 	
-	$db_user = "sqluser";
-	$db_password = "hhdEqOACkFQbGEcs";
+	//Datenbankzugangsdaten
+	$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
+	
+	$db_server = fgets($dbFile);
+	$db_name = fgets($dbFile);	
+	$db_user = fgets($dbFile);
+	$db_password = fgets($dbFile);
+	
+	fclose($dbFile);
+	
+	$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
+	$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
+	$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
+	$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
 	
 	$pdo = new PDO("mysql:host=".$db_server.";dbname=" . $db_name, $db_user , $db_password);
 	
 	//SQL Query zum Abfragen der Daten
-	$queryString = "SELECT * FROM positionimage WHERE version > ".$clientdbVersion;
+	$queryString = "SELECT * FROM positionimage WHERE version > :clientdbversion";
 
-	$statement=$pdo->prepare($queryString);
-	$statement->execute();	
+	$stmt=$pdo->prepare($queryString);
+	
+	//Die Benutzereingaben sicher in den Querystring einfügen
+	$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+	
+	$stmt->execute();	
 	$results = array();
 	
-	while($row=$statement->fetch(PDO::FETCH_ASSOC)){
+	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
 		
 		$results["OUTPUT"][] = $row;
  
