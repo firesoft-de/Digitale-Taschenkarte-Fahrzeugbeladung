@@ -10,6 +10,7 @@ import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 
 
 /**
@@ -49,4 +50,11 @@ public class ItemViewModel extends ViewModel{
 
     public LiveData<ImageItem> getImageByCatID(int catID) {return repository.getImageByCatID(catID);}
 
+    public LiveData<TrayItem> getTrayItem(int id) {return repository.getTrayById(id);}
+
+    //Abfrage um die Positionskoordinaten aus dem Tray zu erhalten
+//    public LiveData<List<Integer>> getPositionCoordinates(int catID) {return repository.getPositionCoordinates(catID);}
+
 }
+
+

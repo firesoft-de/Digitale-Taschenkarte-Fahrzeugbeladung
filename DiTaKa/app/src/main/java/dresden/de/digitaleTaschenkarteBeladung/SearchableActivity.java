@@ -6,11 +6,13 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -53,6 +55,8 @@ public class SearchableActivity extends AppCompatActivity  implements TrayFragme
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    //Diese Variable wird zum Speichern des Scroll Index der ListView gebraucht
+    Parcelable state;
 
     public MutableLiveData<List<DatabaseEquipmentMininmal>> liveItemList;
 
@@ -241,6 +245,14 @@ public class SearchableActivity extends AppCompatActivity  implements TrayFragme
         else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        ListView lv = this.findViewById(R.id.ListViewSearch);
+
+        state = lv.onSaveInstanceState();
+        super.onPause();
     }
 
     private void returnToMainActivity() {

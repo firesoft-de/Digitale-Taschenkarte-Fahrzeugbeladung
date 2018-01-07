@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.renderscript.ScriptGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,7 +19,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -37,27 +35,25 @@ public class Util_Http {
 
     private static final String LOG_TRACE = "Util_Http";
 
-    public static final String SERVER_QUERY_GET = "/getDatabase.php?";
-    public static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
-    public static final String SERVER_QUERY_GET_TABLE = "db_table=";
+    private static final String SERVER_QUERY_GET = "/getDatabase.php?";
+    private static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
+    private static final String SERVER_QUERY_GET_TABLE = "db_table=";
 
-    public static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
+    private static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
 
-    public static final String SERVER_QUERY_IMAGE = "/getImageList.php";
-    public static final String SERVER_QUERY_IMAGE_VERSION = "dbVersion=";
+    private static final String SERVER_QUERY_IMAGE = "/getImageList.php";
+    private static final String SERVER_QUERY_IMAGE_VERSION = "dbVersion=";
 
-    public static final String SERVER_TABLE_ITEM = "equipment";
-    public static final String SERVER_TABLE_TRAY = "tray";
-
-    public enum DownloadType {
-        String,
-        Image
-    }
+    private static final String SERVER_TABLE_ITEM = "equipment";
+    private static final String SERVER_TABLE_TRAY = "tray";
 
     /**
-     * @return Liste
+     *
+     * @param url
+     * @param dbVersion
+     * @return
      */
-    public static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
+    static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
 
         String httpResponse = null;
 
@@ -79,10 +75,10 @@ public class Util_Http {
     }
 
     /**
-     *{@requestItems} führt eine Datenabfrage mittels HTTP-Protokoll durch
+     * führt eine Datenabfrage mittels HTTP-Protokoll durch
      * @return Liste
      */
-    public static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
+    static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
 
         String httpResponse = null;
 
@@ -108,7 +104,7 @@ public class Util_Http {
      * @param url
      * @return Im Fehlerfall wird -1 zurück gegeben
      */
-    public static int checkVersion(String url) {
+    static int checkVersion(String url) {
             int result = -1;
 
             URL urlV = generateURL(url + SERVER_QUERY_VERSION);
@@ -126,14 +122,22 @@ public class Util_Http {
                         stream = httpRequester(newURL);
                     } catch (MalformedURLException e1) {
                         e1.printStackTrace();
+                        return -1;
                     }
                 }
             }
-            String response = readStream(stream);
-            Integer integer = new Integer(response);
-            result = integer;
 
-            return result;
+            //Prüfen ob ein Fehler beim Abrufen der Version passiert ist.
+            String response = readStream(stream);
+            if (response.equals("")) {
+                return -1;
+            }
+            else {
+                Integer integer = new Integer(response);
+                result = integer;
+
+                return result;
+            }
         }
 
     /**
@@ -142,7 +146,7 @@ public class Util_Http {
      * @param dbVersion die lokale Datenbankversion
      * @return Liste der Bilder als Imageitems
      */
-    public static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context) {
+    static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context) {
 
         ArrayList<ImageItem> items = new ArrayList<>();
 
@@ -226,7 +230,11 @@ public class Util_Http {
                 String[] keys = keywords.split(",");
                 item.setKeywordsFromArray(keys);
 
+                //Hinweise einfügen
                 item.setAdditionalNotes(object.getString("notes"));
+
+                //Den Positionsmarkierungsindex setzen
+                item.setPositionIndex(object.getInt("positionID"));
 
                 equipmentList.add(item);
 
@@ -249,9 +257,6 @@ public class Util_Http {
 
         ArrayList<TrayItem> trayList  = new ArrayList<>();
 
-        //TODO JSON Verarbeitung für die Gegenstände implementieren!
-
-
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
 
@@ -264,6 +269,8 @@ public class Util_Http {
                 TrayItem item = new TrayItem(object.getInt("id"),
                         object.getString("name"),
                         object.getString("description"));
+
+                item.positionCoordFromString(object.getString("positions"));
 
                 trayList.add(item);
 
@@ -461,7 +468,7 @@ public class Util_Http {
 
     public static boolean checkNetwork(Activity activity, Context context) {
         // Get a reference to the ConnectivityManager to check state of network connectivity
-        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // Get details on the currently active default data network
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

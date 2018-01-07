@@ -38,8 +38,10 @@
     <string name="data_imagecount">Datenbankeinträge Bilder</string>
     <string name="data_version">Datenbankversion</string>
     <string name="data_version_net">Globale Datenbankversion</string>
+    <string name="data_no_db">Noch keine lokale Datenbank vorhanden!</string>
+    <string name="data_no_net_db">Konnte Serverversion nicht abrufen!</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
+    <string name="data_first_time_url">Gib hier die Server-URL ein!</string>
 
 </resources>

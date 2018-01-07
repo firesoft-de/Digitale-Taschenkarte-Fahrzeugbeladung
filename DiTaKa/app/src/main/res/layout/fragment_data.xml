@@ -83,11 +83,13 @@
 
         <TextView
             android:id="@+id/dataTextViewDBVersion"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Platzhalter"
+            android:layout_width="0dp"
+            android:layout_gravity="fill_horizontal"
+            tools:text="0"
             android:layout_column="1"
             android:layout_row="0"
+            android:maxLines="2"
             android:layout_marginStart="@dimen/margin_normal"/>
 
         <TextView
@@ -99,11 +101,13 @@
 
         <TextView
             android:id="@+id/dataTextViewDBNetVersion"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:layout_width="0dp"
+            android:layout_gravity="fill_horizontal"
+            tools:text="0"
             android:layout_column="1"
             android:layout_row="1"
+            android:maxLines="2"
             android:layout_marginStart="@dimen/margin_normal"/>
 
         <TextView
@@ -123,7 +127,7 @@
             android:id="@+id/dataTextViewItemCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Platzhalter"
+            tools:text="0"
             android:layout_column="1"
             android:layout_row="3"
             android:layout_marginStart="@dimen/margin_normal"/>
@@ -139,7 +143,7 @@
             android:id="@+id/dataTextViewTrayCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Platzhalter"
+            tools:text="0"
             android:layout_column="1"
             android:layout_row="4"
             android:layout_marginStart="@dimen/margin_normal"/>
@@ -155,7 +159,7 @@
             android:id="@+id/dataTextViewImageCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Platzhalter"
+            tools:text="0"
             android:layout_column="1"
             android:layout_row="5"
             android:layout_marginStart="@dimen/margin_normal"/>

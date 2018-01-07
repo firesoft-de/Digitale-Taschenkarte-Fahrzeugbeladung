@@ -5,4 +5,5 @@
     <color name="colorAccent">#ffffff</color>
     <color name="text">#455a64</color>
     <color name="text_highlight">#d50000</color>
+    <color name="position_image_highlight">#76ff03</color>
 </resources>
