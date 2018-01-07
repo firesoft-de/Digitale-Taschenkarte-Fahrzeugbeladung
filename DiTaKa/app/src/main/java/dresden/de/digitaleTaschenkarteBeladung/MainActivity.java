@@ -531,6 +531,4 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         }
     }
-
-
 }
