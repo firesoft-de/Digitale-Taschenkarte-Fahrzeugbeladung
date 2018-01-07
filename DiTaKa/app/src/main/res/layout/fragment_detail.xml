@@ -9,7 +9,7 @@
     <!--TODO: Hinweisfeld einfügen-->
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
     <GridLayout
         android:layout_width="match_parent"
@@ -25,7 +25,7 @@
             android:textSize="@dimen/text_size_normal"
             android:layout_column="0"
             android:layout_row="0"
-            android:layout_marginRight="@dimen/margin_normal"/>
+            android:layout_marginEnd="@dimen/margin_normal"/>
 
         <TextView
             android:id="@+id/detailName"
@@ -39,13 +39,14 @@
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
+            android:id="@+id/detailDescriptionStatic"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="@dimen/text_size_normal"
             android:text="@string/detail_description"
             android:layout_column="0"
             android:layout_row="1"
-            android:layout_marginRight="@dimen/margin_normal"/>
+            android:layout_marginEnd="@dimen/margin_normal"/>
 
         <TextView
             android:id="@+id/detailDescription"
@@ -57,7 +58,7 @@
             android:layout_row="1"
             android:maxLines="10"
             android:ellipsize="end"
-            android:text="Platzhalter"
+            tools:text="Platzhalter"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -68,7 +69,7 @@
             android:text="@string/detail_setname"
             android:layout_column="0"
             android:layout_row="2"
-            android:layout_marginRight="@dimen/margin_normal"/>
+            android:layout_marginEnd="@dimen/margin_normal"/>
 
         <TextView
             android:id="@+id/detailSetName"
@@ -78,8 +79,8 @@
             android:textSize="@dimen/text_size_normal"
             android:layout_column="1"
             android:layout_row="2"
-            android:maxLines="1"
-            android:text="Platzhalter"
+            android:maxLines="2"
+            tools:text="Platzhalter"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -90,7 +91,7 @@
             android:text="@string/detail_additionalNotes"
             android:layout_column="0"
             android:layout_row="3"
-            android:layout_marginRight="@dimen/margin_normal"/>
+            android:layout_marginEnd="@dimen/margin_normal"/>
 
         <TextView
             android:id="@+id/detailAdditionalNotes"
@@ -100,8 +101,8 @@
             android:textSize="@dimen/text_size_normal"
             android:layout_column="1"
             android:layout_row="3"
-            android:maxLines="1"
-            android:text="Platzhalter"
+            android:maxLines="10"
+            tools:text="Platzhalter"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -111,7 +112,7 @@
             android:text="@string/detail_position"
             android:layout_column="0"
             android:layout_row="4"
-            android:layout_marginRight="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_normal"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -123,7 +124,7 @@
             android:layout_column="1"
             android:layout_row="4"
             android:textColor="@color/text_highlight"
-            android:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
+            tools:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
 
     </GridLayout>
 

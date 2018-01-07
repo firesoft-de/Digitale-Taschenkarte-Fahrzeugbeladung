@@ -52,6 +52,8 @@ public class DatabaseRepository {
 
     public LiveData<Integer> countTrays() {return daoObject.countTrays();}
 
+    public LiveData<TrayItem> getTrayById(int id) {return daoObject.getTrayById(id);}
+
 
 
     public LiveData<Integer> countImage(){return daoObject.countImage();}
@@ -63,5 +65,7 @@ public class DatabaseRepository {
     public void add(ImageItem imageItem) {daoObject.insertImages(imageItem);}
 
     public LiveData<ImageItem> getImageByCatID(int catID) {return daoObject.getImageByCatID(catID);}
+
+//    public LiveData<List<Integer>> getPositionCoordinates(int catID) {return daoObject.getPositionCoordinates(catID);}
 
 }

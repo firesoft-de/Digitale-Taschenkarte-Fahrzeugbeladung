@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -41,6 +42,9 @@ public class ItemFragment extends Fragment {
     private ItemAdapter itemAdapter;
 
     private ArrayList<DatabaseEquipmentMininmal> itemList;
+
+    //Diese Variable wird zum Speichern des Scroll Index der ListView gebraucht
+    Parcelable state;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -91,7 +95,9 @@ public class ItemFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.list_layout,parent,false);
+        View result = inflater.inflate(R.layout.list_layout,parent,false);
+
+        return result;
 
     }
 
@@ -149,5 +155,20 @@ public class ItemFragment extends Fragment {
 
             }
         });
+
+        // Restore previous state (including selected item index and scroll position)
+        // https://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview/5688490#5688490
+        if(state != null) {
+            lv.onRestoreInstanceState(state);
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        ListView lv = getActivity().findViewById(R.id.ListViewMain);
+
+        state = lv.onSaveInstanceState();
+        super.onPause();
     }
 }
