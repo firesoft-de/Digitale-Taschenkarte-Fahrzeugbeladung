@@ -1,4 +1,7 @@
 <?php	
+	//Basierend auf
+	//https://stackoverflow.com/questions/2770273/pdostatement-to-json
+
 	//Datenbankversion abfragen
 	$dbFile = fopen("db_Version.txt",'r');
 	
@@ -6,40 +9,69 @@
 	
 	fclose($dbFile);
 	
-	//.../getDatabase.php?dbVersion=1
 	//Mitgegebene Paramter abrufen
 	$clientdbVersion = $_GET['dbVersion'];;
 	
-	$db_table = $_GET['db_table'];;
+	$table_input = $_GET['db_table'];;
 
+	//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
+	switch ($table_input) {
+		case "equipment":
+			$db_table = "equipment";
+			break;
+			
+		case "tray":
+			$db_table = "tray";
+			break;
+			
+		case "positionimage":
+			$db_table = "positionimage";
+			break;
+			
+		default:
+			$db_table = "";
+		
+	}
 	
 	//Datenbankzugangsdaten
-	$db_server = "localhost";
-	$db_name = "taka";
+	$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
 	
-	$db_user = "XXXXX";
-	$db_password = "XXXXX";
+	$db_server = fgets($dbFile);	
+	$db_name = fgets($dbFile);	
+	$db_user = fgets($dbFile);
+	$db_password = fgets($dbFile);
 	
+	fclose($dbFile);
 	
-	//TODO: Anpassen!
-	$pdo = new PDO("mysql:host=".$db_server.";dbname=" . $db_name, $db_user , $db_password);
+	//$db_server = "rdbms.strato.de"; 
+	$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
+	$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
+	$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
+	$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
+	
+	$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
 	
 	//SQL Query zum Abfragen der Daten
-	$queryString = "SELECT * FROM " . $db_table . " WHERE version > ".$clientdbVersion;
-	
-	//Ausgabe per print
-	 // foreach ($pdo->query($queryString) as $row) {
-		 // //Ausgabe vorerst per print
-		 // print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
-	 // }
+	$queryString = "SELECT * FROM " . $db_table . " WHERE version > :clientdbversion";
 	
 	//Ausgabe per JSON
-	//https://stackoverflow.com/questions/2770273/pdostatement-to-json
-	$statement=$pdo->prepare($queryString);
-	$statement->execute();	
+	$stmt=$pdo->prepare($queryString);
+		
+	//Die Benutzereingaben sicher in den Querystring einfügen
+	$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+	
+	//Statment schließen
+	$stmt->closeCursor();
+	
+	//SQL Abfrage ausführen
+	$stmt->execute();	
+	
+	//DEBUG Ausgabe SQL Query
+	//$stmt->debugDumpParams();
+	
 	$results = array();
 	
-	while($row=$statement->fetch(PDO::FETCH_ASSOC)){
+	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
 		
 		//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
 		$results["OUTPUT"][] = $row;
