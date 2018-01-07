@@ -4,6 +4,7 @@ package dresden.de.digitaleTaschenkarteBeladung.fragments;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,10 +31,13 @@ public class SearchResultListFragment extends Fragment {
 
     ArrayList<DatabaseEquipmentMininmal> itemList;
 
+    //Diese Variable wird zum Speichern des Scroll Index der ListView gebraucht
+    Parcelable state;
+
+
     public SearchResultListFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,6 +110,14 @@ public class SearchResultListFragment extends Fragment {
         super.onDestroy();
     }
 
+    @Override
+    public void onPause() {
+        ListView lv = getActivity().findViewById(R.id.ListViewSearch);
+
+        state = lv.onSaveInstanceState();
+        super.onPause();
+    }
+
     private void showDetail(int i) {
 
         DatabaseEquipmentMininmal item = itemList.get(i);
@@ -146,6 +158,13 @@ public class SearchResultListFragment extends Fragment {
         lv.setAdapter(searchAdapter);
 
         searchAdapter.notifyDataSetChanged();
+
+        // Restore previous state (including selected item index and scroll position)
+        // https://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview/5688490#5688490
+        if(state != null) {
+            lv.onRestoreInstanceState(state);
+        }
+
     }
 
 }

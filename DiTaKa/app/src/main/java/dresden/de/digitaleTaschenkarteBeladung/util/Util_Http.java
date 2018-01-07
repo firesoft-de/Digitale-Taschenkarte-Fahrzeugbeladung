@@ -2,6 +2,8 @@ package dresden.de.digitaleTaschenkarteBeladung.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -17,35 +19,41 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.saveImage;
 
 public class Util_Http {
     //TODO: Feedback für AsnycLoader einfügen
 
     private static final String LOG_TRACE = "Util_Http";
 
-    public static final String SERVER_QUERY_GET = "/getDatabase.php?";
-    public static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
-    public static final String SERVER_QUERY_GET_TABLE = "db_table=";
+    private static final String SERVER_QUERY_GET = "/getDatabase.php?";
+    private static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
+    private static final String SERVER_QUERY_GET_TABLE = "db_table=";
 
+    private static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
 
-    public static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
+    private static final String SERVER_QUERY_IMAGE = "/getImageList.php";
+    private static final String SERVER_QUERY_IMAGE_VERSION = "dbVersion=";
 
-    public static final String SERVER_TABLE_ITEM = "equipment";
-    public static final String SERVER_TABLE_TRAY = "tray";
+    private static final String SERVER_TABLE_ITEM = "equipment";
+    private static final String SERVER_TABLE_TRAY = "tray";
 
     /**
-     * @return Liste
+     *
+     * @param url
+     * @param dbVersion
+     * @return
      */
-    public static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
+    static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
 
         String httpResponse = null;
 
@@ -54,7 +62,8 @@ public class Util_Http {
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
-            httpResponse = httpsRequester(urlV);
+            InputStream stream =  httpsRequester(urlV);
+            httpResponse = readStream(stream);
         }
 
         //Antwort mittels JSON Parser verarbeiten
@@ -66,10 +75,10 @@ public class Util_Http {
     }
 
     /**
-     *{@requestItems} führt eine Datenabfrage mittels HTTP-Protokoll durch
+     * führt eine Datenabfrage mittels HTTP-Protokoll durch
      * @return Liste
      */
-    public static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
+    static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
 
         String httpResponse = null;
 
@@ -78,7 +87,8 @@ public class Util_Http {
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
-            httpResponse = httpsRequester(urlV);
+            InputStream stream =  httpsRequester(urlV);
+            httpResponse = readStream(stream);
         }
 
         //Antwort mittels JSON Parser verarbeiten
@@ -94,23 +104,102 @@ public class Util_Http {
      * @param url
      * @return Im Fehlerfall wird -1 zurück gegeben
      */
-    public static int checkVersion(String url) {
+    static int checkVersion(String url) {
             int result = -1;
 
             URL urlV = generateURL(url + SERVER_QUERY_VERSION);
+            InputStream stream = null;
 
             if (urlV != null) {
                 try {
-                    String response = httpsRequester(urlV);
-                    Integer integer = new Integer(response);
-                    result = integer;
+                    stream = httpsRequester(urlV);
                 } catch (Exception e) {
                     LogError(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
+
+                    //Alternative HTTP Verbindung aufbauen
+                    try {
+                        URL newURL = new URL("http", urlV.getHost(), urlV.getFile());
+                        stream = httpRequester(newURL);
+                    } catch (MalformedURLException e1) {
+                        e1.printStackTrace();
+                        return -1;
+                    }
                 }
             }
 
-            return result;
+            //Prüfen ob ein Fehler beim Abrufen der Version passiert ist.
+            String response = readStream(stream);
+            if (response.equals("")) {
+                return -1;
+            }
+            else {
+                Integer integer = new Integer(response);
+                result = integer;
+
+                return result;
+            }
         }
+
+    /**
+     * Diese Methode lädt Bilder vom Server und speichert sie lokal. Zum Zugriff wird eine Liste von ImageItems zurückgegeben.
+     * @param url die Serverurl
+     * @param dbVersion die lokale Datenbankversion
+     * @return Liste der Bilder als Imageitems
+     */
+    static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context) {
+
+        ArrayList<ImageItem> items = new ArrayList<>();
+
+        //Abfrage der Bildpfade
+        URL urlV = generateURL(url + SERVER_QUERY_IMAGE + "?" + SERVER_QUERY_IMAGE_VERSION + dbVersion);
+        Bitmap image = null;
+        InputStream stream = httpsRequester(urlV);
+        String response = readStream(stream);
+
+        //Bildpfade aufschlüsseln
+        ArrayList<String> path = new ArrayList<>();
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(response);
+
+            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+
+            for (int i = 0; i < responseArray.length(); i ++) {
+
+                //Json decodieren
+                JSONObject object =  responseArray.getJSONObject(i);
+
+                int id = object.getInt("id");
+                String destination = object.getString("path");
+                int catID = object.getInt("categoryId");
+
+                destination = destination.replace("#","/");
+
+                URL urlX = generateURL(url + destination + Integer.toString(id) + ".jpg");
+                stream = httpsRequester(urlX);
+
+                //Das Bild herunterladen
+                try {
+                    image = BitmapFactory.decodeStream(stream);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //Bild speichern und das ImageItem erstellen
+                String returnPath = saveImage(id,image, context);
+
+                ImageItem item = new ImageItem(id,returnPath,catID);
+                items.add(item);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+
+        return items;
+    }
+
 
 
     /**
@@ -141,6 +230,12 @@ public class Util_Http {
                 String[] keys = keywords.split(",");
                 item.setKeywordsFromArray(keys);
 
+                //Hinweise einfügen
+                item.setAdditionalNotes(object.getString("notes"));
+
+                //Den Positionsmarkierungsindex setzen
+                item.setPositionIndex(object.getInt("positionID"));
+
                 equipmentList.add(item);
 
             }
@@ -162,9 +257,6 @@ public class Util_Http {
 
         ArrayList<TrayItem> trayList  = new ArrayList<>();
 
-        //TODO JSON Verarbeitung für die Gegenstände implementieren!
-
-
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
 
@@ -178,6 +270,8 @@ public class Util_Http {
                         object.getString("name"),
                         object.getString("description"));
 
+                item.positionCoordFromString(object.getString("positions"));
+
                 trayList.add(item);
 
             }
@@ -190,63 +284,77 @@ public class Util_Http {
         return trayList;
     }
 
-
     /**
      * Diese Methode ist für den eigentliche Request zuständig. Es wird eine SSL Verbindung mittels HTTPS genutzt.
      * @param url die Server-URL
      * @return Antwort des Servers als String
      */
-    private static String httpsRequester(URL url) {
+    private static InputStream httpsRequester(URL url) {
 
         //Response Variable
-        String response = null;
+        InputStream response = null;
 
         //Interne Variablen
-            HttpsURLConnection connection = null;
+        HttpsURLConnection connection = null;
 
+        String protocol = url.getProtocol();
+        if (!protocol.contains("s")) {
+            response = httpRequester(url);
+        }
+        else {
             //HTTPS Verbindung aufbauen
             try {
                 connection = (HttpsURLConnection) url.openConnection();
             } catch (IOException e) {
                 e.printStackTrace();
+
+                //Alternative HTTP Verbindung aufbauen
+                URL newURL = null;
+                try {
+                    newURL = new URL("http", url.getHost(), url.getFile());
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                }
+                response = httpRequester(newURL);
             }
 
+            if (connection != null) {
 
-        if (connection != null) {
+                try {
 
-            try {
+                    //Verbindungseinstellungen
+                    connection.setConnectTimeout(10000);
+                    connection.setReadTimeout(10000);
+                    connection.setRequestMethod("GET");
 
-                //Verbindungseinstellungen
-                connection.setConnectTimeout(10000);
-                connection.setReadTimeout(10000);
-                connection.setRequestMethod("GET");
+                    //Verbindung herstellen
+                    connection.connect();
 
-                //Verbindung herstellen
-                connection.connect();
+                    //Verbindungsantwort prüfen
+                    if (connection.getResponseCode() == 200) {
+                        //Verbindung erfolgreich hergestellt
 
-                //Verbindungsantwort prüfen
-                if (connection.getResponseCode() == 200) {
-                    //Verbindung erfolgreich hergestellt
+                        //Übergabe des InputStreams zur Verarbeitung
+                        response = connection.getInputStream();
 
-                    //Übergabe des InputStreams zur Verarbeitung
-                    response = readStream(connection.getInputStream());
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (e.getMessage().contains("java.security.cert.CertPathValidatorException")) {
-                    //Validierungspfad Fehler -> Umschwenken auf HTTP Verbindung
-                    URL newURL = null;
-                    try {
-                        newURL = new URL("http", url.getHost(), url.getFile());
-                    } catch (MalformedURLException e1) {
-                        e1.printStackTrace();
                     }
-                    response = httpRequester(newURL);
-                }
 
-                LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (e.getMessage().contains("java.security.cert.CertPathValidatorException")) {
+
+                        //Alternative HTTP Verbindung aufbauen
+                        URL newURL = null;
+                        try {
+                            newURL = new URL("http", url.getHost(), url.getFile());
+                        } catch (MalformedURLException e1) {
+                            e1.printStackTrace();
+                        }
+                        response = httpRequester(newURL);
+                    }
+
+                    LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+                }
             }
         }
         return response;
@@ -257,10 +365,10 @@ public class Util_Http {
      * @param url die Server-URL
      * @return Antwort des Servers als String
      */
-    private static String httpRequester(URL url) {
+    private static InputStream httpRequester(URL url) {
 
         //Response Variable
-        String response = null;
+        InputStream response = null;
 
         //Interne Variablen
         HttpURLConnection connection = null;
@@ -290,7 +398,7 @@ public class Util_Http {
                     //Verbindung erfolgreich hergestellt
 
                     //Übergabe des InputStreams zur Verarbeitung
-                    response = readStream(connection.getInputStream());
+                    response = connection.getInputStream();
                 }
 
             } catch (Exception e) {
@@ -360,7 +468,7 @@ public class Util_Http {
 
     public static boolean checkNetwork(Activity activity, Context context) {
         // Get a reference to the ConnectivityManager to check state of network connectivity
-        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // Get details on the currently active default data network
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

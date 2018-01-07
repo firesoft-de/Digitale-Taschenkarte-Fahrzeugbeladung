@@ -3,3 +3,5 @@ server/skripte/access.txt
 *.csv
 *.sql
 server/Datenbank
+Vorstellung
+server/skripte/config/.htaccess

@@ -11,6 +11,9 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +57,8 @@ public class EquipmentItem implements Parcelable {
     //Zusätzliche Hinweise zum Gerät
     private String additionalNotes;
 
+    //Index der Koordinaten für die Positionsmarkierung. Die Liste der Koordinaten wird im TrayItem gespeichert
+    private int positionIndex;
 
     public static final Parcelable.Creator<EquipmentItem> CREATOR
             = new Parcelable.Creator<EquipmentItem>() {
@@ -155,6 +160,10 @@ public class EquipmentItem implements Parcelable {
 
     public String getAdditionalNotes() {return additionalNotes;}
 
+    public int getPositionIndex() {
+        return positionIndex;
+    }
+
     //Set Methoden
 
     public void setId(int id) {}
@@ -181,6 +190,10 @@ public class EquipmentItem implements Parcelable {
         }
 
         this.keywords = list;
+    }
+
+    public void setPositionIndex(int positionIndex) {
+        this.positionIndex = positionIndex;
     }
 
 
@@ -223,7 +236,6 @@ public class EquipmentItem implements Parcelable {
       this.name = minimal.name;
       this.position = minimal.position;
   }
-
 }
 
 class Converters {
@@ -235,8 +247,49 @@ class Converters {
 
     @TypeConverter
     public static String fromArray(ArrayList<String> list) {
+
         Gson gson = new Gson();
         String json = gson.toJson(list);
         return json;
+    }
+
+    @TypeConverter
+    public static ArrayList<Integer> fromJSONToInt(String value) {
+
+        if (value != null) {
+            ArrayList<Integer> list = new ArrayList<>();
+            JSONArray array = null;
+
+            try {
+                array = new JSONArray(value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                for (int i = 0; i < array.length(); i++) {
+                    try {
+                        list.add(array.getInt(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return list;
+            }
+        }
+        return null;
+    }
+
+    @TypeConverter
+    public static String fromArrayToJSON(ArrayList<Integer> list) {
+        JSONArray array = new JSONArray();
+
+        if (list != null) {
+            for (int value : list) {
+                array.put(value);
+            }
+            return array.toString();
+        }
+        else {
+            return null;
+        }
     }
 }

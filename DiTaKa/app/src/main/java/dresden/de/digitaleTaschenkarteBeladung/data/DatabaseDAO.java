@@ -6,7 +6,10 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.TypeConverters;
 import android.arch.persistence.room.Update;
+import android.media.Image;
 
 import java.util.List;
 
@@ -71,4 +74,32 @@ public interface DatabaseDAO {
 
     @Query("SELECT COUNT(id) FROM tray")
     LiveData<Integer> countTrays();
+
+    @Query("SELECT * FROM tray WHERE id LIKE :id")
+    LiveData<TrayItem> getTrayById(int id);
+
+    //    @Query("SELECT positions FROM tray WHERE id LIKE :id")
+//    @TypeConverters(Converters.class)
+//    LiveData<List<Integer>> getPositionCoordinates(int id);
+
+
+    //DAO für Image
+    @Query("SELECT COUNT(id) FROM image")
+    LiveData<Integer> countImage();
+
+    @Query("SELECT * FROM image")
+    LiveData<List<ImageItem>> getAllImages();
+
+    @Query("SELECT * FROM image WHERE id LIKE :id")
+    LiveData<ImageItem> findImageByID(int id);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertImages(ImageItem image);
+
+    @Query("DELETE FROM image")
+    void deleteImage();
+
+    @Query("SELECT * FROM image WHERE categoryId LIKE :id")
+    LiveData<ImageItem> getImageByCatID(int id);
+
 }

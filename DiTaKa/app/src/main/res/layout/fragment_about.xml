@@ -16,7 +16,7 @@ android:layout_margin="@dimen/margin_normal">
                 android:text="Digitale\nTaschenkarte\nBeladung"
                 android:layout_row="0"
                 android:layout_column="1"
-                android:layout_marginLeft="@dimen/margin_normal"
+                android:layout_marginStart="@dimen/margin_normal"
                 app:layout_constraintLeft_toRightOf="@+id/imageView3"/>
 
             <ImageView
@@ -27,20 +27,29 @@ android:layout_margin="@dimen/margin_normal">
                 android:layout_row="0"
                 android:src="@mipmap/ic_app" />
 
-
             <TextView
                 android:id="@+id/about_tv1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Beschreibung"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:textSize="@dimen/text_size_highlight"
+                app:layout_constraintTop_toBottomOf="@id/imageView3"
+                android:layout_marginTop="@dimen/margin_big"/>
+
+            <TextView
+                android:id="@+id/about_tv2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Die Digitale Taschenkarte - Beladung bringt die klassische Taschenkarten in die digitale Welt. Mit der App kann die Beladung von Fahrzeugen (vor allem aus dem BOS-Bereich) dargestellt werden. "
                 android:layout_row="1"
                 android:layout_column="1"
                 android:maxLines="10"
-                app:layout_constraintTop_toBottomOf="@id/imageView3"
-                android:layout_marginTop="@dimen/margin_big"/>
+                app:layout_constraintTop_toBottomOf="@id/about_tv1"/>
 
             <TextView
-                android:id="@+id/about_tv2"
+                android:id="@+id/about_tv3"
                 android:layout_marginTop="@dimen/margin_normal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,7 +57,26 @@ android:layout_margin="@dimen/margin_normal">
                 android:layout_row="2"
                 android:layout_column="0"
                 android:autoLink="web"
-                app:layout_constraintTop_toBottomOf="@+id/about_tv1"/>
+                app:layout_constraintTop_toBottomOf="@+id/about_tv2"/>
 
+            <TextView
+                android:id="@+id/about_tv4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nutzungshinweise"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:textSize="@dimen/text_size_highlight"
+                app:layout_constraintTop_toBottomOf="@id/about_tv3"
+                android:layout_marginTop="@dimen/margin_normal"/>
+
+            <TextView
+                android:id="@+id/about_tv5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="In vielen Organisationen ist die Nutzung von privaten Smartphones nur bei dienstlicher Erfordernis gestattet. Ob diese bei der Benutzung dieser Applikation vorliegt, muss durch die verantwortliche Führungskraft im Einzelfall entschieden werden. Es sei daher darauf hingewiesen, dass Schäden am Gerät wahrscheinlich nicht durch die jeweilige Organisation gedeckt werden."
+                android:layout_row="1"
+                android:layout_column="1"
+                app:layout_constraintTop_toBottomOf="@id/about_tv4"/>
 
 </android.support.constraint.ConstraintLayout>
