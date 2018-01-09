@@ -20,6 +20,11 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/OptionMenuLicense"
+        android:title="@string/option_menu_license"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/OptionMenuAbout"
         android:title="@string/option_menu_about"
         app:showAsAction="never"/>

@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung.util;
 
 
@@ -30,6 +44,7 @@ public class Util {
     public static final String FRAGMENT_DEBUG = "105";
     public static final String FRAGMENT_SETTINGS = "106";
     public static final String FRAGMENT_ABOUT = "107";
+    public static final String FRAGMENT_LICENSE = "108";
 
     public static final String ARGS_URL = "ARGS_URL";
     public static final String ARGS_VERSION = "ARGS_VERSION";
@@ -41,6 +56,9 @@ public class Util {
     public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
 
     public static final String FILE_DESTINATION_IMAGE = "image";
+
+    public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
+
 
     public static void LogDebug(String tag, String message) {
         if (MainActivity.DEBUG_ENABLED) {

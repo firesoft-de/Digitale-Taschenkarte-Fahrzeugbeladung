@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
@@ -7,12 +21,14 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +113,6 @@ public class TrayFragment extends Fragment {
             });
 
             //ClickListener einrichten
-
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -115,7 +130,7 @@ public class TrayFragment extends Fragment {
             });
         }
         else {
-            setItemFirstRun(lv);
+            displayFirstRun(lv);
         }
 
         return result;
@@ -146,14 +161,28 @@ public class TrayFragment extends Fragment {
         lv.setAdapter(trayAdapter);
     }
 
-    private void setItemFirstRun(ListView lv) {
+    private void displayFirstRun(ListView lv) {
         TrayItem trayItem;
+        ArrayList<TrayItem> list = new ArrayList<>();
+
         trayItem = new TrayItem(-1,
                 "Erster Start",
                 "Bitte starte über das Optionsmenü den Datenimport.");
 
-        ArrayList<TrayItem> list = new ArrayList<>();
+
         list.add(trayItem);
         setData(list,lv);
+
+        final Snackbar bar;
+
+        bar = Snackbar.make(getActivity().findViewById(R.id.MainFrame), R.string.app_license,Snackbar.LENGTH_INDEFINITE);
+        bar.setAction("Ok", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bar.dismiss();
+            }
+        });
+        bar.show();
+
     }
 }

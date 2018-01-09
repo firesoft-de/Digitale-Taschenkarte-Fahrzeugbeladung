@@ -15,18 +15,27 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+
+import java.net.URI;
 
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 
-public class SettingsFragment extends Fragment {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class LicenseFragment extends Fragment {
 
 
-    public SettingsFragment() {
+
+    public LicenseFragment() {
         // Required empty public constructor
     }
 
@@ -35,7 +44,13 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        View view =  inflater.inflate(R.layout.fragment_license, container, false);
+
+        WebView wView = view.findViewById(R.id.license_webView);
+
+        wView.loadUrl(Util.LICENSE_URL);
+
+        return view;
     }
 
 }

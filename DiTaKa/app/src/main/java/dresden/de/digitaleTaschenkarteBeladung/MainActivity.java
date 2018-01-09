@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung;
 
 
@@ -25,6 +39,7 @@ import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
@@ -51,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public dbstate dbState;
 
     public MutableLiveData<Integer> liveNetDBVersion;
+
+    private Menu xMenu;
 
     public enum dbstate {
         VALID,
@@ -129,6 +146,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     //Hier werden alle Menüelement des Optionsmenüs eingefügt
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        xMenu = menu;
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.option_menu, menu);
@@ -222,6 +241,10 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
             case R.id.OptionMenuAbout:
                 switchFragment(R.id.MainFrame,null, Util.FRAGMENT_ABOUT);
+                return true;
+
+            case R.id.OptionMenuLicense:
+                switchFragment(R.id.MainFrame,null, Util.FRAGMENT_LICENSE);
                 return true;
 
             case R.id.OptionMenuSettings:
@@ -328,10 +351,14 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                     this.getSupportActionBar().setTitle(R.string.fragment_title_item);
                     //Zurückanzeige einblenden
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    if (xMenu != null) {
+                        xMenu.findItem(R.id.search).setVisible(true);
+                    }
                     break;
 
                 default:
                     //Überprüfen ob das nächste Fragment das TrayFragment ist. Die Überprüfung der backStackCount Größe ist notwendig um zu verhindern, dass ein Index < 0 abgerufen wird
+                    //Die Überprüfung ist hier etwas umständlich, da der aktuelle Eintrag (also backStackCount - 1) nicht den nächsten Eintrag im Backstack darstellt, sondern den aktuell angezeigten.
                     int backStackCount = manager.getBackStackEntryCount();
                     String backStackTag;
                     if (backStackCount >= 2) {
@@ -340,6 +367,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                             //Nichts tun
                             this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
                             this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                            if (xMenu != null) {
+                                xMenu.findItem(R.id.search).setVisible(true);
+                            }
                         }
                         else {
                             //Den passenden Namen zuweisen
@@ -408,8 +438,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         try {
 
+            boolean displaySearchIcon = true;
+
             //Hier wird anhand des gesendeten Tags das passende Fragment gesucht und angezeigt. Gleichzeitig wird der BackButton in den passenden Status gesetzt.
             switch (tag) {
+
 
                 case Util.FRAGMENT_DATA:
                     if (newFragment) {
@@ -422,6 +455,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         fragment.setArguments(args);
 
                         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                        displaySearchIcon = false;
                     }
                     else {
                         Toast.makeText(this, "Fehler beim Erstellen des Import-Fragmentes!", Toast.LENGTH_SHORT).show();
@@ -435,6 +469,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    displaySearchIcon = false;
                     break;
 
                 case Util.FRAGMENT_LIST_TRAY:
@@ -462,6 +497,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         fragment = new DebugFragment();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    displaySearchIcon = false;
                     break;
 
                 case Util.FRAGMENT_SETTINGS:
@@ -469,6 +505,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         fragment = new SettingsFragment();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    displaySearchIcon = false;
                     break;
 
                 case Util.FRAGMENT_ABOUT:
@@ -476,11 +513,24 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         fragment = new AboutFragment();
                     }
                     this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    displaySearchIcon = false;
+                    break;
+
+                case Util.FRAGMENT_LICENSE:
+                    if (newFragment) {
+                        fragment = new LicenseFragment();
+                    }
+                    this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    displaySearchIcon = false;
                     break;
 
                 default:
                     throw new IllegalArgumentException("Kein passendes Fragment gefunden!");
 
+            }
+
+            if (xMenu != null) {
+                xMenu.findItem(R.id.search).setVisible(displaySearchIcon);
             }
 
             setTitle(tag);
@@ -519,6 +569,10 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
             case Util.FRAGMENT_SETTINGS:
                 this.getSupportActionBar().setTitle(R.string.fragment_title_settings);
+                break;
+
+            case Util.FRAGMENT_LICENSE:
+                this.getSupportActionBar().setTitle(R.string.fragment_title_license);
                 break;
 
             case Util.FRAGMENT_ABOUT:
