@@ -52,4 +52,7 @@ dependencies {
     annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
     annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
 
+    //Snackbar aus der Supportbibliothek holen
+    compile 'com.android.support:design:26.1.0'
+
 }

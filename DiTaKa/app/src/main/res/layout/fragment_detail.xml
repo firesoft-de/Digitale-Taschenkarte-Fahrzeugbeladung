@@ -25,7 +25,8 @@
             android:textSize="@dimen/text_size_normal"
             android:layout_column="0"
             android:layout_row="0"
-            android:layout_marginEnd="@dimen/margin_normal"/>
+            android:layout_marginEnd="@dimen/margin_normal"
+            android:textColor="@color/text"/>
 
         <TextView
             android:id="@+id/detailName"
@@ -35,7 +36,8 @@
             android:textSize="@dimen/text_size_highlight"
             android:layout_column="1"
             android:layout_row="0"
-            android:text="Platzhalter"
+            tools:text="Platzhalter"
+            android:textColor="@color/text"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -46,6 +48,7 @@
             android:text="@string/detail_description"
             android:layout_column="0"
             android:layout_row="1"
+            android:textColor="@color/text"
             android:layout_marginEnd="@dimen/margin_normal"/>
 
         <TextView
@@ -59,6 +62,7 @@
             android:maxLines="10"
             android:ellipsize="end"
             tools:text="Platzhalter"
+            android:textColor="@color/text"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -69,6 +73,7 @@
             android:text="@string/detail_setname"
             android:layout_column="0"
             android:layout_row="2"
+            android:textColor="@color/text"
             android:layout_marginEnd="@dimen/margin_normal"/>
 
         <TextView
@@ -81,6 +86,7 @@
             android:layout_row="2"
             android:maxLines="2"
             tools:text="Platzhalter"
+            android:textColor="@color/text"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -103,6 +109,7 @@
             android:layout_row="3"
             android:maxLines="10"
             tools:text="Platzhalter"
+            android:textColor="@color/text"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
@@ -113,6 +120,7 @@
             android:layout_column="0"
             android:layout_row="4"
             android:layout_marginEnd="@dimen/margin_normal"
+            android:textColor="@color/text"
             android:layout_marginBottom="@dimen/margin_small"/>
 
         <TextView
