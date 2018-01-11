@@ -1,2 +1,4 @@
-sqluser
-hhdEqOACkFQbGEcs
+dummyServer
+dummyHost
+dummyUser
+dummyPasswort

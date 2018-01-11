@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
@@ -120,14 +134,14 @@ public class DetailFragment extends Fragment {
         }
         else {
             tvDescription.setVisibility(View.GONE);
-            TextView tvDescriptionStatic = activity.findViewById(R.id.detailDescriptionStatic);
-            tvDescriptionStatic.setVisibility(View.GONE);
+//            TextView tvDescriptionStatic = activity.findViewById(R.id.detailDescriptionStatic);
+//            tvDescriptionStatic.setVisibility(View.GONE);
         }
 
         //Ausstattungssatz bedarfsabhängig anzeigen
         String setName = item.getMSetName();
 
-        if (setName != ""  &&  setName != null) {
+        if (!setName.equals("")) {
             tvSetName.setText(setName);
             tvSetName.setVisibility(View.VISIBLE);
             tvSetNameStatic.setVisibility(View.VISIBLE);}
@@ -148,6 +162,10 @@ public class DetailFragment extends Fragment {
             tvNotes.setText(additionNotes);
             tvNotes.setVisibility(View.VISIBLE);
             tvNotesStatic.setVisibility(View.VISIBLE);
+
+            //Ein unbekannter Fehler führt zum Abschneiden der letzten Zeile. Als Workaround wird hier manuell eine weitere Zeile eingefügt.
+            tvNotes.append("\nx");
+
         }
 
         String position = item.getPosition();

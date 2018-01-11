@@ -4,143 +4,161 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment"
-    android:layout_margin="@dimen/margin_normal">
+    android:layout_margin="@dimen/margin_small">
 
-    <!--TODO: Hinweisfeld einfügen-->
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/detailGrid"
-        android:orientation="horizontal"
-        android:columnCount="2">
+        <android.support.v7.widget.CardView
+            android:id="@+id/card1"
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="@string/detail_name"
-            android:textSize="@dimen/text_size_normal"
-            android:layout_column="0"
-            android:layout_row="0"
-            android:layout_marginEnd="@dimen/margin_normal"/>
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/margin_small">
 
-        <TextView
-            android:id="@+id/detailName"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="fill_horizontal"
-            android:textSize="@dimen/text_size_highlight"
-            android:layout_column="1"
-            android:layout_row="0"
-            android:text="Platzhalter"
-            android:layout_marginBottom="@dimen/margin_small"/>
+                <TextView
+                    android:id="@+id/detailName"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_big"
+                    android:gravity="center_vertical"
+                    tools:text="Platzhalter"
+                    android:textColor="@color/text_white"
+                    android:textSize="@dimen/text_size_highlight"
+                    android:background="@color/colorPrimary"
+                    card_view:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:paddingStart="@dimen/margin_normal"
+                    android:paddingEnd="@dimen/margin_normal"/>
 
-        <TextView
-            android:id="@+id/detailDescriptionStatic"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="@dimen/text_size_normal"
-            android:text="@string/detail_description"
-            android:layout_column="0"
-            android:layout_row="1"
-            android:layout_marginEnd="@dimen/margin_normal"/>
+                <TextView
+                    android:id="@+id/detailDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_horizontal"
+                    android:textSize="@dimen/text_size_normal"
+                    card_view:layout_constraintTop_toBottomOf="@+id/detailName"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:maxLines="10"
+                    android:ellipsize="end"
+                    tools:text="Platzhalter"
+                    android:textColor="@color/text"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    android:paddingStart="@dimen/margin_normal"
+                    android:paddingEnd="@dimen/margin_normal"/>
 
-        <TextView
-            android:id="@+id/detailDescription"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="fill_horizontal"
-            android:textSize="@dimen/text_size_normal"
-            android:layout_column="1"
-            android:layout_row="1"
-            android:maxLines="10"
-            android:ellipsize="end"
-            tools:text="Platzhalter"
-            android:layout_marginBottom="@dimen/margin_small"/>
+                <TextView
+                    android:id="@+id/detailSetNameStatic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
+                    android:text="@string/detail_setname"
+                    android:layout_marginTop="@dimen/margin_small"
+                    card_view:layout_constraintTop_toBottomOf="@+id/detailDescription"
+                    android:textColor="@color/text"
+                    android:paddingStart="@dimen/margin_normal"/>
 
-        <TextView
-            android:id="@+id/detailSetNameStatic"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="@dimen/text_size_normal"
-            android:text="@string/detail_setname"
-            android:layout_column="0"
-            android:layout_row="2"
-            android:layout_marginEnd="@dimen/margin_normal"/>
+                <TextView
+                    android:id="@+id/detailSetName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill_horizontal|center_vertical"
+                    android:layout_marginStart="@dimen/margin_normal"
+                    android:paddingEnd="@dimen/margin_normal"
+                    android:maxLines="2"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_size_normal"
+                    card_view:layout_constraintBaseline_toBaselineOf="@+id/detailSetNameStatic"
+                    card_view:layout_constraintStart_toEndOf="@+id/detailSetNameStatic"
+                    tools:text="Platzhalter" />
 
-        <TextView
-            android:id="@+id/detailSetName"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="fill_horizontal"
-            android:textSize="@dimen/text_size_normal"
-            android:layout_column="1"
-            android:layout_row="2"
-            android:maxLines="2"
-            tools:text="Platzhalter"
-            android:layout_marginBottom="@dimen/margin_small"/>
+                <TextView
+                    android:id="@+id/detailAdditionalNotesStatic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
+                    android:text="@string/detail_additionalNotes"
+                    card_view:layout_constraintTop_toBottomOf="@+id/detailSetNameStatic"
+                    android:paddingStart="@dimen/margin_normal"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:textColor="@color/text"
+                    android:layout_marginEnd="@dimen/margin_normal"/>
 
-        <TextView
-            android:id="@+id/detailAdditionalNotesStatic"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="@dimen/text_size_normal"
-            android:text="@string/detail_additionalNotes"
-            android:layout_column="0"
-            android:layout_row="3"
-            android:layout_marginEnd="@dimen/margin_normal"/>
+                <TextView
+                    android:id="@+id/detailAdditionalNotes"
+                    android:layout_gravity="fill"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:textSize="@dimen/text_size_normal"
+                    android:maxLines="10"
+                    tools:text="Platzhalter"
+                    android:textColor="@color/text"
+                    card_view:layout_constraintTop_toTopOf="@+id/detailAdditionalNotesStatic"
+                    card_view:layout_constraintStart_toStartOf="@+id/detailSetName"
+                    card_view:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginEnd="@dimen/margin_small"/>
 
-        <TextView
-            android:id="@+id/detailAdditionalNotes"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="fill_horizontal"
-            android:textSize="@dimen/text_size_normal"
-            android:layout_column="1"
-            android:layout_row="3"
-            android:maxLines="10"
-            tools:text="Platzhalter"
-            android:layout_marginBottom="@dimen/margin_small"/>
+            </android.support.constraint.ConstraintLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="@dimen/text_size_normal"
-            android:text="@string/detail_position"
-            android:layout_column="0"
-            android:layout_row="4"
-            android:layout_marginEnd="@dimen/margin_normal"
-            android:layout_marginBottom="@dimen/margin_small"/>
+        </android.support.v7.widget.CardView>
 
-        <TextView
-            android:id="@+id/detailPosition"
-            android:layout_width="0dp"
-            android:layout_gravity="fill_horizontal"
-            android:layout_height="match_parent"
-            android:textSize="@dimen/text_size_highlight"
-            android:layout_column="1"
-            android:layout_row="4"
-            android:textColor="@color/text_highlight"
-            tools:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
+        <android.support.v7.widget.CardView
+            android:id="@+id/card2"
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            card_view:layout_constraintTop_toBottomOf="@+id/card1"
+            android:layout_marginTop="@dimen/margin_small">
 
-    </GridLayout>
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/margin_normal">
 
-    <ImageView
-        android:id="@+id/detailItemImage"
-        android:layout_width= "match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        app:layout_constraintTop_toBottomOf="@+id/detailGrid"
-        android:contentDescription="Positionsplatzhalter"
-        android:background="@color/text_highlight"
-        android:layout_marginTop="@dimen/margin_normal"/>
+                <TextView
+                    android:id="@+id/detailTVPosition"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_big"
+                    android:gravity="center_vertical"
+                    android:text="@string/detail_position"
+                    android:textSize="@dimen/text_size_highlight"
+                    android:textColor="@color/text_white"
+                    android:background="@color/colorPrimary"
+                    android:paddingStart="@dimen/margin_normal"
+                    android:paddingEnd="@dimen/margin_normal"/>
 
-        <!--app:layout_constraintDimensionRatio="1:1"
-        android:layout_height="0dp"-->
+                <TextView
+                    android:id="@+id/detailPosition"
+                    android:layout_width="0dp"
+                    android:layout_gravity="fill_horizontal"
+                    android:layout_height="match_parent"
+                    android:textSize="@dimen/text_size_normal"
+                    android:textColor="@color/text_highlight"
+                    card_view:layout_constraintTop_toBottomOf="@+id/detailTVPosition"
+                    android:paddingStart="@dimen/margin_normal"
+                    android:paddingEnd="@dimen/margin_normal"
+                    android:layout_marginTop="@dimen/margin_small"
+                    tools:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
+
+
+                <ImageView
+                    android:id="@+id/detailItemImage"
+                    android:layout_width= "match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintTop_toBottomOf="@+id/detailPosition"
+                    android:contentDescription="Positionsplatzhalter"
+                    android:background="@color/text_highlight"
+                    android:layout_margin="@dimen/margin_small"/>
+
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.v7.widget.CardView>
 
     </android.support.constraint.ConstraintLayout>
 

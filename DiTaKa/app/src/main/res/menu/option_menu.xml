@@ -4,6 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:showAsAction="always">
 
+    <item android:id="@+id/search"
+        android:title="@string/search_title"
+        app:showAsAction="collapseActionView|ifRoom"
+        android:icon="@drawable/ic_search_black_24dp"
+        app:actionViewClass="android.widget.SearchView"/>
+
+    <item
+        android:id="@+id/ActionSorting"
+        android:title="@string/action_sort"
+        app:showAsAction="collapseActionView|ifRoom"
+        android:icon="@drawable/ic_sort_24dp">
+        <menu>
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/SortXY"
+                    android:title="Voreinstellung"
+                    app:showAsAction="never"
+                    android:checked="true"/>
+
+                <item
+                    android:id="@+id/SortAZ"
+                    android:title="A-Z"
+                    app:showAsAction="never"
+                    />
+
+                <item
+                    android:id="@+id/SortZA"
+                    android:title="Z-A"
+                    app:showAsAction="never"/>
+            </group>
+        </menu>
+    </item>
+
     <item
         android:id="@+id/OptionMenuItemData"
         android:title="@string/option_menu_data"
@@ -20,16 +54,14 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/OptionMenuLicense"
+        android:title="@string/option_menu_license"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/OptionMenuAbout"
         android:title="@string/option_menu_about"
         app:showAsAction="never"/>
-
-    <item android:id="@+id/search"
-        android:title="@string/search_title"
-        app:showAsAction="collapseActionView|ifRoom"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:iconTint="@android:color/white"
-        app:actionViewClass="android.widget.SearchView" />
 
 </menu>
 

@@ -1,7 +1,23 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung.util;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -30,6 +46,7 @@ public class Util {
     public static final String FRAGMENT_DEBUG = "105";
     public static final String FRAGMENT_SETTINGS = "106";
     public static final String FRAGMENT_ABOUT = "107";
+    public static final String FRAGMENT_LICENSE = "108";
 
     public static final String ARGS_URL = "ARGS_URL";
     public static final String ARGS_VERSION = "ARGS_VERSION";
@@ -39,8 +56,24 @@ public class Util {
     public static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
     public static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
     public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
+    public static final String PREFS_SORT="dresden.de.digitaleTaschenkarteBeladung.sort";
 
     public static final String FILE_DESTINATION_IMAGE = "image";
+
+    public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
+
+    public enum DbState {
+        VALID,
+        EXPIRED,
+        CLEAN,
+        UNKNOWN
+    }
+
+    public enum Sort {
+        AZ,
+        ZA,
+        PRESET
+    }
 
     public static void LogDebug(String tag, String message) {
         if (MainActivity.DEBUG_ENABLED) {
@@ -104,6 +137,36 @@ public class Util {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void saveSortPref(Sort sort, Activity activity) {
+        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+
+        switch (sort) {
+            case PRESET:
+                editor.putInt(PREFS_SORT,0);
+                break;
+            case AZ:
+                editor.putInt(PREFS_SORT,1);
+                break;
+            case ZA:
+                editor.putInt(PREFS_SORT,2);
+                break;
+        }
+
+        editor.apply();
+    }
+
+    public static Sort loadSortPref(Activity activity) {
+        int pref = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(PREFS_SORT, 0);
+        switch (pref) {
+            default:
+                return Sort.PRESET;
+            case 1:
+                return Sort.AZ;
+            case 2:
+                return Sort.ZA;
+        }
     }
 
 }

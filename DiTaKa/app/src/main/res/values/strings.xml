@@ -3,19 +3,24 @@
     <string name="app_noConnection">Keine Internetverbindung gefunden!</string>
     <string name="app_nodbRefresh">Datenbank bereits auf dem aktuellesten Stand!</string>
     <string name="app_dbRefresh">Eine neue Datenbankversion ist verfügbar!</string>
+    <string name="app_license">Diese App steht unter der GNU GPL v3.0. Du findest den Lizenztext unter \"Lizenz\".</string> <!--Schaue sie dir im Menüpunkt "Lizenz" an.-->
+    <string name="app_db_update_available">Es ist ein Datenbankupdate verfügbar.</string>
 
-    <string name="fragment_title_data">Datenimport</string>
+    <string name="fragment_title_data">Datenbank</string>
     <string name="fragment_title_tray">Gerätefächer</string>
     <string name="fragment_title_item">Ausrüstung</string>
     <string name="fragment_title_detail">Detailansicht</string>
     <string name="fragment_title_debug">Debug</string>
     <string name="fragment_title_settings">Debug</string>
     <string name="fragment_title_about">Über</string>
+    <string name="fragment_title_license">Lizenz</string>
 
     <string name="option_menu_data">Datenbank importieren</string>
     <string name="option_menu_debug">Debug</string>
     <string name="option_menu_settings">Einstellungen</string>
     <string name="option_menu_about">Über</string>
+    <string name="option_menu_license">Lizenz</string>
+    <string name="action_sort">Sortieren</string>
 
     <string name="search_title">Suchergebnisse</string>
     <string name="search_hint">Suche starten...</string>
@@ -33,6 +38,7 @@
     <string name="data_url">Datenbank URL</string>
     <string name="data_progress">Fortschritt</string>
     <string name="data_dbinfo">Datenbankinformationen</string>
+    <string name="data_db_settings">Datenbankeinstellungen</string>
     <string name="data_itemcount">Datenbankeinträge Items</string>
     <string name="data_traycount">Datenbankeinträge Trays</string>
     <string name="data_imagecount">Datenbankeinträge Bilder</string>
@@ -40,6 +46,7 @@
     <string name="data_version_net">Globale Datenbankversion</string>
     <string name="data_no_db">Noch keine lokale Datenbank vorhanden!</string>
     <string name="data_no_net_db">Konnte Serverversion nicht abrufen!</string>
+    <string name="data_url_error">Die Server-URL ist wahrscheinlich fehlerhaft!</string>
 
     <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
     <string name="data_first_time_url">Gib hier die Server-URL ein!</string>

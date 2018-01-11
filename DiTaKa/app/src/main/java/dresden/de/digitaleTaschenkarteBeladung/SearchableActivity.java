@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung;
 
 import android.app.SearchManager;
@@ -32,14 +46,6 @@ import dresden.de.digitaleTaschenkarteBeladung.viewmodels.SearchViewModel;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_DETAIL;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_ITEM;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
-
-//TODO: Suche umbauen
-//SearchActivity hält zwei Frames -> List und Detail
-//Detail entspricht dem DetailFragment
-//SearchActivity führt die Suche aus und schickt das Ergebniss über die liveItemList an das ResultListFragment
-//Das ResultListFragment wird standardmäßig angezeigt. In ihm ist das ClickEvent und das Adapter eingebunden.
-
-
 
 public class SearchableActivity extends AppCompatActivity  implements TrayFragment.fragmentCallbackListener{
 

@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
@@ -16,15 +30,18 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
+import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.ItemAdapter;
-import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
@@ -90,6 +107,14 @@ public class ItemFragment extends Fragment {
             throw new IllegalArgumentException("Keine Behälter-ID angegeben!");
         }
 
+        MainActivity activity = (MainActivity) getActivity();
+        activity.liveSort.observe(this, new Observer<Util.Sort>() {
+            @Override
+            public void onChanged(@Nullable Util.Sort sort) {
+                changeSorting(sort);
+            }
+        });
+
     }
 
     @Override
@@ -121,6 +146,14 @@ public class ItemFragment extends Fragment {
         super.onDetach();
     }
 
+    @Override
+    public void onPause() {
+        ListView lv = getActivity().findViewById(R.id.ListViewMain);
+
+        state = lv.onSaveInstanceState();
+        super.onPause();
+    }
+
     private void insertData(@Nullable ArrayList<EquipmentItem> equipmentItems, @Nullable List<DatabaseEquipmentMininmal> minimalItem) {
 
         if (equipmentItems == null && minimalItem != null) {
@@ -131,13 +164,11 @@ public class ItemFragment extends Fragment {
             throw new IllegalArgumentException("Es darf nur ein Argument der Methode insertData null sein!");
         }
 
-        itemAdapter = new ItemAdapter(this.getActivity(), (ArrayList) minimalItem);
-
-        ListView lv = getActivity().findViewById(R.id.ListViewMain);
-
-        lv.setAdapter(itemAdapter);
+        changeSorting(((MainActivity) getActivity()).liveSort.getValue());
 
         //Click Listener für die ListViewItems setzen um Details anzeigen zu können
+
+        ListView lv = (ListView) getActivity().findViewById(R.id.ListViewMain);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -164,11 +195,64 @@ public class ItemFragment extends Fragment {
 
     }
 
-    @Override
-    public void onPause() {
-        ListView lv = getActivity().findViewById(R.id.ListViewMain);
+    private void setData(List<DatabaseEquipmentMininmal> items, @Nullable ListView lv) {
 
-        state = lv.onSaveInstanceState();
-        super.onPause();
+        itemList = (ArrayList<DatabaseEquipmentMininmal>) items;
+
+        itemAdapter = new ItemAdapter(getActivity(),(ArrayList) items);
+
+        if (lv == null) {
+            lv = (ListView) getActivity().findViewById(R.id.ListViewMain);
+        }
+
+        lv.setAdapter(itemAdapter);
     }
+
+    /**
+     * Sortiert die Liste entsprechend des Nutzerwunsches
+     * @param sort
+     */
+    private void changeSorting(Util.Sort sort) {
+
+        if (itemList != null) {
+
+            switch (sort) {
+
+                case AZ:
+                    Collections.sort(itemList, new Comparator<DatabaseEquipmentMininmal>() {
+                        @Override
+                        public int compare(DatabaseEquipmentMininmal o1, DatabaseEquipmentMininmal o2) {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+                    });
+                    setData(itemList, null);
+                    break;
+
+                case ZA:
+                    Collections.sort(itemList, new Comparator<DatabaseEquipmentMininmal>() {
+                        @Override
+                        public int compare(DatabaseEquipmentMininmal o1, DatabaseEquipmentMininmal o2) {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+                    });
+                    Collections.reverse(itemList);
+                    setData(itemList, null);
+                    break;
+
+                default:
+                    //Entspricht PRESET
+                    Collections.sort(itemList, new Comparator<DatabaseEquipmentMininmal>() {
+                        @Override
+                        public int compare(DatabaseEquipmentMininmal o1, DatabaseEquipmentMininmal o2) {
+                            Integer x1 = o1.getId();
+                            Integer x2 = o2.getId();
+                            return x1.compareTo(x2);
+                        }
+                    });
+                    setData(itemList, null);
+                    break;
+            }
+        }
+    }
+
 }

@@ -1,3 +1,17 @@
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
@@ -8,12 +22,13 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +36,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -98,7 +112,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         final View result = inflater.inflate(R.layout.fragment_data, container, false);
 
-
         //Marker zurücksetzen
         initLoaderAfterNetVersionRefresh = false;
 
@@ -121,7 +134,10 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         //Progressbar einrichten
         ProgressBar progressBar = result.findViewById(R.id.DataProgress);
+        progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        progressBar.setIndeterminate(false);
         progressBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        progressBar.setVisibility(View.VISIBLE);
 
         //Textfeld einrichten
         final EditText editText = result.findViewById(R.id.text_url);
@@ -129,17 +145,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             editText.setText(url);
         }
         else {
-            editText.setText(R.string.data_first_time_url);
-            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    EditText editTexter = (EditText) v;
-                    if (url == "NO_URL_FOUND") {
-                        editTexter.setText("");
-                    }
-                }
-            });
-
             //Es ist davon auszugehen, dass dies der erste Start ist
             updateDBVersion(0,result);
             updateNetVersion(-1,result);
@@ -187,8 +192,11 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     }
                 }
                 else {
-                    //Es ist ein Fehler beim Datenabruf aufgetreten!
-                    Toast.makeText(getContext(),"Die Server-URL ist wahrscheinlich fehlerhaft!",Toast.LENGTH_LONG).show();
+                    if (activity.dbState != Util.DbState.CLEAN) {
+                        //Es ist ein Fehler beim Datenabruf aufgetreten!
+                        toggleURLError(true);
+                        publishProgress(true,true);
+                    }
                 }
             }
         });
@@ -199,6 +207,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         return result;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        //URL Fehler ausblenden
+        toggleURLError(false);
+    }
 
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
@@ -267,21 +282,18 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
 
         if (error) {
-            publishProgress(0);
-            Toast.makeText(getContext(), "Es ist ein Fehler beim Herunterladen der Daten aufgetreten!", Toast.LENGTH_SHORT).show();
+            publishProgress(true,true);
+
+            Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Es ist ein Fehler beim Herunterladen der Daten aufgetreten!",Snackbar.LENGTH_LONG)
+                    .show();
         } else {
-            if (downloadsCompleted == 1) {
-                publishProgress(40);
-            } else if (downloadsCompleted == 2) {
-                publishProgress(65);
-            } else if (downloadsCompleted == 3) {
+            if (downloadsCompleted == 3) {
                 //Datenbankversion aktualiseren
                 MainActivity activity = (MainActivity) getActivity();
-                publishProgress(90);
 
                 //Variablen aktualisieren
                 activity.dbVersion = activity.liveNetDBVersion.getValue();
-                activity.dbState = MainActivity.dbstate.VALID;
+                activity.dbState = Util.DbState.VALID;
                 dbversion = activity.dbVersion;
 
                 //Preferences aktualisieren
@@ -294,7 +306,11 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 activity.FirstDownloadCompleted = true;
 
-                publishProgress(100);
+                publishProgress(true,false);
+
+                Snackbar.make(activity.findViewById(R.id.MainFrame),"Die Datenbank wurde erfolgreich heruntergeladen.",Snackbar.LENGTH_LONG)
+                        .show();
+
             }
         }
     }
@@ -318,6 +334,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //      -> Daten verarbeiten
         //Ansonsten Ende
 
+        MainActivity activity = (MainActivity) getActivity();
+
+        //URL Fehlermeldung ausblenden
+        toggleURLError(false);
+
+        publishProgress(false,false);
 
         EditText editText = getActivity().findViewById(R.id.text_url);
         url = handleURL(editText.getText().toString());
@@ -326,29 +348,20 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         if (Util_Http.checkNetwork(getActivity(),getContext())) {
             //Netzwerkverbindung i.O.
 
-            MainActivity activity = (MainActivity) getActivity();
+            //Serverdatenbankversion abrufen
+            activity.getNetDBState(url, false);
 
-            if (activity.dbState == MainActivity.dbstate.CLEAN) {
-                //Die App wurde das erste Mal gestartet. D.h. es ist noch keine Serverdatenbankversion abgerufen worden
+            //Marker für den Observer setzen. Mit diesem werden bei einer Änderung der Live-Variable netVersion die Loader gestartet.
+            initLoaderAfterNetVersionRefresh = true;
 
-                //Serverdatenbankversion abrufen
-                activity.getNetDBState(url, false);
+            //Auf das Ergebniss des LiveData Objects warten
 
-                //Marker für den Observer setzen. Mit diesem werden bei einer Änderung der Live-Variable netVersion die Loader gestartet.
-                initLoaderAfterNetVersionRefresh = true;
-            }
-            else {
-                int netVersion = activity.liveNetDBVersion.getValue();
-                initateLoader(netVersion);
-            }
-
-            //Einen Wert für den Benutzer ausgeben
-            publishProgress(15);
         }
         else {
             //Keine Netzwerkverbindung -> Nachricht und Ende
-            publishProgress(0);
-            Toast.makeText(getContext(),R.string.app_noConnection,Toast.LENGTH_LONG).show();
+            publishProgress(true,true);
+            Snackbar.make(activity.findViewById(R.id.MainFrame),R.string.app_noConnection,Snackbar.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -388,7 +401,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 }
 
             } else {
-                Toast.makeText(getContext(), R.string.app_nodbRefresh, Toast.LENGTH_LONG).show();
+//                Toast.makeText(getContext(), R.string.app_nodbRefresh, Toast.LENGTH_LONG).show();
+                Snackbar.make(getActivity().findViewById(R.id.MainFrame),R.string.app_nodbRefresh,Snackbar.LENGTH_LONG)
+                        .show();
+
+                publishProgress(true,false);
+
             }
         }
     }
@@ -399,11 +417,30 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     /**
      * Die Methode aktualisiert die Progressbar mit dem gegebenen Wert
-     * @param progress Fortschrittswert
      */
-    private void publishProgress(int progress) {
+    private void publishProgress(boolean finished, boolean error) {
+
         ProgressBar progressBar = getActivity().findViewById(R.id.DataProgress);
-        progressBar.setProgress(progress);
+
+        if (error) {
+            progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.error), PorterDuff.Mode.MULTIPLY);
+            progressBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.error), PorterDuff.Mode.MULTIPLY);
+        }
+        else {
+            progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+            progressBar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+        }
+
+        if (finished) {
+            progressBar.setIndeterminate(false);
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setProgress(100);
+        }
+        else {
+            progressBar.setIndeterminate(true);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
     }
 
     /**
@@ -477,6 +514,26 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         else {
             tvNetDBVersion.setText(getResources().getString(R.string.data_no_net_db));
         }
+    }
+
+    private void toggleURLError(boolean enabled) {
+
+        EditText editText = getActivity().findViewById(R.id.text_url);
+        TextView errorTV = getActivity().findViewById(R.id.DataURLError);
+
+        if (enabled)  {
+
+            Drawable textback = editText.getBackground();
+            textback.setColorFilter(getResources().getColor(R.color.error), PorterDuff.Mode.SRC_ATOP);
+            editText.setBackground(textback);
+            errorTV.setText(R.string.data_url_error);
+            errorTV.setVisibility(View.VISIBLE);
+        }
+        else {
+            editText.getBackground().setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
+            errorTV.setVisibility(View.INVISIBLE);
+        }
+
     }
 
 }
