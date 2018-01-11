@@ -4,7 +4,7 @@
     <string name="app_nodbRefresh">Datenbank bereits auf dem aktuellesten Stand!</string>
     <string name="app_dbRefresh">Eine neue Datenbankversion ist verfügbar!</string>
     <string name="app_license">Diese App steht unter der GNU GPL v3.0. Du findest den Lizenztext unter \"Lizenz\".</string> <!--Schaue sie dir im Menüpunkt "Lizenz" an.-->
-    <string name="app_db_update_available">Es ist ein Datenbankupdte verfügbar.</string>
+    <string name="app_db_update_available">Es ist ein Datenbankupdate verfügbar.</string>
 
     <string name="fragment_title_data">Datenbank</string>
     <string name="fragment_title_tray">Gerätefächer</string>

@@ -192,7 +192,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     }
                 }
                 else {
-                    if (activity.dbState != Util.dbstate.CLEAN) {
+                    if (activity.dbState != Util.DbState.CLEAN) {
                         //Es ist ein Fehler beim Datenabruf aufgetreten!
                         toggleURLError(true);
                         publishProgress(true,true);
@@ -293,7 +293,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 //Variablen aktualisieren
                 activity.dbVersion = activity.liveNetDBVersion.getValue();
-                activity.dbState = Util.dbstate.VALID;
+                activity.dbState = Util.DbState.VALID;
                 dbversion = activity.dbVersion;
 
                 //Preferences aktualisieren

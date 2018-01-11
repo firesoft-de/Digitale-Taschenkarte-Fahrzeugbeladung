@@ -27,7 +27,7 @@
                     android:layout_height="@dimen/margin_big"
                     android:gravity="center_vertical"
                     tools:text="Platzhalter"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/text_white"
                     android:textSize="@dimen/text_size_highlight"
                     android:background="@color/colorPrimary"
                     card_view:layout_constraintTop_toTopOf="parent"
@@ -126,7 +126,7 @@
                     android:gravity="center_vertical"
                     android:text="@string/detail_position"
                     android:textSize="@dimen/text_size_highlight"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/text_white"
                     android:background="@color/colorPrimary"
                     android:paddingStart="@dimen/margin_normal"
                     android:paddingEnd="@dimen/margin_normal"/>

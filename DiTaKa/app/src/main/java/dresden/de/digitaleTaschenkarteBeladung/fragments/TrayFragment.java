@@ -19,6 +19,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.icu.text.LocaleDisplayNames;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -31,6 +32,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -96,21 +99,22 @@ public class TrayFragment extends Fragment {
 
         String arg = this.getArguments().getString(Util.ARGS_DBSTATE);
 
-        Util.dbstate dbState;
+        Util.DbState dbState;
         if (arg != "") {
-            dbState = Util.dbstate.valueOf(arg);
+            dbState = Util.DbState.valueOf(arg);
         }
         else {
-            dbState = Util.dbstate.UNKNOWN;
+            dbState = Util.DbState.UNKNOWN;
         }
 
         final ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
 
-        if (dbState == Util.dbstate.VALID || dbState == Util.dbstate.EXPIRED || dbState == Util.dbstate.UNKNOWN) {
+        if (dbState == Util.DbState.VALID || dbState == Util.DbState.EXPIRED || dbState == Util.DbState.UNKNOWN) {
             viewModel.getTrays().observe(this, new Observer<List<TrayItem>>() {
                 @Override
                 public void onChanged(@Nullable List<TrayItem> trayItems) {
-                    setData(trayItems, lv);
+                    trays = (ArrayList<TrayItem>) trayItems;
+                    changeSorting(((MainActivity) getActivity()).liveSort.getValue());
                 }
             });
 
@@ -134,6 +138,14 @@ public class TrayFragment extends Fragment {
         else {
             displayFirstRun(lv);
         }
+
+        MainActivity activity = (MainActivity) getActivity();
+        activity.liveSort.observe(this, new Observer<Util.Sort>() {
+            @Override
+            public void onChanged(@Nullable Util.Sort sort) {
+                changeSorting(sort);
+            }
+        });
 
         return result;
 
@@ -161,7 +173,7 @@ public class TrayFragment extends Fragment {
         trayAdapter = new TrayAdapter(getActivity(), trays);
 
         if (lv == null) {
-            lv = (ListView) getActivity().findViewById(R.id.MainFrame);
+            lv = (ListView) getActivity().findViewById(R.id.ListViewMain);
         }
 
         lv.setAdapter(trayAdapter);
@@ -190,5 +202,52 @@ public class TrayFragment extends Fragment {
         });
         bar.show();
 
+    }
+
+    /**
+     * Sortiert die Liste entsprechend des Nutzerwunsches
+     * @param sort
+     */
+    private void changeSorting(Util.Sort sort) {
+
+        if (trays != null) {
+
+            switch (sort) {
+
+                case AZ:
+                    Collections.sort(trays, new Comparator<TrayItem>() {
+                        @Override
+                        public int compare(TrayItem o1, TrayItem o2) {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+                    });
+                    setData(trays, null);
+                    break;
+
+                case ZA:
+                    Collections.sort(trays, new Comparator<TrayItem>() {
+                        @Override
+                        public int compare(TrayItem o1, TrayItem o2) {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+                    });
+                    Collections.reverse(trays);
+                    setData(trays, null);
+                    break;
+
+                default:
+                    //Entspricht PRESET
+                    Collections.sort(trays, new Comparator<TrayItem>() {
+                        @Override
+                        public int compare(TrayItem o1, TrayItem o2) {
+                            Integer x1 = o1.getId();
+                            Integer x2 = o2.getId();
+                            return x1.compareTo(x2);
+                        }
+                    });
+                    setData(trays, null);
+                    break;
+            }
+        }
     }
 }
