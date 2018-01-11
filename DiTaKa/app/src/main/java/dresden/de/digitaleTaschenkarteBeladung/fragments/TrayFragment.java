@@ -58,7 +58,9 @@ public class TrayFragment extends Fragment {
 
     ArrayList<TrayItem> trays;
 
-    //Overrides
+    //=======================================================
+    //===================OVERRIDEMETHODEN====================
+    //=======================================================
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,17 +96,17 @@ public class TrayFragment extends Fragment {
 
         String arg = this.getArguments().getString(Util.ARGS_DBSTATE);
 
-        MainActivity.dbstate dbState;
+        Util.dbstate dbState;
         if (arg != "") {
-            dbState = MainActivity.dbstate.valueOf(arg);
+            dbState = Util.dbstate.valueOf(arg);
         }
         else {
-            dbState = MainActivity.dbstate.UNKNOWN;
+            dbState = Util.dbstate.UNKNOWN;
         }
 
         final ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
 
-        if (dbState == MainActivity.dbstate.VALID || dbState == MainActivity.dbstate.EXPIRED || dbState == MainActivity.dbstate.UNKNOWN) {
+        if (dbState == Util.dbstate.VALID || dbState == Util.dbstate.EXPIRED || dbState == Util.dbstate.UNKNOWN) {
             viewModel.getTrays().observe(this, new Observer<List<TrayItem>>() {
                 @Override
                 public void onChanged(@Nullable List<TrayItem> trayItems) {
@@ -137,7 +139,9 @@ public class TrayFragment extends Fragment {
 
     }
 
-    //Interfaces
+    //=======================================================
+    //======================INTERFACES=======================
+    //=======================================================
 
     //Interfacedefinition um schneller mit der Mainactivity zu kommunizieren
     public  interface fragmentCallbackListener {
@@ -146,7 +150,9 @@ public class TrayFragment extends Fragment {
         //void sendToFragment(int fragmentID, Object message);
     }
 
-    //Methoden
+    //=======================================================
+    //====================KLASSENMETHODEN====================
+    //=======================================================
 
     private void setData(List<TrayItem> trayItems, @Nullable ListView lv) {
 

@@ -4,6 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:drawSelectorOnTop="true"
-    android:id="@+id/ListViewMain">
+    android:id="@+id/ListViewMain"
+    android:dividerHeight="1dp"
+    android:divider="@drawable/list_sepeator">
 
 </ListView>

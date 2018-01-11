@@ -4,6 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:showAsAction="always">
 
+
+    <item android:id="@+id/search"
+        android:title="@string/search_title"
+        app:showAsAction="collapseActionView|ifRoom"
+        android:icon="@drawable/ic_search_black_24dp"
+        app:actionViewClass="android.widget.SearchView" />
+
+    <item
+        android:id="@+id/ActionSorting"
+        android:title="@string/action_sort"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_sort_24dp"/>
+
     <item
         android:id="@+id/OptionMenuItemData"
         android:title="@string/option_menu_data"
@@ -28,13 +41,6 @@
         android:id="@+id/OptionMenuAbout"
         android:title="@string/option_menu_about"
         app:showAsAction="never"/>
-
-    <item android:id="@+id/search"
-        android:title="@string/search_title"
-        app:showAsAction="collapseActionView|ifRoom"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:iconTint="@android:color/white"
-        app:actionViewClass="android.widget.SearchView" />
 
 </menu>
 
