@@ -70,9 +70,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public int dbVersion;
 //    public int netDBVersion;
     public String url;
-    public Util.dbstate dbState;
+    public Util.DbState dbState;
 
     public MutableLiveData<Integer> liveNetDBVersion;
+
+    public MutableLiveData<Util.Sort> liveSort;
 
     private Menu xMenu;
 
@@ -100,13 +102,16 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         liveNetDBVersion = new MutableLiveData<>();
         liveNetDBVersion.setValue(-1);
 
+        liveSort = new MutableLiveData<>();
+        liveSort.setValue(Util.loadSortPref(this));
+
         if (url == "NO_URL_FOUND") {
             //Kein SERVER-URL gefunden (App wird das erste Mal gestartet) -> Keine internen Datenbankabfragen durchführen sondern Dummy Tray mit Hinweisen für die Erstbenutzung anzeigen!
-            dbState = Util.dbstate.CLEAN;
+            dbState = Util.DbState.CLEAN;
             dbVersion = 0;
         }
         else if (dbVersion == -1) {
-            dbState = Util.dbstate.CLEAN;
+            dbState = Util.DbState.CLEAN;
             dbVersion = 0;
             if (Util_Http.checkNetwork(this,this)) {
                 getNetDBState(null,true);
@@ -144,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     //Hier werden alle Menüelement des Optionsmenüs eingefügt
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
 
         xMenu = menu;
 
@@ -168,11 +173,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         final SearchView searchView =
                 (SearchView) menu.findItem(R.id.search).getActionView();
 
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconified(false);
+        searchView.setIconified(true);
+        searchView.setFocusable(true);
 
         //Verhindern das beim Starten der App die Tastatur angezeigt wird
         searchView.clearFocus();
@@ -180,17 +185,22 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //Tastatur anzeigen wenn SearchView expandiert wird
         MenuItem mItem = menu.findItem(R.id.search);
 
-        searchView.setFocusable(true);
 
+        //Mit diesen Befehlen wird das ActionItem "Sortieren" ausgeblendet, sobald die Suche geöffnet wird.
         mItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem menuItem) {
-                searchView.requestFocus();
+                menu.findItem(R.id.ActionSorting).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                menu.findItem(R.id.search).setVisible(false);
+                searchView.setIconified(false);
                 return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                menu.findItem(R.id.ActionSorting).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                searchView.setIconified(true);
+                invalidateOptionsMenu();
                 return true;
             }
         });
@@ -221,6 +231,19 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             menu.findItem(R.id.OptionMenuDebug).setVisible(false);
         }
 
+        switch (liveSort.getValue()) {
+            case AZ:
+                menu.findItem(R.id.SortAZ).setChecked(true);
+                break;
+            case ZA:
+                menu.findItem(R.id.SortZA).setChecked(true);
+                break;
+            case PRESET:
+                menu.findItem(R.id.SortXY).setChecked(true);
+                break;
+
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -249,10 +272,22 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 switchFragment(R.id.MainFrame,null, Util.FRAGMENT_SETTINGS);
                 return true;
 
-            case R.id.ActionSorting:
-                //TODO Sortieren
-                //1. Fragment ermitteln
-                //2. Sortierungsfunktion aufrufen
+            case R.id.SortAZ:
+                liveSort.postValue(Util.Sort.AZ);
+                Util.saveSortPref(Util.Sort.AZ,this);
+                item.setChecked(true);
+                return true;
+
+            case R.id.SortZA:
+                liveSort.postValue(Util.Sort.ZA);
+                Util.saveSortPref(Util.Sort.ZA,this);
+                item.setChecked(true);
+                return true;
+
+            case R.id.SortXY:
+                liveSort.postValue(Util.Sort.PRESET);
+                Util.saveSortPref(Util.Sort.PRESET,this);
+                item.setChecked(true);
                 return true;
 
             case android.R.id.home:
@@ -304,16 +339,16 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         if ((int) data != -1) {
             if (netDBVersion > dbVersion) {
                 //Eine neue Datenbankversion ist verfügbar!
-                dbState = Util.dbstate.EXPIRED;
+                dbState = Util.DbState.EXPIRED;
 
                 if (NetDBVersionCallForUser) {
                     Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_db_update_available, Snackbar.LENGTH_LONG)
                             .show();
                 }
             } else if (netDBVersion == dbVersion) {
-                dbState = Util.dbstate.VALID;
+                dbState = Util.DbState.VALID;
             } else {
-                dbState = Util.dbstate.UNKNOWN;
+                dbState = Util.DbState.UNKNOWN;
                 LogError(LOG_TAG, "Datenbankstatus ist unbekannt! Irgendwas stimmt hier nicht o.O");
             }
         }
