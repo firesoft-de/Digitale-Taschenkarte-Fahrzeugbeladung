@@ -15,6 +15,8 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -41,12 +43,25 @@ public class AboutFragment extends Fragment {
 
         //Link setzen
         TextView tv = view.findViewById(R.id.about_tv2);
-//        tv.append(" ");
-//        tv.append(getString(R.string.about_git_url));
+
+        //Aktuelle Version setzen
+        String version = "";
+        TextView tvVersion = view.findViewById(R.id.about_version);
+
+        try {
+            PackageInfo info = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(),0);
+            version = info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (!version.equals("")) {
+            tvVersion.setText(version);
+        }
+        else {
+            tvVersion.setText("Version unbekannt");
+        }
 
         return view;
     }
-
-    //TODO: Versionsanzeige
-
 }

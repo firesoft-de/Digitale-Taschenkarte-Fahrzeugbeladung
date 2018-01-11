@@ -59,6 +59,12 @@ public class Util {
 
     public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
 
+    public enum dbstate {
+        VALID,
+        EXPIRED,
+        CLEAN,
+        UNKNOWN
+    }
 
     public static void LogDebug(String tag, String message) {
         if (MainActivity.DEBUG_ENABLED) {

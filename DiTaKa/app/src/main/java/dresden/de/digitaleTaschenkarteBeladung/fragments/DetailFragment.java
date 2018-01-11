@@ -134,14 +134,14 @@ public class DetailFragment extends Fragment {
         }
         else {
             tvDescription.setVisibility(View.GONE);
-            TextView tvDescriptionStatic = activity.findViewById(R.id.detailDescriptionStatic);
-            tvDescriptionStatic.setVisibility(View.GONE);
+//            TextView tvDescriptionStatic = activity.findViewById(R.id.detailDescriptionStatic);
+//            tvDescriptionStatic.setVisibility(View.GONE);
         }
 
         //Ausstattungssatz bedarfsabhängig anzeigen
         String setName = item.getMSetName();
 
-        if (setName != ""  &&  setName != null) {
+        if (!setName.equals("")) {
             tvSetName.setText(setName);
             tvSetName.setVisibility(View.VISIBLE);
             tvSetNameStatic.setVisibility(View.VISIBLE);}
@@ -162,6 +162,10 @@ public class DetailFragment extends Fragment {
             tvNotes.setText(additionNotes);
             tvNotes.setVisibility(View.VISIBLE);
             tvNotesStatic.setVisibility(View.VISIBLE);
+
+            //Ein unbekannter Fehler führt zum Abschneiden der letzten Zeile. Als Workaround wird hier manuell eine weitere Zeile eingefügt.
+            tvNotes.append("\nx");
+
         }
 
         String position = item.getPosition();

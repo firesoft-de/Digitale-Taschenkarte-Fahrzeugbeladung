@@ -6,8 +6,8 @@ android {
         applicationId "dresden.de.digitaleTaschenkarteBeladung"
         minSdkVersion 18
         targetSdkVersion 26
-        versionCode 4
-        versionName "0.3.1"
+        versionCode 5
+        versionName "0.3.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         javaCompileOptions {
@@ -54,5 +54,7 @@ dependencies {
 
     //Snackbar aus der Supportbibliothek holen
     compile 'com.android.support:design:26.1.0'
+
+    compile 'com.android.support:cardview-v7:26.1.0'
 
 }
