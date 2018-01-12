@@ -43,6 +43,8 @@ public class TrayItem {
     //Zweite Beschreibung/Anmerkungen
     private String descriptionTwo;
 
+    private String group;
+
     //Die Koordinaten für die Markierung der Itempositionen
     //Die vier Koordinaten werden als vier unabhängige Einträge angelegt. D.h. beim Abrufen muss der ausgegebene Index mit 4 multipliziert werden und dann dieser sowie
     // die nachfolgenden drei abgefragt werden um die richtigen Koordinaten zu erhalten
@@ -85,6 +87,8 @@ public class TrayItem {
         return positionCoordinates;
     }
 
+    public String getGroup() {return group;}
+
     //Set-Methoden
     public void setName(String name) {}
 
@@ -98,24 +102,29 @@ public class TrayItem {
         this.positionCoordinates = positionCoordinates;
     }
 
+    public void setGroup(String group) {this.group = group;}
+
     public void positionCoordFromString(String positions) {
 
-        //Pattern:
-        // PositionsID:coordLinks-coordOben-coordRechts-coordUnten;PositionsID2:coorLinks2- etc.
+        if (!positions.equals("-1")) {
 
-        if (!positions.equals("")) {
-            String[] coords = positions.split(";");
+            //Pattern:
+            // PositionsID:coordLinks-coordOben-coordRechts-coordUnten;PositionsID2:coorLinks2- etc.
 
-            if (positionCoordinates == null) {
-                positionCoordinates = new ArrayList<>();
-            }
+            if (!positions.equals("")) {
+                String[] coords = positions.split(";");
 
-            for (String coord : coords) {
-                String[] coordQuery = coord.split(":");
-                String[] singleCoord = coordQuery[1].split("-");
-                for (String s : singleCoord
-                        ) {
-                    positionCoordinates.add(new Integer(s));
+                if (positionCoordinates == null) {
+                    positionCoordinates = new ArrayList<>();
+                }
+
+                for (String coord : coords) {
+                    String[] coordQuery = coord.split(":");
+                    String[] singleCoord = coordQuery[1].split("-");
+                    for (String s : singleCoord
+                            ) {
+                        positionCoordinates.add(new Integer(s));
+                    }
                 }
             }
         }

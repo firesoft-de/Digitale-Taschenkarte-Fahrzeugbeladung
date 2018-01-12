@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "be02c646ae3738ad34d4c2024d34e168",
+    "identityHash": "cb29b2b30de573a21fa23d0dd0502084",
     "entities": [
       {
         "tableName": "equipment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, `positionIndex` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, `group` TEXT, `positionIndex` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -57,6 +57,12 @@
             "notNull": false
           },
           {
+            "fieldPath": "group",
+            "columnName": "group",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "positionIndex",
             "columnName": "positionIndex",
             "affinity": "INTEGER",
@@ -74,7 +80,7 @@
       },
       {
         "tableName": "tray",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `descriptionTwo` TEXT, `positions` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `descriptionTwo` TEXT, `group` TEXT, `positions` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -97,6 +103,12 @@
           {
             "fieldPath": "descriptionTwo",
             "columnName": "descriptionTwo",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "group",
+            "columnName": "group",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -151,7 +163,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"be02c646ae3738ad34d4c2024d34e168\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"cb29b2b30de573a21fa23d0dd0502084\")"
     ]
   }
 }
