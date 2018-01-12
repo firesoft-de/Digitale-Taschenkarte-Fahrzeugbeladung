@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
     //TODO: Debug ausschalten
-    public final static Boolean DEBUG_ENABLED = false;
+    public final static Boolean DEBUG_ENABLED = true;
 
     //Globale Variablen
     private FragmentManager fManager;
