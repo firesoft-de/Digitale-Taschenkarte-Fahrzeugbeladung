@@ -28,9 +28,12 @@
 	$clientdbVersion = $_GET['dbVersion'];
 	$table_input = $_GET['db_table'];
 	
-	//Gruppenfeature momentan noch deaktivieren
-	//$groups = $_GET['groups'];
-	$groups = "B1";
+	//Gruppe abfragen
+	if (isset($_GET['groups'])) {
+		$groups = $_GET['groups'];}
+	else {
+		$groups = "";
+	}
 	
 	//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
 	switch ($table_input) {
@@ -77,12 +80,12 @@
 	$queryString = "SELECT * FROM `" . $db_table . "` WHERE version > :clientdbversion";
 	
 	//Falls Gruppen vorhanden sind diese anhängen
-	if ($groups != null){	
+	if ($groups != null && $groups != ""){	
 		$queryString = $queryString . " AND (" . builtGroupQueryByName($groups);
-		
-		//Debug Ausgabe		
-		//print($queryString);
 	}
+	
+	//Debug Ausgabe		
+	//print($queryString);
 	
 	//Ausgabe per JSON
 	$stmt=$pdo->prepare($queryString);
@@ -99,9 +102,16 @@
 	//DEBUG Ausgabe SQL Query
 	//$stmt->debugDumpParams();
 	
-	$results = array();
+	$results = array(); 
+	
+	$group_array = getGroupArray();
 	
 	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
+		
+		//Numerische Gruppenbezeichnung gegen alphabetische Gruppenbezeichnung austauschen
+		if ($db_table != "groupx"){
+			$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
+		}
 		
 		//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
 		$results["OUTPUT"][] = $row;
@@ -188,7 +198,7 @@
 		
 				if ($id != -1) {
 					
-					$query = $query . "OR groupId = " . $id;
+					$query = $query . " OR groupId = " . $id;
 					
 				}
 				else {
@@ -211,13 +221,13 @@
 		global $pdo;
 	
 		//SQL Query zum Abfragen der Daten konstruieren
-		$queryString = "SELECT * FROM `groupx` WHERE version > :clientdbversion";
+		$queryString = "SELECT * FROM `groupx`";
 		
 		//Ausgabe per JSON
 		$statment=$pdo->prepare($queryString);
 			
 		//Die Benutzereingaben sicher in den Querystring einfügen
-		$statment->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+		//$statment->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
 		
 		//Statment schließen
 		$statment->closeCursor();
@@ -233,7 +243,6 @@
 		while($res=$statment->fetch(PDO::FETCH_ASSOC)){
 			
 			$results[] = $res;
-			//var_dump($results);
 			//print($results[0]["name"] . "-");
 			//print($res["name"] . "-");
 	 

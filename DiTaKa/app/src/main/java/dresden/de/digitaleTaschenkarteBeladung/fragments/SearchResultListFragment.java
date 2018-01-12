@@ -66,7 +66,6 @@ public class SearchResultListFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //Detailansicht anzeigen
 
-                //TODO: Detailansicht aktivieren
                 showDetail(i);
             }
         });

@@ -89,7 +89,7 @@ public class DebugViewModel extends ViewModel {
         }
     }
 
-    public LiveData<List<DatabaseEquipmentMininmal>> getItemsByCatID(int catID) {return repository.getItemByCatID(catID); }
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemsByCatID(int catID, String group) {return repository.getItemByCatID(catID, group); }
 
 
 

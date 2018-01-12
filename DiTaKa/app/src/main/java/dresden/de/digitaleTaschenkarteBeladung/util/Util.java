@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.File;
@@ -29,8 +28,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
@@ -57,8 +56,9 @@ public class Util {
     public static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
     public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
     public static final String PREFS_SORT="dresden.de.digitaleTaschenkarteBeladung.sort";
+    public static final String PREFS_GROUPS="dresden.de.digitaleTaschenkarteBeladung.groups";
 
-    public static final String FILE_DESTINATION_IMAGE = "image";
+    private static final String FILE_DESTINATION_IMAGE = "image";
 
     public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
 
@@ -167,6 +167,34 @@ public class Util {
             case 2:
                 return Sort.ZA;
         }
+    }
+
+    public static void saveGroupPref(ArrayList<String> groups, Activity activity) {
+        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME,Context.MODE_PRIVATE).edit();
+        StringBuilder saveString = new StringBuilder();
+
+        for (String group: groups
+             ) {
+            saveString.append(group);
+            saveString.append(";");
+        }
+
+        //Abschließendes ; entfernen
+        saveString.deleteCharAt(saveString.length() - 1);
+        //Speichern
+        editor.putString(PREFS_GROUPS,saveString.toString());
+        editor.apply();
+    }
+
+    public static ArrayList<String> loadGroupPref(Activity activity) {
+        String saveString = activity.getSharedPreferences(Util.PREFS_NAME,Context.MODE_PRIVATE).getString(PREFS_GROUPS,"");
+        ArrayList<String> groups = new ArrayList<>();
+
+        if (!saveString.equals("")) {
+            String[] array = saveString.split(";");
+            groups.addAll(Arrays.asList(array));
+        }
+        return groups;
     }
 
 }

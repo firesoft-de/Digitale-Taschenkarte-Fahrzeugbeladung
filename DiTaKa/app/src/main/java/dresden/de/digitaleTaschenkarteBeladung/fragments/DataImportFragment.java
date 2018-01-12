@@ -48,6 +48,7 @@ import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.Applica
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.ImageLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.ItemLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.TrayLoader;
@@ -69,6 +70,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     private static final int ITEM_LOADER = 1;
     private static final int TRAY_LOADER = 2;
     private static final int IMAGE_LOADER = 3;
+    private static final int GROUP_LOADER = 4;
 
     //Datenbankversion
     private int dbversion;
@@ -250,6 +252,10 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 //ID 3: Ein neuer ImageLoader wird gebraucht!
                 return new ImageLoader(getContext(),url,version);
 
+            case GROUP_LOADER:
+                //ID 3: Ein neuer ImageLoader wird gebraucht!
+                return new GroupLoader(getContext(),url,version);
+
             default:
                 //Irgendwas ist schief gegangen -> Falsche ID
                 LogError(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
@@ -293,6 +299,17 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     error = true;
                 }
                 break;
+
+            case GROUP_LOADER:
+                if (data != null) {
+                    if (((ArrayList<String>) data).size() != 0) {
+                        ((MainActivity) getActivity()).groups = (ArrayList<String>) data;
+                    }
+                    downloadsCompleted += 1;
+                } else {
+                    error = true;
+                }
+                break;
         }
 
         if (error) {
@@ -301,7 +318,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Es ist ein Fehler beim Herunterladen der Daten aufgetreten!",Snackbar.LENGTH_LONG)
                     .show();
         } else {
-            if (downloadsCompleted == 3) {
+            if (downloadsCompleted == 4) {
                 //Datenbankversion aktualiseren
                 MainActivity activity = (MainActivity) getActivity();
 
@@ -318,10 +335,16 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 //Angezeigte Datenbankversion aktualisieren
                 updateDBVersion(dbversion, null);
 
+                //Wird nur benötigt, falls der erste Download abgeschlossen wurde. Wird aber trotzdem zur Sicherheit immer true gesetzt
                 activity.FirstDownloadCompleted = true;
 
-                publishProgress(true,false);
+                //Gruppen speichern
+                Util.saveGroupPref(activity.groups,activity);
+                activity.activeGroup = activity.groups.get(0);
+                activity.invalidateOptionsMenu();
 
+                //Vollzug melden
+                publishProgress(true,false);
                 Snackbar.make(activity.findViewById(R.id.MainFrame),"Die Datenbank wurde erfolgreich heruntergeladen.",Snackbar.LENGTH_LONG)
                         .show();
 
@@ -331,15 +354,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onLoaderReset(Loader loader) {
-        //TODO: Hier die Dinge zurücksetzen die zurückgesetzt werden müssen
-
+        //Hier wird nichts gemacht :/
     }
 
     //=======================================================
     //===================WICHTIGE METHODEN===================
     //=======================================================
 
-    public void buttonAddClick() {
+    private void buttonAddClick() {
         //Ablauf
         //1. Netzwerküberprüfung
         //2. Versionsabfrage
@@ -412,6 +434,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     loaderManager.initLoader(IMAGE_LOADER, args, this);
                 } else {
                     loaderManager.restartLoader(IMAGE_LOADER, args, this);
+                }
+
+                if (loaderManager.getLoader(GROUP_LOADER) == null) {
+                    loaderManager.initLoader(GROUP_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(GROUP_LOADER, args, this);
                 }
 
             } else {

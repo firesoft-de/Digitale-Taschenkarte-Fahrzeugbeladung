@@ -37,6 +37,20 @@
         </menu>
     </item>
 
+
+    <item
+        android:id="@+id/ActionGroup"
+        android:title="@string/action_group"
+        app:showAsAction="ifRoom|collapseActionView"
+        android:icon="@drawable/ic_group_24dp">
+        <menu>
+            <group
+                android:checkableBehavior="single">
+            </group>
+        </menu>
+    </item>
+
+
     <item
         android:id="@+id/OptionMenuItemData"
         android:title="@string/option_menu_data"

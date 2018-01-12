@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,13 +46,13 @@ import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.saveImage;
 
 public class Util_Http {
-    //TODO: Feedback für AsnycLoader einfügen
 
     private static final String LOG_TRACE = "Util_Http";
 
     private static final String SERVER_QUERY_GET = "/getDatabase.php?";
     private static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
     private static final String SERVER_QUERY_GET_TABLE = "db_table=";
+    private static final String SERVER_QUERY_GET_GROUP = "groups=";
 
     private static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
 
@@ -60,6 +61,7 @@ public class Util_Http {
 
     private static final String SERVER_TABLE_ITEM = "equipment";
     private static final String SERVER_TABLE_TRAY = "tray";
+    private static final String SERVER_TABLE_GROUP = "group";
 
     /**
      *
@@ -68,11 +70,13 @@ public class Util_Http {
      * @return
      */
     static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
-
         String httpResponse = null;
 
+        //TODO: Gruppenauswahl implementieren
         //URL generieren, Util_HTTP_URL im Git nicht enthalten
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION + dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM);
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM );
+        //+ "&" + SERVER_QUERY_GET_GROUP + "B1_B2_B3"
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
@@ -93,11 +97,12 @@ public class Util_Http {
      * @return Liste
      */
     static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
-
         String httpResponse = null;
 
+        //TODO: Gruppenauswahl implementieren
         //URL generieren, Util_HTTP_URL im Git nicht enthalten
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION + dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY);
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY);
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
@@ -118,7 +123,7 @@ public class Util_Http {
      * @param url
      * @return Im Fehlerfall wird -1 zurück gegeben
      */
-    static int checkVersion(String url) {
+    static int requestVersion(String url) {
             int result = -1;
 
             URL urlV = generateURL(url + SERVER_QUERY_VERSION);
@@ -161,9 +166,9 @@ public class Util_Http {
      * @return Liste der Bilder als Imageitems
      */
     static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context) {
-
         ArrayList<ImageItem> items = new ArrayList<>();
 
+        //TODO: Gruppenauswahl implementieren
         //Abfrage der Bildpfade
         URL urlV = generateURL(url + SERVER_QUERY_IMAGE + "?" + SERVER_QUERY_IMAGE_VERSION + dbVersion);
         Bitmap image = null;
@@ -210,6 +215,8 @@ public class Util_Http {
                 }
 
                 ImageItem item = new ImageItem(id,returnPath,catID);
+                //Gruppenid setzen
+                item.setGroup(object.getString("groupId"));
                 items.add(item);
             }
 
@@ -221,6 +228,20 @@ public class Util_Http {
         return items;
     }
 
+
+    static ArrayList<String> requestGroups(String url, int version) {
+        ArrayList<String> list = new ArrayList<>();
+
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                version + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_GROUP);
+
+        InputStream stream = httpsRequester(urlV);
+        String response = readStream(stream);
+
+        list = jsonGroupParsing(response);
+
+        return list;
+    }
 
 
     /**
@@ -257,6 +278,8 @@ public class Util_Http {
                 //Den Positionsmarkierungsindex setzen
                 item.setPositionIndex(object.getInt("positionID"));
 
+                //Gruppenid setzen
+                item.setGroup(object.getString("groupId"));
 
                 equipmentList.add(item);
 
@@ -281,8 +304,6 @@ public class Util_Http {
 
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
-
-
             JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
 
             for (int i = 0; i < responseArray.length(); i ++) {
@@ -294,6 +315,9 @@ public class Util_Http {
 
                 item.positionCoordFromString(object.getString("positions"));
 
+                //Gruppenid setzen
+                item.setGroup(object.getString("groupId"));
+
                 trayList.add(item);
 
             }
@@ -304,6 +328,26 @@ public class Util_Http {
         }
 
         return trayList;
+    }
+
+    private static ArrayList<String> jsonGroupParsing(String response) {
+
+        ArrayList<String> list  = new ArrayList<>();
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(response);
+            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+
+            for (int i = 0; i < responseArray.length(); i ++) {
+                JSONObject object =  responseArray.getJSONObject(i);
+                list.add(object.getString("name"));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+        return list;
     }
 
     /**

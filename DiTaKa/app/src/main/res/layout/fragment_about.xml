@@ -6,9 +6,6 @@ android:layout_height="match_parent"
 tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment"
 android:layout_margin="@dimen/margin_normal">
 
-        <!--TODO: Hinweisfeld einfügen-->
-
-
     <TextView
         android:id="@+id/about_app_name"
         android:layout_width="wrap_content"
