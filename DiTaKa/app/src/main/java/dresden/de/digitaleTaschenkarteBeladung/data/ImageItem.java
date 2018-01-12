@@ -28,6 +28,7 @@ public class ImageItem {
 
     private String path;
     private int categoryID;
+    private String group;
 
 //    @Ignore
 //    private Bitmap image;
@@ -41,11 +42,13 @@ public class ImageItem {
     public void setId(int id) {}
     public void setPath(String path) {this.path = path;}
     public void setCategoryID(int categoryID) {this.categoryID = categoryID;}
+    public String getGroup() {return group;}
 //    public void setImage(Bitmap bitmap) {this.image = bitmap;}
 
     public int getId() {return id;}
     public String getPath() {return path;}
     public int getCategoryID() {return categoryID;}
+    public void setGroup(String group) {this.group = group;}
 
 
 //    public Bitmap getImage() {return image;}

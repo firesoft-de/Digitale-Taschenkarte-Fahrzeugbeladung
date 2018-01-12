@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +57,8 @@ public class ItemFragment extends Fragment {
     public final static  String BUNDLE_TAG_ITEMS="bundleItems";
     public final static  String BUNDLE_TAG_DETAIL="bundleDetail";
 
+    private int catID;
+
     private ItemAdapter itemAdapter;
 
     private ArrayList<DatabaseEquipmentMininmal> itemList;
@@ -83,6 +86,8 @@ public class ItemFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        MainActivity activity = (MainActivity) getActivity();
+
         //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
         itemViewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(ItemViewModel.class);
@@ -91,14 +96,12 @@ public class ItemFragment extends Fragment {
 
             Bundle args = this.getArguments();
 
-            int catID =  args.getInt(BUNDLE_TAG_ITEMS);
+            catID =  args.getInt(BUNDLE_TAG_ITEMS);
             //Observer einrichten
-            itemViewModel.getItemsByCatID(catID).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+            itemViewModel.getItemsByCatID(catID, activity.activeGroup).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
                 @Override
                 public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
-//                    if (ItemFragment.this.itemList == null) {
                         insertData(null,items);
-//                    }
                 }
             });
 
@@ -107,7 +110,6 @@ public class ItemFragment extends Fragment {
             throw new IllegalArgumentException("Keine Behälter-ID angegeben!");
         }
 
-        MainActivity activity = (MainActivity) getActivity();
         activity.liveSort.observe(this, new Observer<Util.Sort>() {
             @Override
             public void onChanged(@Nullable Util.Sort sort) {
@@ -141,8 +143,12 @@ public class ItemFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        itemList.clear();
-        itemAdapter.clear();
+        if (itemList != null) {
+        itemList.clear(); }
+
+        if (itemAdapter != null) {
+        itemAdapter.clear(); }
+
         super.onDetach();
     }
 
@@ -253,6 +259,15 @@ public class ItemFragment extends Fragment {
                     break;
             }
         }
+    }
+
+    public void changeGroup(String activeGroup) {
+        itemViewModel.getItemsByCatID(catID, activeGroup).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+            @Override
+            public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
+                insertData(null,items);
+            }
+        });
     }
 
 }

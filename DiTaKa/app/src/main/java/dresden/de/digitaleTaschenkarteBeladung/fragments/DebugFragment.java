@@ -181,8 +181,10 @@ public class DebugFragment extends Fragment {
                 SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
                 editor.remove(Util.PREFS_URL);
                 editor.remove(Util.PREFS_DBVERSION);
+                editor.remove(Util.PREFS_GROUPS);
+                editor.remove(Util.PREFS_SORT);
 
-                editor.commit();
+                editor.apply();
 
                 Toast.makeText(getContext(),"Prefs gelöscht!",Toast.LENGTH_SHORT).show();
             }

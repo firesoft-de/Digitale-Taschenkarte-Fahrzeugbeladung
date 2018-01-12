@@ -28,14 +28,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.ActionMenuItem;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
+import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
@@ -60,8 +65,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
-    //TODO: Debug ausschalten
-    public final static Boolean DEBUG_ENABLED = true;
+
+    //DEBUG Modus ein- oder ausschalten
+    public final static Boolean DEBUG_ENABLED = false;
 
     //Globale Variablen
     private FragmentManager fManager;
@@ -71,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 //    public int netDBVersion;
     public String url;
     public Util.DbState dbState;
+    public ArrayList<String> groups;
+    public String activeGroup;
 
     public MutableLiveData<Integer> liveNetDBVersion;
 
@@ -97,6 +105,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         dbVersion = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getInt(Util.PREFS_DBVERSION,-1);
         url = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getString(Util.PREFS_URL,"NO_URL_FOUND");
+
+        groups = Util.loadGroupPref(this);
+
+        if (groups.size() != 0) {
+            activeGroup = groups.get(0);
+        }
 
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
         liveNetDBVersion = new MutableLiveData<>();
@@ -167,6 +181,32 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //TODO: Einstellungsdialog wieder einschalten
         menu.findItem(R.id.OptionMenuSettings).setVisible(false);
 
+        //Zählervariale
+        int x = 0;
+
+        //Gruppenauswahl bearbeiten
+        if (groups.size() == 0) {
+            menu.findItem(R.id.ActionGroup).setVisible(false);
+        }
+        else {
+            SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();;
+            //Einträge für die Gruppen einfügen
+            for (String group: groups
+                 ) {
+                sMenu.add(group);
+                sMenu.getItem(x).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        groupItemPressed(menuItem);
+                        return true;
+                    }
+                });
+                x++;
+            }
+            sMenu.setGroupCheckable(0,true,true);
+            sMenu.getItem(0).setChecked(true);
+        }
+
         // Suchfunktionalität mittels SearchManager hinzufügen
         final SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -184,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         //Tastatur anzeigen wenn SearchView expandiert wird
         MenuItem mItem = menu.findItem(R.id.search);
-
 
         //Mit diesen Befehlen wird das ActionItem "Sortieren" ausgeblendet, sobald die Suche geöffnet wird.
         mItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
@@ -231,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             menu.findItem(R.id.OptionMenuDebug).setVisible(false);
         }
 
+        //Initalen Wert für das Sortierungsmenü festlegen
         switch (liveSort.getValue()) {
             case AZ:
                 menu.findItem(R.id.SortAZ).setChecked(true);
@@ -642,7 +682,34 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
             default:
                 throw new IllegalArgumentException("Kein passendes Fragment gefunden!");
+        }
+    }
 
+    private void groupItemPressed(MenuItem item) {
+
+        //Manuelles anhacken der Items (Standardmethode funktionieren nicht, warum auch immer)
+        item.setChecked(true);
+
+        for (String group: groups
+             ) {
+            if (group.equals(item.getTitle().toString())) {
+                 String fragmentName = fManager.getBackStackEntryAt(fManager.getBackStackEntryCount()-1).getName();
+
+                 activeGroup = group;
+
+                 switch (fragmentName) {
+                     case FRAGMENT_LIST_ITEM:
+                         ItemFragment itemFragment = (ItemFragment) fManager.findFragmentByTag(fragmentName);
+                         itemFragment.changeGroup(item.getTitle().toString());
+                         break;
+
+                     case FRAGMENT_LIST_TRAY:
+                         TrayFragment trayFragment = (TrayFragment) fManager.findFragmentByTag(fragmentName);
+                         trayFragment.changeGroup(item.getTitle().toString());
+                         break;
+                 }
+                 return;
+            }
         }
     }
 }

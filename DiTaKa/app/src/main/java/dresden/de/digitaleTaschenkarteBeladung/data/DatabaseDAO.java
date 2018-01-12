@@ -62,8 +62,8 @@ public interface DatabaseDAO {
     @Query("SELECT id, name, position FROM equipment WHERE id LIKE :id AND NOT name LIKE '%#X#x#X#%'")
     DatabaseEquipmentMininmal findMinimalItemByID(int id);
 
-    @Query("SELECT id, name, position FROM equipment WHERE categoryId LIKE :id AND NOT name LIKE '%#X#x#X#%'")
-    LiveData<List<DatabaseEquipmentMininmal>> findItemByCatID(int id);
+    @Query("SELECT id, name, position FROM equipment WHERE categoryId LIKE :id AND `group` LIKE :groupKey AND NOT name LIKE '%#X#x#X#%'")
+    LiveData<List<DatabaseEquipmentMininmal>> findItemByCatID(int id, String groupKey);
 
     @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%'")
     LiveData<List<DatabaseEquipmentMininmal>> getMinimalItems();
@@ -83,8 +83,8 @@ public interface DatabaseDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTray(TrayItem tray);
 
-    @Query("SELECT * FROM tray")
-    LiveData<List<TrayItem>> getAllTrays();
+    @Query("SELECT * FROM tray WHERE NOT name LIKE '%#X#x#X#%' AND `group` LIKE :groupKey")
+    LiveData<List<TrayItem>> getAllTrays(String groupKey);
 
     @Query("DELETE FROM tray")
     void deleteTray();
@@ -92,7 +92,7 @@ public interface DatabaseDAO {
     @Query("SELECT COUNT(id) FROM tray")
     LiveData<Integer> countTrays();
 
-    @Query("SELECT * FROM tray WHERE id LIKE :id")
+    @Query("SELECT * FROM tray WHERE id LIKE :id AND NOT name LIKE '%#X#x#X#%'")
     LiveData<TrayItem> getTrayById(int id);
 
     //    @Query("SELECT positions FROM tray WHERE id LIKE :id")

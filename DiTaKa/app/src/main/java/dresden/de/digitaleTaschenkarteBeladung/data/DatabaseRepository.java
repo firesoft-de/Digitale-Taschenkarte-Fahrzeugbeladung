@@ -46,7 +46,7 @@ public class DatabaseRepository {
         return daoObject.findItemByID(id);
     }
 
-    public LiveData<List<DatabaseEquipmentMininmal>> getItemByCatID(int id) {return daoObject.findItemByCatID(id);}
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemByCatID(int id, String group) {return daoObject.findItemByCatID(id, group);}
 
     public void deleteItem(int id) {
         daoObject.deleteItem(id);
@@ -62,7 +62,7 @@ public class DatabaseRepository {
 
     public void deleteAllTrays() {daoObject.deleteTray();}
 
-    public LiveData<List<TrayItem>> getTrays() {return daoObject.getAllTrays();}
+    public LiveData<List<TrayItem>> getTrays(String group) {return daoObject.getAllTrays(group);}
 
     public LiveData<Integer> countTrays() {return daoObject.countTrays();}
 

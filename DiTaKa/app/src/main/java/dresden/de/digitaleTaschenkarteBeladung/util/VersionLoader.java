@@ -18,8 +18,6 @@ package dresden.de.digitaleTaschenkarteBeladung.util;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
-import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
-
 public class VersionLoader extends AsyncTaskLoader<Integer> {
 
     private static final String LOG_TAG = "VersionLoader_LOG";
@@ -34,7 +32,7 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
     @Override
     public Integer loadInBackground() {
 
-        return Util_Http.checkVersion(url);
+        return Util_Http.requestVersion(url);
     }
 
     @Override
