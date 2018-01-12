@@ -25,10 +25,13 @@
 	fclose($dbFile);
 	
 	//Mitgegebene Paramter abrufen
-	$clientdbVersion = $_GET['dbVersion'];;
+	$clientdbVersion = $_GET['dbVersion'];
+	$table_input = $_GET['db_table'];
 	
-	$table_input = $_GET['db_table'];;
-
+	//Gruppenfeature momentan noch deaktivieren
+	//$groups = $_GET['groups'];
+	$groups = "B1";
+	
 	//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
 	switch ($table_input) {
 		case "equipment":
@@ -41,6 +44,10 @@
 			
 		case "positionimage":
 			$db_table = "positionimage";
+			break;
+
+		case "group":
+			$db_table = "groupx";
 			break;
 			
 		default:
@@ -57,17 +64,25 @@
 	$db_password = fgets($dbFile);
 	
 	fclose($dbFile);
-	
-	//$db_server = "rdbms.strato.de"; 
+	 
 	$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
 	$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
 	$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
 	$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
 	
+	//Zugangsobjekt erzeugen
 	$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
 	
-	//SQL Query zum Abfragen der Daten
-	$queryString = "SELECT * FROM " . $db_table . " WHERE version > :clientdbversion";
+	//SQL Query zum Abfragen der Daten konstruieren
+	$queryString = "SELECT * FROM `" . $db_table . "` WHERE version > :clientdbversion";
+	
+	//Falls Gruppen vorhanden sind diese anhängen
+	if ($groups != null){	
+		$queryString = $queryString . " AND (" . builtGroupQueryByName($groups);
+		
+		//Debug Ausgabe		
+		//print($queryString);
+	}
 	
 	//Ausgabe per JSON
 	$stmt=$pdo->prepare($queryString);
@@ -122,5 +137,109 @@
         // break;
     // }
 	
-	print($json);
+	print($json);	
+	
+	//============================================================================
+	//============================Funktionen======================================
+	//============================================================================
+	
+	//Gruppenname in ID übersetzen
+	function translateGroupNameToId($array, $name) {
+		
+		foreach ($array as $element) {
+			if ($element['name'] == $name) {
+				return $element['id'];
+			}
+		}
+		
+		//Gruppe ist nicht bekannt
+		return -1;
+	}
+	
+	//Gruppenid in Name übersetzen
+	function translateGroupIdToName($array, $id) {
+		
+		foreach ($array as $element) {
+			if ($element['id'] == $id) {
+				return $element['name'];
+			}
+		}
+		
+		//Gruppe ist nicht bekannt
+		return "-1";
+	}
+	
+	//Erzeugt einen Anhang für die SQL Query mit der nach Gruppenitems gesucht werden kann
+	function builtGroupQueryByName($names) {
+		
+		$name_array = explode("_", $names);
+		$group_array = getGroupArray();
+		$query = "";
+		
+		$id = translateGroupNameToId($group_array,$name_array[0]);
+		
+		if ($id != -1) {
+			
+			$query = "groupId = " . $id . " ";
+			
+			for ($x = 1; $x < count($name_array); $x++) {
+				
+				$id = translateGroupNameToId($group_array,$name_array[$x]);
+		
+				if ($id != -1) {
+					
+					$query = $query . "OR groupId = " . $id;
+					
+				}
+				else {
+					error_log("Es wurde eine fehlerhafte GruppenID übergeben!");
+				}				
+			}
+
+			$query = $query . ")";
+		}
+		else {
+			error_log("Es wurde eine fehlerhafte GruppenID übergeben!");
+		}		
+		return $query;
+	}
+	
+	function getGroupArray() {
+		
+		global $db_table;
+		global $clientdbVersion;
+		global $pdo;
+	
+		//SQL Query zum Abfragen der Daten konstruieren
+		$queryString = "SELECT * FROM `groupx` WHERE version > :clientdbversion";
+		
+		//Ausgabe per JSON
+		$statment=$pdo->prepare($queryString);
+			
+		//Die Benutzereingaben sicher in den Querystring einfügen
+		$statment->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+		
+		//Statment schließen
+		$statment->closeCursor();
+		
+		//SQL Abfrage ausführen
+		$statment->execute();	
+		
+		//DEBUG Ausgabe SQL Query
+		//$statment->debugDumpParams();
+		
+		$results = array();
+	
+		while($res=$statment->fetch(PDO::FETCH_ASSOC)){
+			
+			$results[] = $res;
+			//var_dump($results);
+			//print($results[0]["name"] . "-");
+			//print($res["name"] . "-");
+	 
+		}
+		
+		return $results;
+	}
+	
 ?>

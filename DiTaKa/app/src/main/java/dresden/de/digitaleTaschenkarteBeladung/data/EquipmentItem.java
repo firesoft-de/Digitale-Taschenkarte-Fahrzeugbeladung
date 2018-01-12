@@ -71,6 +71,8 @@ public class EquipmentItem implements Parcelable {
     //Zusätzliche Hinweise zum Gerät
     private String additionalNotes;
 
+    private String group;
+
     //Index der Koordinaten für die Positionsmarkierung. Die Liste der Koordinaten wird im TrayItem gespeichert
     private int positionIndex;
 
@@ -174,9 +176,9 @@ public class EquipmentItem implements Parcelable {
 
     public String getAdditionalNotes() {return additionalNotes;}
 
-    public int getPositionIndex() {
-        return positionIndex;
-    }
+    public int getPositionIndex() {return positionIndex;}
+
+    public String getGroup() {return group;}
 
     //Set Methoden
 
@@ -205,6 +207,8 @@ public class EquipmentItem implements Parcelable {
 
         this.keywords = list;
     }
+
+    public void setGroup(String group) {this.group = group;}
 
     public void setPositionIndex(int positionIndex) {
         this.positionIndex = positionIndex;
@@ -250,6 +254,7 @@ public class EquipmentItem implements Parcelable {
       this.name = minimal.name;
       this.position = minimal.position;
   }
+
 }
 
 class Converters {

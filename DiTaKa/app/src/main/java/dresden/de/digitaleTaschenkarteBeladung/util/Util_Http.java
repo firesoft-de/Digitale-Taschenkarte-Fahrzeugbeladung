@@ -177,6 +177,7 @@ public class Util_Http {
             JSONObject baseJsonResponse = new JSONObject(response);
 
             JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+            String returnPath = "";
 
             for (int i = 0; i < responseArray.length(); i ++) {
 
@@ -187,20 +188,26 @@ public class Util_Http {
                 String destination = object.getString("path");
                 int catID = object.getInt("categoryId");
 
-                destination = destination.replace("#","/");
+                if (!destination.equals("-1")) {
 
-                URL urlX = generateURL(url + destination + Integer.toString(id) + ".jpg");
-                stream = httpsRequester(urlX);
+                    destination = destination.replace("#", "/");
 
-                //Das Bild herunterladen
-                try {
-                    image = BitmapFactory.decodeStream(stream);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    URL urlX = generateURL(url + destination + Integer.toString(id) + ".jpg");
+                    stream = httpsRequester(urlX);
+
+                    //Das Bild herunterladen
+                    try {
+                        image = BitmapFactory.decodeStream(stream);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //Bild speichern und das ImageItem erstellen
+                    returnPath = saveImage(id,image, context);
+
                 }
-
-                //Bild speichern und das ImageItem erstellen
-                String returnPath = saveImage(id,image, context);
+                else {
+                    returnPath = "-1";
+                }
 
                 ImageItem item = new ImageItem(id,returnPath,catID);
                 items.add(item);
@@ -249,6 +256,7 @@ public class Util_Http {
 
                 //Den Positionsmarkierungsindex setzen
                 item.setPositionIndex(object.getInt("positionID"));
+
 
                 equipmentList.add(item);
 
