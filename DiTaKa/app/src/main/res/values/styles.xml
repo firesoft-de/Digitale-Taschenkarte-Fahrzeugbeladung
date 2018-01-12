@@ -8,7 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textSize">@dimen/text_size_normal</item>
         <item name="android:textColorLink">@color/colorPrimary</item>
+        <item name="colorControlActivated">@color/colorPrimary</item>
     </style>
+
+    <!-- Farbe des unchecked States-->
+    <!--<item name="colorControlNormal">@color/colorPrimary</item>-->
 
     <!--<item name="android:textColor">@color/text</item>-->
 

@@ -27,8 +27,7 @@
                 <item
                     android:id="@+id/SortAZ"
                     android:title="A-Z"
-                    app:showAsAction="never"
-                    />
+                    app:showAsAction="never"/>
 
                 <item
                     android:id="@+id/SortZA"

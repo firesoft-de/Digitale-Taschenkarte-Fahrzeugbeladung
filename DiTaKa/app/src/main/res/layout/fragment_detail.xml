@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment"
-    android:layout_margin="@dimen/margin_small">
+    android:layout_margin="@dimen/margin_supersmall">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -111,13 +111,12 @@
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            card_view:layout_constraintTop_toBottomOf="@+id/card1"
-            android:layout_marginTop="@dimen/margin_small">
+            card_view:layout_constraintTop_toBottomOf="@+id/card1">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="@dimen/margin_normal">
+                android:layout_marginBottom="@dimen/margin_small">
 
                 <TextView
                     android:id="@+id/detailTVPosition"
@@ -143,7 +142,6 @@
                     android:paddingEnd="@dimen/margin_normal"
                     android:layout_marginTop="@dimen/margin_small"
                     tools:text="Platzhalter\nPlatzhalter\nPlatzhalter"/>
-
 
                 <ImageView
                     android:id="@+id/detailItemImage"

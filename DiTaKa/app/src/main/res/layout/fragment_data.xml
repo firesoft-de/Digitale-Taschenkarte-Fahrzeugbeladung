@@ -4,7 +4,7 @@
     android:id="@+id/DataImportFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/text_size_normal"
+    android:layout_margin="@dimen/margin_supersmall"
     tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment"
     xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
@@ -12,7 +12,8 @@
         android:id="@+id/card1"
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginRight="1dp">
 
 <!--    <LinearLayout
         android:id="@+id/DataLinLay"
@@ -136,78 +137,83 @@
         android:paddingStart="@dimen/margin_normal"
         />
 
-        <GridLayout
+        <android.support.v7.widget.GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_big"
             android:paddingTop="@dimen/margin_small"
             android:paddingBottom="@dimen/margin_small"
-            android:columnCount="2"
-            android:orientation="horizontal"
+            app:columnCount="2"
+            app:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/dataTextView3"
-            android:layout_marginStart="@dimen/margin_normal">
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginEnd="@dimen/margin_normal">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="1dp"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_row="0"
                 android:text="@string/data_version"
-                android:layout_gravity="fill_horizontal"
-                android:layout_columnWeight="3.5"
-                android:textColor="@color/text" />
+                android:textColor="@color/text"
+                app:layout_column="0"
+                app:layout_row="0"
+                app:layout_gravity="fill_horizontal"
+                app:layout_columnWeight="1"/>
 
             <TextView
                 android:id="@+id/dataTextViewDBVersion"
-                android:layout_width="wrap_content"
+                android:layout_width="1dp"
                 android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="end"
-                android:layout_row="0"
-                android:maxLines="2"
-                android:textColor="@color/text"
                 android:layout_marginEnd="@dimen/margin_normal"
-                tools:text="0" />
+                android:maxLines="4"
+                android:scrollHorizontally="false"
+                android:singleLine="false"
+                android:textAlignment="textEnd"
+                android:textColor="@color/text"
+                app:layout_column="1"
+                app:layout_columnWeight="1"
+                app:layout_gravity="end|fill_horizontal"
+                app:layout_row="0"
+                tools:text="@string/data_no_db" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_row="1"
+                app:layout_column="0"
+                app:layout_row="1"
                 android:text="@string/data_version_net"
-                android:layout_gravity="fill_horizontal"
-                android:textColor="@color/text" />
+                app:layout_gravity="fill_horizontal"
+                android:textColor="@color/text"/>
 
             <TextView
                 android:id="@+id/dataTextViewDBNetVersion"
-                android:layout_width="wrap_content"
+                android:layout_width="1dp"
                 android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="end"
-                android:layout_row="1"
-                android:maxLines="2"
-                android:textColor="@color/text"
                 android:layout_marginEnd="@dimen/margin_normal"
-                tools:text="0" />
-
+                android:maxLines="2"
+                android:text="@string/data_version_net"
+                android:textAlignment="textEnd"
+                android:textColor="@color/text"
+                app:layout_column="1"
+                app:layout_gravity="end|fill_horizontal"
+                app:layout_row="1" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_row="3"
+                app:layout_column="0"
+                app:layout_row="3"
                 android:layout_marginTop="@dimen/margin_small"
                 android:text="@string/data_itemcount"
-                android:layout_gravity="fill_horizontal"
-                android:textColor="@color/text" />
+                app:layout_gravity="fill_horizontal"
+                android:textColor="@color/text"/>
 
             <TextView
                 android:id="@+id/dataTextViewItemCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="end"
-                android:layout_row="3"
+                app:layout_column="1"
+                app:layout_gravity="end"
+                app:layout_row="3"
                 android:textColor="@color/text"
                 android:layout_marginTop="@dimen/margin_small"
                 android:layout_marginEnd="@dimen/margin_normal"
@@ -216,19 +222,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_row="4"
+                app:layout_column="0"
+                app:layout_row="4"
                 android:text="@string/data_traycount"
-                android:layout_gravity="fill_horizontal"
+                app:layout_gravity="fill_horizontal"
                 android:textColor="@color/text" />
 
             <TextView
                 android:id="@+id/dataTextViewTrayCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="end"
-                android:layout_row="4"
+                app:layout_column="1"
+                app:layout_gravity="end"
+                app:layout_row="4"
                 android:textColor="@color/text"
                 android:layout_marginEnd="@dimen/margin_normal"
                 tools:text="0" />
@@ -236,23 +242,24 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_row="5"
+                app:layout_column="0"
+                app:layout_row="5"
                 android:text="@string/data_imagecount"
-                android:layout_gravity="fill_horizontal"
+                app:layout_gravity="fill_horizontal"
                 android:textColor="@color/text" />
 
             <TextView
                 android:id="@+id/dataTextViewImageCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_column="1"
-                android:layout_gravity="end"
-                android:layout_row="5"
+                app:layout_column="1"
+                app:layout_gravity="end"
+                app:layout_row="5"
                 android:textColor="@color/text"
                 android:layout_marginEnd="@dimen/margin_normal"
                 tools:text="0" />
-        </GridLayout>
+
+        </android.support.v7.widget.GridLayout>
 
     </android.support.v7.widget.CardView>
 

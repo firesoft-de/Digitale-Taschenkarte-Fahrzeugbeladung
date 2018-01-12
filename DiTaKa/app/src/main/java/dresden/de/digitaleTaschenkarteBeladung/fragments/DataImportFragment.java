@@ -29,6 +29,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -184,6 +185,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 if (integer != -1) {
 
+                    activity.url = url;
+
                     if (!initLoaderAfterNetVersionRefresh) {
                         updateNetVersion(integer, null);
                     } else {
@@ -202,6 +205,17 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         });
 
         updateDBVersion(dbversion, result);
+
+        //Elevation der Cards setzen
+        Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+//        drawable.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+
+        CardView card = result.findViewById(R.id.card1);
+        card.setBackground(drawable);
+
+        card = result.findViewById(R.id.card2);
+        card.setBackground(drawable);
+
 
         // Inflate the layout for this fragment
         return result;
