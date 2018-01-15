@@ -77,7 +77,7 @@
 	$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
 	
 	//SQL Query zum Abfragen der Daten konstruieren
-	$queryString = "SELECT * FROM `" . $db_table . "` WHERE version > :clientdbversion";
+	$queryString = "SELECT * FROM `" . $db_table . "` WHERE version > :clientdbversion AND version <= :dbversion";
 	
 	//Falls Gruppen vorhanden sind diese anhängen
 	if ($groups != null && $groups != ""){	
@@ -92,6 +92,7 @@
 		
 	//Die Benutzereingaben sicher in den Querystring einfügen
 	$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+	$stmt->bindParam(':dbversion', $dbVersion, PDO::PARAM_INT);
 	
 	//Statment schließen
 	$stmt->closeCursor();

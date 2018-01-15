@@ -14,6 +14,13 @@
 
     For the full license visit https://www.gnu.org/licenses/gpl-3.0. */
 	
+	//Datenbankversion abfragen
+	$dbFile = fopen("db_Version.txt",'r');
+	
+	$dbVersion = fgets($dbFile);
+	
+	fclose($dbFile);
+	
 	//Mitgegebene Paramter abrufen
 	$clientdbVersion = $_GET['dbVersion'];;
 	
@@ -35,12 +42,13 @@
 	$pdo = new PDO("mysql:host=".$db_server.";dbname=" . $db_name, $db_user , $db_password);
 	
 	//SQL Query zum Abfragen der Daten
-	$queryString = "SELECT * FROM positionimage WHERE version > :clientdbversion";
+	$queryString = "SELECT * FROM positionimage WHERE version > :clientdbversion AND version <= :dbversion";
 
 	$stmt=$pdo->prepare($queryString);
 	
 	//Die Benutzereingaben sicher in den Querystring einfügen
 	$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+	$stmt->bindParam(':dbversion', $dbVersion, PDO::PARAM_INT);
 	
 	$stmt->execute();	
 	$results = array();
