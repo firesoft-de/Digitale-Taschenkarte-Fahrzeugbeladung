@@ -77,7 +77,16 @@
 	$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
 	
 	//SQL Query zum Abfragen der Daten konstruieren
-	$queryString = "SELECT * FROM `" . $db_table . "` WHERE version > :clientdbversion AND version <= :dbversion";
+	$queryString;
+	
+	//Abfrage welche Tabelle abgefragt werden soll. Fall die Gruppen abgefragt werden, müssen auch alle nicht geänderte Gruppen angezeigt werden.
+	//Ansonsten würde in der App zu wenig im Gruppendialog angezeigt werden.
+	if ($db_table == "groupx") {
+		$queryString = "SELECT * FROM `" . $db_table . "` WHERE version <= :dbversion";
+	}
+	else {
+		$queryString = "SELECT * FROM `" . $db_table . "` WHERE version > :clientdbversion AND version <= :dbversion";
+	}
 	
 	//Falls Gruppen vorhanden sind diese anhängen
 	if ($groups != null && $groups != ""){	
@@ -91,8 +100,10 @@
 	$stmt=$pdo->prepare($queryString);
 		
 	//Die Benutzereingaben sicher in den Querystring einfügen
-	$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
 	$stmt->bindParam(':dbversion', $dbVersion, PDO::PARAM_INT);
+	if ($db_table != "groupx") {
+		$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+	}
 	
 	//Statment schließen
 	$stmt->closeCursor();
@@ -110,9 +121,10 @@
 	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
 		
 		//Numerische Gruppenbezeichnung gegen alphabetische Gruppenbezeichnung austauschen
-		if ($db_table != "groupx"){
+		if ($db_table != "groupx"){			
 			$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
 		}
+		//var_dump($row);
 		
 		//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
 		$results["OUTPUT"][] = $row;
