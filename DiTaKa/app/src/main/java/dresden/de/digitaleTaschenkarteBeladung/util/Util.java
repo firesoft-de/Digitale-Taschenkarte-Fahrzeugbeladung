@@ -62,6 +62,8 @@ public class Util {
 
     public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
 
+    public static final String NO_SUBSCRIBED_GROUPS="no-subscribed-groups";
+
     public enum DbState {
         VALID,
         EXPIRED,
@@ -195,6 +197,33 @@ public class Util {
             groups.addAll(Arrays.asList(array));
         }
         return groups;
+    }
+
+
+    /**
+     * Die Methode erzeugt den Query für die Gruppengestützte HTTP-Abfrage
+     * @param activity
+     * @return
+     */
+    public static String getGroupQuery(Activity activity) {
+        MainActivity mainActivity = (MainActivity) activity;
+
+        if (mainActivity.groups_subscribed.size() > 0) {
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (String group : mainActivity.groups_subscribed
+                    ) {
+                stringBuilder.append(group);
+                stringBuilder.append("_");
+            }
+
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            return stringBuilder.toString();
+        }
+        else {
+            return NO_SUBSCRIBED_GROUPS;
+        }
     }
 
 }

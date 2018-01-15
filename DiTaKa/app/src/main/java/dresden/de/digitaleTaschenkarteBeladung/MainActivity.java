@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     private final static String LOG_TAG="MainActivity_LOG";
 
     //DEBUG Modus ein- oder ausschalten
-    public final static Boolean DEBUG_ENABLED = false;
+    public final static Boolean DEBUG_ENABLED = true;
 
     //Globale Variablen
     private FragmentManager fManager;
@@ -77,8 +77,10 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 //    public int netDBVersion;
     public String url;
     public Util.DbState dbState;
+
     public ArrayList<String> groups;
     public String activeGroup;
+    public ArrayList<String> groups_subscribed;
 
     public MutableLiveData<Integer> liveNetDBVersion;
 
@@ -106,10 +108,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         dbVersion = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getInt(Util.PREFS_DBVERSION,-1);
         url = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getString(Util.PREFS_URL,"NO_URL_FOUND");
 
-        groups = Util.loadGroupPref(this);
+        //Abonnierte Gruppen laden
+        groups_subscribed = Util.loadGroupPref(this);
 
-        if (groups.size() != 0) {
-            activeGroup = groups.get(0);
+        if (groups_subscribed.size() != 0) {
+            activeGroup = groups_subscribed.get(0);
         }
 
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
@@ -132,7 +135,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
             else {
                 //Keine Netzwerkverbindung -> Nachricht und Ende
-                Toast.makeText(this,R.string.app_noConnection,Toast.LENGTH_LONG).show();
+                Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_noConnection, Snackbar.LENGTH_LONG)
+                        .show();
             }
         }
         else {
@@ -141,7 +145,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
             else {
                 //Keine Netzwerkverbindung -> Nachricht und Ende
-                Toast.makeText(this,R.string.app_noConnection,Toast.LENGTH_LONG).show();
+                Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_noConnection, Snackbar.LENGTH_LONG)
+                        .show();
             }
         }
 
@@ -185,13 +190,13 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         int x = 0;
 
         //Gruppenauswahl bearbeiten
-        if (groups.size() == 0) {
+        if (groups_subscribed.size() == 0) {
             menu.findItem(R.id.ActionGroup).setVisible(false);
         }
         else {
-            SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();;
+            SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();
             //Einträge für die Gruppen einfügen
-            for (String group: groups
+            for (String group: groups_subscribed
                  ) {
                 sMenu.add(group);
                 sMenu.getItem(x).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -205,7 +210,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
             sMenu.setGroupCheckable(0,true,true);
             sMenu.getItem(0).setChecked(true);
+            groupItemPressed(sMenu.getItem(0));
         }
+
 
         // Suchfunktionalität mittels SearchManager hinzufügen
         final SearchManager searchManager =
@@ -587,11 +594,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     }
 
-    private void manageActionBar(String tag) {
+    public void manageActionBar(String tag) {
         setBackButton(tag);
         setTitle(tag);
         setSortButton(tag);
         setSearchButton(tag);
+        setGroupButton(tag);
     }
 
     /**
@@ -643,6 +651,19 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
         }
 
+    }
+
+    private void setGroupButton(String tag) {
+        if (tag.equals(Util.FRAGMENT_LIST_TRAY) || tag.equals(Util.FRAGMENT_LIST_ITEM)) {
+            if (xMenu != null) {
+                xMenu.findItem(R.id.ActionGroup).setVisible(true);
+            }
+        }
+        else {
+            if (xMenu != null) {
+                xMenu.findItem(R.id.ActionGroup).setVisible(false);
+            }
+        }
     }
 
     private void setTitle(String tag) {

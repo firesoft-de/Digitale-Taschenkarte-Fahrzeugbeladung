@@ -64,19 +64,23 @@ public class Util_Http {
     private static final String SERVER_TABLE_GROUP = "group";
 
     /**
-     *
-     * @param url
-     * @param dbVersion
+     * Die Methode fragt die Ausrüstungsgegenstände vom Server ab
+     * @param url Enthält die rohe Serverurl
+     * @param dbVersion Enthält die Datenbankversion des Clients
+     * @param group Enthält die abonnierten Gruppen
      * @return
      */
-    static ArrayList<EquipmentItem> requestItems(String url, int dbVersion) {
+    static ArrayList<EquipmentItem> requestItems(String url, int dbVersion, String group) {
         String httpResponse = null;
 
-        //TODO: Gruppenauswahl implementieren
-        //URL generieren, Util_HTTP_URL im Git nicht enthalten
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
-                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM );
-        //+ "&" + SERVER_QUERY_GET_GROUP + "B1_B2_B3"
+        String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM;
+
+        if (!group.equals(Util.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        URL urlV = generateURL(queryURL);
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
@@ -96,13 +100,18 @@ public class Util_Http {
      * führt eine Datenabfrage mittels HTTP-Protokoll durch
      * @return Liste
      */
-    static ArrayList<TrayItem> requestTray(String url, int dbVersion) {
+    static ArrayList<TrayItem> requestTray(String url, int dbVersion, String group) {
         String httpResponse = null;
 
-        //TODO: Gruppenauswahl implementieren
         //URL generieren, Util_HTTP_URL im Git nicht enthalten
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
-                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY);
+        String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY;
+
+        if (!group.equals(Util.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        URL urlV = generateURL(queryURL);
 
         //HTTP Abfrage durchführen
         if (urlV != null) {
@@ -163,14 +172,22 @@ public class Util_Http {
      * Diese Methode lädt Bilder vom Server und speichert sie lokal. Zum Zugriff wird eine Liste von ImageItems zurückgegeben.
      * @param url die Serverurl
      * @param dbVersion die lokale Datenbankversion
+     * @param context Context der Ausführung
+     * @param group String mit den abonnierten Gruppen
      * @return Liste der Bilder als Imageitems
      */
-    static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context) {
+    static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context, String group) {
         ArrayList<ImageItem> items = new ArrayList<>();
 
-        //TODO: Gruppenauswahl implementieren
-        //Abfrage der Bildpfade
-        URL urlV = generateURL(url + SERVER_QUERY_IMAGE + "?" + SERVER_QUERY_IMAGE_VERSION + dbVersion);
+        //URL generieren, Util_HTTP_URL im Git nicht enthalten
+        String queryURL = url + SERVER_QUERY_IMAGE + "?" + SERVER_QUERY_IMAGE_VERSION + dbVersion;
+
+        if (!group.equals(Util.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        URL urlV = generateURL(queryURL);
+
         Bitmap image = null;
         InputStream stream = httpsRequester(urlV);
         String response = readStream(stream);

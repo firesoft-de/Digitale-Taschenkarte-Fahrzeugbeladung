@@ -48,6 +48,8 @@
     <string name="data_no_db">Noch keine lokale Datenbank vorhanden!</string>
     <string name="data_no_net_db">Konnte Serverversion nicht abrufen!</string>
     <string name="data_url_error">Die Server-URL ist wahrscheinlich fehlerhaft!</string>
+    <string name="daten_button_text_get_group">Daten abrufen</string>
+    <string name="data_groups">Verfügbare Gruppen</string>
 
     <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
     <string name="data_first_time_url">Gib hier die Server-URL ein!</string>
