@@ -16,6 +16,7 @@ package dresden.de.digitaleTaschenkarteBeladung.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -374,73 +375,79 @@ public class Util_Http {
      */
     private static InputStream httpsRequester(URL url) {
 
-        //Response Variable
-        InputStream response = null;
+        //TODO: ACHTUNG! AUS PERFORMANCEGRÜNDEN WIRD DER HTTPS REQUEST HIER ÜBERSCHRIEBEN!!
 
-        //Interne Variablen
-        HttpsURLConnection connection = null;
-
-        String protocol = url.getProtocol();
-        if (!protocol.contains("s")) {
-            response = httpRequester(url);
+        if (true) {
+            return httpRequester(url);
         }
         else {
-            //HTTPS Verbindung aufbauen
-            try {
-                connection = (HttpsURLConnection) url.openConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
+            //Response Variable
+            InputStream response = null;
 
-                //Alternative HTTP Verbindung aufbauen
-                URL newURL = null;
+            //Interne Variablen
+            HttpsURLConnection connection = null;
+
+            String protocol = url.getProtocol();
+            if (!protocol.contains("s")) {
+                response = httpRequester(url);
+            } else {
+                //HTTPS Verbindung aufbauen
                 try {
-                    newURL = new URL("http", url.getHost(), url.getFile());
-                } catch (MalformedURLException e1) {
-                    e1.printStackTrace();
-                }
-                response = httpRequester(newURL);
-            }
-
-            if (connection != null) {
-
-                try {
-
-                    //Verbindungseinstellungen
-                    connection.setConnectTimeout(10000);
-                    connection.setReadTimeout(10000);
-                    connection.setRequestMethod("GET");
-
-                    //Verbindung herstellen
-                    connection.connect();
-
-                    //Verbindungsantwort prüfen
-                    if (connection.getResponseCode() == 200) {
-                        //Verbindung erfolgreich hergestellt
-
-                        //Übergabe des InputStreams zur Verarbeitung
-                        response = connection.getInputStream();
-
-                    }
-
-                } catch (Exception e) {
+                    connection = (HttpsURLConnection) url.openConnection();
+                } catch (IOException e) {
                     e.printStackTrace();
-                    if (e.getMessage().contains("java.security.cert.CertPathValidatorException")) {
 
-                        //Alternative HTTP Verbindung aufbauen
-                        URL newURL = null;
-                        try {
-                            newURL = new URL("http", url.getHost(), url.getFile());
-                        } catch (MalformedURLException e1) {
-                            e1.printStackTrace();
-                        }
-                        response = httpRequester(newURL);
+                    //Alternative HTTP Verbindung aufbauen
+                    URL newURL = null;
+                    try {
+                        newURL = new URL("http", url.getHost(), url.getFile());
+                    } catch (MalformedURLException e1) {
+                        e1.printStackTrace();
                     }
+                    response = httpRequester(newURL);
+                }
 
-                    LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+                if (connection != null) {
+
+                    try {
+
+                        //Verbindungseinstellungen
+                        connection.setConnectTimeout(10000);
+                        connection.setReadTimeout(10000);
+                        connection.setRequestMethod("GET");
+
+                        //Verbindung herstellen
+                        connection.connect();
+
+                        //Verbindungsantwort prüfen
+                        if (connection.getResponseCode() == 200) {
+                            //Verbindung erfolgreich hergestellt
+
+                            //Übergabe des InputStreams zur Verarbeitung
+                            response = connection.getInputStream();
+
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        if (e.getMessage().contains("java.security.cert.CertPathValidatorException")) {
+
+                            //Alternative HTTP Verbindung aufbauen
+                            URL newURL = null;
+                            try {
+                                newURL = new URL("http", url.getHost(), url.getFile());
+                            } catch (MalformedURLException e1) {
+                                e1.printStackTrace();
+                            }
+                            response = httpRequester(newURL);
+                        }
+
+                        LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
+                    }
                 }
             }
+            return response;
         }
-        return response;
     }
 
     /**
@@ -564,5 +571,32 @@ public class Util_Http {
             // Keine Verbindung
             return false;
         }
+    }
+
+
+    /**
+     * Diese Methode bearbeitet die eingebene URL so, dass sie konform mit den nachfolgenden Arbeitschritte ist. Außerdem wird die URL in den PREFS gespeichert.
+     * @param url Die zu bearbeitende URL
+     * @return Die bearbietete URL
+     */
+    public static String handleURL(String url, Activity activity) {
+        //Den PREF Manager initaliseren
+        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+
+        //https einfügen falls nicht vorhanden
+        if (!url.contains("http://") && !url.contains("https://")) {
+            //TODO: ACHTUNG! AUS PERFORMANCEGRÜNDEN WIRD DER HTTPS REQUEST HIER ÜBERSCHRIEBEN!!
+            url = "http://" + url;
+        }
+
+        //Prüfen ob als letztes Zeichen ein / vorhanden ist und dieses ggf. entfernen
+        if ((url.charAt(url.length() - 2)) == '/') {
+            url = (String) url.subSequence(0, url.length() - 3);
+        }
+
+        editor.putString(Util.PREFS_URL, url);
+        editor.apply();
+
+        return url;
     }
 }

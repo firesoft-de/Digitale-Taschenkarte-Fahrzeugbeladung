@@ -56,7 +56,6 @@ public class Util {
     public static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
     public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
     public static final String PREFS_SORT="dresden.de.digitaleTaschenkarteBeladung.sort";
-    public static final String PREFS_GROUPS="dresden.de.digitaleTaschenkarteBeladung.groups";
 
     private static final String FILE_DESTINATION_IMAGE = "image";
 
@@ -171,35 +170,6 @@ public class Util {
         }
     }
 
-    public static void saveGroupPref(ArrayList<String> groups, Activity activity) {
-        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME,Context.MODE_PRIVATE).edit();
-        StringBuilder saveString = new StringBuilder();
-
-        for (String group: groups
-             ) {
-            saveString.append(group);
-            saveString.append(";");
-        }
-
-        //Abschließendes ; entfernen
-        saveString.deleteCharAt(saveString.length() - 1);
-        //Speichern
-        editor.putString(PREFS_GROUPS,saveString.toString());
-        editor.apply();
-    }
-
-    public static ArrayList<String> loadGroupPref(Activity activity) {
-        String saveString = activity.getSharedPreferences(Util.PREFS_NAME,Context.MODE_PRIVATE).getString(PREFS_GROUPS,"");
-        ArrayList<String> groups = new ArrayList<>();
-
-        if (!saveString.equals("")) {
-            String[] array = saveString.split(";");
-            groups.addAll(Arrays.asList(array));
-        }
-        return groups;
-    }
-
-
     /**
      * Die Methode erzeugt den Query für die Gruppengestützte HTTP-Abfrage
      * @param activity
@@ -208,11 +178,11 @@ public class Util {
     public static String getGroupQuery(Activity activity) {
         MainActivity mainActivity = (MainActivity) activity;
 
-        if (mainActivity.groups_subscribed.size() > 0) {
+        if (mainActivity.gManager.getSubscribedGroupsCount() > 0) {
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            for (String group : mainActivity.groups_subscribed
+            for (String group : mainActivity.gManager.getSubscribedGroups()
                     ) {
                 stringBuilder.append(group);
                 stringBuilder.append("_");

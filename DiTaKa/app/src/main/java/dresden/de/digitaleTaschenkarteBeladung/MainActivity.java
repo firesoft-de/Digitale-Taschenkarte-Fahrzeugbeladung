@@ -48,6 +48,7 @@ import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.util.VersionLoader;
@@ -78,12 +79,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public String url;
     public Util.DbState dbState;
 
-    public ArrayList<String> groups;
-    public String activeGroup;
-    public ArrayList<String> groups_subscribed;
+    public GroupManager gManager;
 
     public MutableLiveData<Integer> liveNetDBVersion;
-
     public MutableLiveData<Util.Sort> liveSort;
 
     private Menu xMenu;
@@ -109,11 +107,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         url = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getString(Util.PREFS_URL,"NO_URL_FOUND");
 
         //Abonnierte Gruppen laden
-        groups_subscribed = Util.loadGroupPref(this);
-
-        if (groups_subscribed.size() != 0) {
-            activeGroup = groups_subscribed.get(0);
-        }
+        gManager = new GroupManager(this);
+        gManager.loadGroupsFromPref();
 
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
         liveNetDBVersion = new MutableLiveData<>();
@@ -190,13 +185,20 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         int x = 0;
 
         //Gruppenauswahl bearbeiten
-        if (groups_subscribed.size() == 0) {
+        if (gManager.getSubscribedGroupsCount() == 0) {
             menu.findItem(R.id.ActionGroup).setVisible(false);
+        }
+        else if (gManager.getSubscribedGroupsCount() == 1) {
+            menu.findItem(R.id.ActionGroup).setVisible(false);
+            SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();
+            if (sMenu.size() > 0) {
+                groupItemPressed(sMenu.getItem(0));
+            }
         }
         else {
             SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();
             //Einträge für die Gruppen einfügen
-            for (String group: groups_subscribed
+            for (String group: gManager.getSubscribedGroups()
                  ) {
                 sMenu.add(group);
                 sMenu.getItem(x).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -208,9 +210,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 });
                 x++;
             }
+            int activeIndex = gManager.getActiveGroupIndex();
+
             sMenu.setGroupCheckable(0,true,true);
-            sMenu.getItem(0).setChecked(true);
-            groupItemPressed(sMenu.getItem(0));
+            sMenu.getItem(activeIndex).setChecked(true);
+            groupItemPressed(sMenu.getItem(activeIndex));
         }
 
 
@@ -291,6 +295,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         }
 
+        if (fManager != null && fManager.getBackStackEntryCount() > 1) {
+            if (fManager.getBackStackEntryAt(fManager.getBackStackEntryCount()-1).getName() == Util.FRAGMENT_DATA) {
+                manageActionBar(Util.FRAGMENT_DATA);
+            }
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -365,6 +375,13 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     @Override
     public boolean onQueryTextChange(String s) {
         return false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        gManager.saveGroupsToPref();
     }
 
     //=======================================================
@@ -654,7 +671,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     }
 
     private void setGroupButton(String tag) {
-        if (tag.equals(Util.FRAGMENT_LIST_TRAY) || tag.equals(Util.FRAGMENT_LIST_ITEM)) {
+        if (tag.equals(Util.FRAGMENT_LIST_TRAY)) {
             if (xMenu != null) {
                 xMenu.findItem(R.id.ActionGroup).setVisible(true);
             }
@@ -711,12 +728,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //Manuelles anhacken der Items (Standardmethode funktionieren nicht, warum auch immer)
         item.setChecked(true);
 
-        for (String group: groups
+        for (String group: gManager.getSubscribedGroups()
              ) {
             if (group.equals(item.getTitle().toString())) {
                  String fragmentName = fManager.getBackStackEntryAt(fManager.getBackStackEntryCount()-1).getName();
 
-                 activeGroup = group;
+                 gManager.setActiveGroup(group);
 
                  switch (fragmentName) {
                      case FRAGMENT_LIST_ITEM:

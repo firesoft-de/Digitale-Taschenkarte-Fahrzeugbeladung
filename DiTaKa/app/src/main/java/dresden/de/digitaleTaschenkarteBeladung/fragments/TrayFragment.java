@@ -112,7 +112,7 @@ public class TrayFragment extends Fragment {
 
 
         if (dbState == Util.DbState.VALID || dbState == Util.DbState.EXPIRED || dbState == Util.DbState.UNKNOWN) {
-            viewModel.getTrays(activity.activeGroup).observe(this, new Observer<List<TrayItem>>() {
+            viewModel.getTrays(activity.gManager.getActiveGroup()).observe(this, new Observer<List<TrayItem>>() {
                 @Override
                 public void onChanged(@Nullable List<TrayItem> trayItems) {
                     trays = (ArrayList<TrayItem>) trayItems;

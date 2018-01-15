@@ -175,8 +175,8 @@ public class DetailFragment extends Fragment {
             tvNotes.setVisibility(View.VISIBLE);
             tvNotesStatic.setVisibility(View.VISIBLE);
 
-            //Ein unbekannter Fehler führt zum Abschneiden der letzten Zeile. Als Workaround wird hier manuell eine weitere Zeile eingefügt.
-            tvNotes.append("\nx");
+            //Ein unbekannter Fehler führt zum Abschneiden der letzten Zeile. Als Workaround/Hotfix wird hier manuell eine weitere Zeile eingefügt.
+            //tvNotes.append("\nx");
 
         }
 
