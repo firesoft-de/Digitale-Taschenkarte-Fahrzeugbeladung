@@ -31,18 +31,20 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
 
     private String url;
     private int version;
+    private String group;
 
-    public ItemLoader(Context context, String url, int version){
+    public ItemLoader(Context context, String url, int version, String group){
 
         super(context);
         this.url = url;
         this.version = version;
+        this.group = group;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<EquipmentItem> loadInBackground() {
-        return Util_Http.requestItems(url, version);
+        return Util_Http.requestItems(url, version,group);
     }
 
     @Override

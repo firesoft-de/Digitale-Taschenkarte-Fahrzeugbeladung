@@ -1,4 +1,4 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/DataImportFragment"
@@ -8,259 +8,294 @@
     tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment"
     xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/card1"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="1dp">
+        android:layout_height="match_parent">
 
-<!--    <LinearLayout
-        android:id="@+id/DataLinLay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="@dimen/margin_normal">-->
-
-        <TextView
-            android:id="@+id/dataTextViewX"
+        <android.support.v7.widget.CardView
+            android:id="@+id/card2"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/margin_big"
-            android:gravity="center_vertical"
-            android:text="@string/data_db_settings"
-            android:textSize="@dimen/text_size_normal"
-            android:textColor="@color/text_white"
-            app:layout_constraintTop_toBottomOf="@id/DataButton"
-            android:background="@color/colorPrimary"
-            android:paddingStart="@dimen/margin_normal"
-            android:paddingEnd="@dimen/margin_normal"
-            />
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="30dp"
-            android:padding="@dimen/margin_small">
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/DataTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_supersmall"
-                android:text="@string/data_url"
-                android:textColor="@color/text"
-                android:textSize="@dimen/text_size_small"
-                card_view:layout_constraintStart_toStartOf="parent" />
-
-            <EditText
-                android:id="@+id/text_url"
+                android:id="@+id/dataTextView3"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginBottom="0dp"
-                android:layout_marginTop="0dp"
-                android:hint="@string/data_first_time_url"
+                android:layout_height="@dimen/margin_big"
+                android:background="@color/colorPrimary"
+                android:gravity="center_vertical"
+                android:paddingStart="@dimen/margin_normal"
+                android:text="@string/data_dbinfo"
+                android:textColor="@color/text_white"
+                android:textSize="@dimen/text_size_normal"
+                app:layout_constraintTop_toBottomOf="@id/DataButton" />
+
+            <android.support.v7.widget.GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginTop="@dimen/margin_big"
                 android:paddingBottom="@dimen/margin_small"
-                android:paddingTop="@dimen/margin_supersmall"
-                android:textSize="@dimen/text_size_highlight"
-                card_view:layout_constraintTop_toBottomOf="@id/DataTextView"
-                android:theme="@style/EditTextTheme"
-                tools:text="http://example.com" />
+                android:paddingTop="@dimen/margin_small"
+                app:columnCount="2"
+                app:layout_constraintTop_toBottomOf="@id/dataTextView3"
+                app:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/DataURLError"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_supersmall"
-                android:text="@string/data_url"
-                android:textColor="@color/error"
-                android:textSize="@dimen/text_size_small"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toBottomOf="@id/text_url"
-                tools:text="Beispielfehler" />
+                <TextView
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_version"
+                    android:textColor="@color/text"
+                    app:layout_column="0"
+                    app:layout_columnWeight="1"
+                    app:layout_gravity="fill_horizontal"
+                    app:layout_row="0" />
 
-            <Button
-                android:id="@+id/DataButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Daten abrufen"
-                app:layout_constraintTop_toBottomOf="@id/DataURLError"
-                card_view:layout_constraintEnd_toEndOf="parent"/>
+                <TextView
+                    android:id="@+id/dataTextViewDBVersion"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:maxLines="4"
+                    android:scrollHorizontally="false"
+                    android:singleLine="false"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/text"
+                    app:layout_column="1"
+                    app:layout_columnWeight="1"
+                    app:layout_gravity="end|fill_horizontal"
+                    app:layout_row="0"
+                    tools:text="@string/data_no_db" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_version_net"
+                    android:textColor="@color/text"
+                    app:layout_column="0"
+                    app:layout_gravity="fill_horizontal"
+                    app:layout_row="1" />
 
-            <ProgressBar
-                android:id="@+id/DataProgress"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                android:indeterminate="true"
-                android:max="100"
-                card_view:layout_constraintEnd_toStartOf="@+id/DataButton"
-                android:layout_marginEnd="@dimen/margin_small"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/DataButton"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintHorizontal_bias="1.0" />
+                <TextView
+                    android:id="@+id/dataTextViewDBNetVersion"
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:maxLines="2"
+                    android:text="@string/data_version_net"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/text"
+                    app:layout_column="1"
+                    app:layout_gravity="end|fill_horizontal"
+                    app:layout_row="1" />
 
-        </android.support.constraint.ConstraintLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:text="@string/data_itemcount"
+                    android:textColor="@color/text"
+                    app:layout_column="0"
+                    app:layout_gravity="fill_horizontal"
+                    app:layout_row="3" />
 
-    </android.support.v7.widget.CardView>
+                <TextView
+                    android:id="@+id/dataTextViewItemCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:textColor="@color/text"
+                    app:layout_column="1"
+                    app:layout_gravity="end"
+                    app:layout_row="3"
+                    tools:text="0" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/card2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/card1"
-        android:layout_marginTop="@dimen/margin_small">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_traycount"
+                    android:textColor="@color/text"
+                    app:layout_column="0"
+                    app:layout_gravity="fill_horizontal"
+                    app:layout_row="4" />
 
-<!--
-    <TextView
-        android:id="@+id/dataTextView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text"
-        android:text="@string/data_progress"
-        android:textSize="@dimen/text_size_highlight"
-        app:layout_constraintTop_toBottomOf="@id/DataLinLay"
-        android:layout_marginTop="@dimen/margin_small"/>
--->
+                <TextView
+                    android:id="@+id/dataTextViewTrayCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:textColor="@color/text"
+                    app:layout_column="1"
+                    app:layout_gravity="end"
+                    app:layout_row="4"
+                    tools:text="0" />
 
-    <TextView
-        android:id="@+id/dataTextView3"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/margin_big"
-        android:gravity="center_vertical"
-        android:text="@string/data_dbinfo"
-        android:textSize="@dimen/text_size_normal"
-        android:textColor="@color/text_white"
-        app:layout_constraintTop_toBottomOf="@id/DataButton"
-        android:background="@color/colorPrimary"
-        android:paddingStart="@dimen/margin_normal"
-        />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_imagecount"
+                    android:textColor="@color/text"
+                    app:layout_column="0"
+                    app:layout_gravity="fill_horizontal"
+                    app:layout_row="5" />
 
-        <android.support.v7.widget.GridLayout
+                <TextView
+                    android:id="@+id/dataTextViewImageCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:textColor="@color/text"
+                    app:layout_column="1"
+                    app:layout_gravity="end"
+                    app:layout_row="5"
+                    tools:text="0" />
+
+            </android.support.v7.widget.GridLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/card1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_big"
-            android:paddingTop="@dimen/margin_small"
-            android:paddingBottom="@dimen/margin_small"
-            app:columnCount="2"
-            app:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/dataTextView3"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginEnd="@dimen/margin_normal">
+            card_view:layout_constraintTop_toBottomOf="@id/card2">
+
+            <!--    <LinearLayout
+            android:id="@+id/DataLinLay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/margin_normal">-->
 
             <TextView
-                android:layout_width="1dp"
+                android:id="@+id/dataTextViewX"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/margin_big"
+                android:background="@color/colorPrimary"
+                android:gravity="center_vertical"
+                android:paddingEnd="@dimen/margin_normal"
+                android:paddingStart="@dimen/margin_normal"
+                android:text="@string/data_db_settings"
+                android:textColor="@color/text_white"
+                android:textSize="@dimen/text_size_normal"
+                app:layout_constraintTop_toBottomOf="@id/DataButton" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/card1_constraint"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="30dp"
+                android:padding="@dimen/margin_small">
+
+                <TextView
+                    android:id="@+id/DataTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_supersmall"
+                    android:text="@string/data_url"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_size_small"
+                    card_view:layout_constraintStart_toStartOf="parent" />
+
+                <EditText
+                    android:id="@+id/text_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginTop="0dp"
+                    android:hint="@string/data_first_time_url"
+                    android:paddingBottom="@dimen/margin_small"
+                    android:paddingTop="@dimen/margin_supersmall"
+                    android:textSize="@dimen/text_size_highlight"
+                    android:theme="@style/EditTextTheme"
+                    card_view:layout_constraintTop_toBottomOf="@id/DataTextView"
+                    tools:text="http://example.com" />
+
+                <TextView
+                    android:id="@+id/DataURLError"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_supersmall"
+                    android:text="@string/data_url"
+                    android:textColor="@color/error"
+                    android:textSize="@dimen/text_size_small"
+                    card_view:layout_constraintStart_toStartOf="parent"
+                    card_view:layout_constraintTop_toBottomOf="@id/text_url"
+                    tools:text="Beispielfehler" />
+
+                <Button
+                    android:id="@+id/DataButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/daten_button_text_get_group"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/DataURLError"
+                    card_view:layout_constraintEnd_toEndOf="parent" />
+
+
+                <ProgressBar
+                    android:id="@+id/DataProgress"
+                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:indeterminate="true"
+                    android:max="100"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/DataButton"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintEnd_toStartOf="@+id/DataButton"
+                    card_view:layout_constraintHorizontal_bias="1.0" />
+
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cardGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/card1">
+
+            <LinearLayout
+                android:id="@+id/data_llayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/data_version"
-                android:textColor="@color/text"
-                app:layout_column="0"
-                app:layout_row="0"
-                app:layout_gravity="fill_horizontal"
-                app:layout_columnWeight="1"/>
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/dataTextViewDBVersion"
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:maxLines="4"
-                android:scrollHorizontally="false"
-                android:singleLine="false"
-                android:textAlignment="textEnd"
-                android:textColor="@color/text"
-                app:layout_column="1"
-                app:layout_columnWeight="1"
-                app:layout_gravity="end|fill_horizontal"
-                app:layout_row="0"
-                tools:text="@string/data_no_db" />
+                <TextView
+                    android:id="@+id/dataTextView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_big"
+                    android:background="@color/colorPrimary"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="@dimen/margin_normal"
+                    android:paddingStart="@dimen/margin_normal"
+                    android:text="@string/data_groups"
+                    android:textColor="@color/text_white"
+                    android:textSize="@dimen/text_size_normal"
+                    app:layout_constraintTop_toBottomOf="@id/DataButton" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="0"
-                app:layout_row="1"
-                android:text="@string/data_version_net"
-                app:layout_gravity="fill_horizontal"
-                android:textColor="@color/text"/>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/dataTextViewDBNetVersion"
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:maxLines="2"
-                android:text="@string/data_version_net"
-                android:textAlignment="textEnd"
-                android:textColor="@color/text"
-                app:layout_column="1"
-                app:layout_gravity="end|fill_horizontal"
-                app:layout_row="1" />
+        </android.support.v7.widget.CardView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="0"
-                app:layout_row="3"
-                android:layout_marginTop="@dimen/margin_small"
-                android:text="@string/data_itemcount"
-                app:layout_gravity="fill_horizontal"
-                android:textColor="@color/text"/>
 
-            <TextView
-                android:id="@+id/dataTextViewItemCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="1"
-                app:layout_gravity="end"
-                app:layout_row="3"
-                android:textColor="@color/text"
-                android:layout_marginTop="@dimen/margin_small"
-                android:layout_marginEnd="@dimen/margin_normal"
-                tools:text="0" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/flActBt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_small"
+            android:layout_marginEnd="@dimen/margin_small"
+            android:clickable="true"
+            app:backgroundTint="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cardGroup"
+            app:srcCompat="@drawable/ic_cloud_upload" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="0"
-                app:layout_row="4"
-                android:text="@string/data_traycount"
-                app:layout_gravity="fill_horizontal"
-                android:textColor="@color/text" />
+    </android.support.constraint.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/dataTextViewTrayCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="1"
-                app:layout_gravity="end"
-                app:layout_row="4"
-                android:textColor="@color/text"
-                android:layout_marginEnd="@dimen/margin_normal"
-                tools:text="0" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="0"
-                app:layout_row="5"
-                android:text="@string/data_imagecount"
-                app:layout_gravity="fill_horizontal"
-                android:textColor="@color/text" />
-
-            <TextView
-                android:id="@+id/dataTextViewImageCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="1"
-                app:layout_gravity="end"
-                app:layout_row="5"
-                android:textColor="@color/text"
-                android:layout_marginEnd="@dimen/margin_normal"
-                tools:text="0" />
-
-        </android.support.v7.widget.GridLayout>
-
-    </android.support.v7.widget.CardView>
-
-</android.support.constraint.ConstraintLayout>
+</ScrollView>

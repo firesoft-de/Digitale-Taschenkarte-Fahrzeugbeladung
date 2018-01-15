@@ -29,17 +29,19 @@ public class ImageLoader extends AsyncTaskLoader<List<ImageItem>> {
 
     private String url;
     private int version;
+    private String group;
 
-    public ImageLoader(Context context, String url, int version){
+    public ImageLoader(Context context, String url, int version, String group){
             super(context);
             this.url = url;
             this.version = version;
+            this.group = group;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<ImageItem> loadInBackground() {
-        return Util_Http.requestImages(url, version, getContext());
+        return Util_Http.requestImages(url, version, getContext(), group);
     }
 
     @Override

@@ -31,17 +31,19 @@ public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
 
     private String url;
     private int version;
+    private String group;
 
-    public TrayLoader(Context context, String url, int version){
+    public TrayLoader(Context context, String url, int version, String group){
         super(context);
         this.url = url;
         this.version = version;
+        this.group = group;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<TrayItem> loadInBackground() {
-        return Util_Http.requestTray(url, version);
+        return Util_Http.requestTray(url, version, group);
     }
 
     @Override
