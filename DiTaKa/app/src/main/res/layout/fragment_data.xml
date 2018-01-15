@@ -159,7 +159,8 @@
             android:id="@+id/card1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            card_view:layout_constraintTop_toBottomOf="@id/card2">
+            card_view:layout_constraintTop_toBottomOf="@id/card2"
+            android:layout_marginTop="@dimen/margin_small">
 
             <!--    <LinearLayout
             android:id="@+id/DataLinLay"
@@ -257,7 +258,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/card1">
+            app:layout_constraintTop_toBottomOf="@+id/card1"
+            android:layout_marginTop="@dimen/margin_small">
 
             <LinearLayout
                 android:id="@+id/data_llayout"
@@ -294,7 +296,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cardGroup"
-            app:srcCompat="@drawable/ic_cloud_upload" />
+            app:srcCompat="@drawable/ic_cloud_upload"
+            android:layout_marginTop="@dimen/margin_small"/>
 
     </android.support.constraint.ConstraintLayout>
 

@@ -17,6 +17,9 @@
 	//Basierend auf
 	//https://stackoverflow.com/questions/2770273/pdostatement-to-json
 
+	//Header setzen
+	header('Content-Type: application/json');
+	
 	//Datenbankversion abfragen
 	$dbFile = fopen("db_Version.txt",'r');
 	

@@ -39,6 +39,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -309,7 +310,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             case GROUP_LOADER:
                 if (data != null) {
                     if (((ArrayList<String>) data).size() != 0) {
-                        ((MainActivity) getActivity()).groups = (ArrayList<String>) data;
                         addGroupToSelection((ArrayList<String>) data,false);
                         publishProgress(true,false);
                         groupSelectionCompleted = true;
@@ -348,8 +348,10 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 activity.FirstDownloadCompleted = true;
 
                 //Gruppen speichern
-                activity.activeGroup = activity.groups.get(0);
+                activity.gManager.setActiveGroup(null);
                 activity.invalidateOptionsMenu();
+
+                activity.gManager.saveGroupsToPref();
 
                 transformFAB(2);
 
@@ -394,7 +396,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             publishProgress(false,false);
 
             EditText editText = getActivity().findViewById(R.id.text_url);
-            url = handleURL(editText.getText().toString());
+            if (editText.getText().toString().equals("")) {
+                publishProgress(true,true);
+                Snackbar.make(activity.findViewById(R.id.MainFrame),R.string.data_url_error,Snackbar.LENGTH_LONG)
+                        .show();
+                return;
+            }
+
+            url = Util_Http.handleURL(editText.getText().toString(), getActivity());
 
             //Netzwerkstatus überpüfen
             if (Util_Http.checkNetwork(getActivity(),getContext())) {
@@ -428,7 +437,11 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                         .show();
             }
             else {
-                activity.groups_subscribed = list;
+                activity.gManager.setSubscribedGroups(list);
+
+                //TODO: Prüfen ob Gruppen neu dazugekommen sind oder gelöscht wurden
+
+
                 //Loader starten
                 initateLoader(activity.liveNetDBVersion.getValue());
             }
@@ -521,31 +534,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             progressBar.setVisibility(View.VISIBLE);
         }
 
-    }
-
-    /**
-     * Diese Methode bearbeitet die eingebene URL so, dass sie konform mit den nachfolgenden Arbeitschritte ist. Außerdem wird die URL in den PREFS gespeichert.
-     * @param url Die zu bearbeitende URL
-     * @return Die bearbietete URL
-     */
-    private String handleURL(String url) {
-        //Den PREF Manager initaliseren
-        SharedPreferences.Editor editor = getActivity().getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-
-        //https einfügen falls nicht vorhanden
-        if (!url.contains("http://") && !url.contains("https://")) {
-            url = "https://" + url;
-        }
-
-        //Prüfen ob als letztes Zeichen ein / vorhanden ist und dieses ggf. entfernen
-        if ((url.charAt(url.length() - 2)) == '/') {
-            url = (String) url.subSequence(0, url.length() - 3);
-        }
-
-        editor.putString(Util.PREFS_URL, url);
-        editor.apply();
-
-        return url;
     }
 
     /**
@@ -646,7 +634,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 ViewGroupSelector groupSelector = new ViewGroupSelector(LayoutInflater.from(getContext()), getContext(), viewGroup);
                 groupSelector.setGroupName(group);
 
-                if (activity.groups_subscribed.contains(group)) {
+                if (activity.gManager.contains(group)) {
                     groupSelector.setCheckState(true);
                 }
 

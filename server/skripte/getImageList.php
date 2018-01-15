@@ -14,6 +14,9 @@
 
     For the full license visit https://www.gnu.org/licenses/gpl-3.0. */
 	
+	//Header setzen
+	header('Content-Type: application/json');	
+	
 	//Datenbankversion abfragen
 	$dbFile = fopen("db_Version.txt",'r');
 	
