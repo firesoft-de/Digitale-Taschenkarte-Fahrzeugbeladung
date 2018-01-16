@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,15 +54,13 @@ public class Util {
     public static final String ARGS_CALLFORUSER = "ARGS_CALLFORUSER";
 
     public static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
-    public static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
-    public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
-    public static final String PREFS_SORT="dresden.de.digitaleTaschenkarteBeladung.sort";
+    public static final String PREFS_URL="url";
+    public static final String PREFS_DBVERSION="dbversion";
+    public static final String PREFS_SORT="sort";
 
     private static final String FILE_DESTINATION_IMAGE = "image";
 
     public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
-
-    public static final String NO_SUBSCRIBED_GROUPS="no-subscribed-groups";
 
     public enum DbState {
         VALID,
@@ -170,30 +169,9 @@ public class Util {
         }
     }
 
-    /**
-     * Die Methode erzeugt den Query für die Gruppengestützte HTTP-Abfrage
-     * @param activity
-     * @return
-     */
-    public static String getGroupQuery(Activity activity) {
-        MainActivity mainActivity = (MainActivity) activity;
-
-        if (mainActivity.gManager.getSubscribedGroupsCount() > 0) {
-
-            StringBuilder stringBuilder = new StringBuilder();
-
-            for (String group : mainActivity.gManager.getSubscribedGroups()
-                    ) {
-                stringBuilder.append(group);
-                stringBuilder.append("_");
-            }
-
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-            return stringBuilder.toString();
-        }
-        else {
-            return NO_SUBSCRIBED_GROUPS;
-        }
+    public static void deletePref(Context context) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE).edit();
+        editor.clear();
+        editor.apply();
     }
-
 }

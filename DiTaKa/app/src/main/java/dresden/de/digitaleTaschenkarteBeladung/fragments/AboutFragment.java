@@ -15,31 +15,61 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import javax.inject.Inject;
+
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
+import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
 
 public class AboutFragment extends Fragment {
 
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    DataFragViewModel viewModel;
 
     public AboutFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
+        ((ApplicationForDagger) getActivity().getApplication())
+                .getApplicationComponent()
+                .inject(this);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_about, container, false);
+
+        //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
+        viewModel = ViewModelProviders.of(this,viewModelFactory)
+                .get(DataFragViewModel.class);
 
         //Link setzen
         TextView tv = view.findViewById(R.id.about_tv2);
@@ -62,6 +92,30 @@ public class AboutFragment extends Fragment {
             tvVersion.setText("Version unbekannt");
         }
 
+        final Button resetButton = view.findViewById(R.id.buttonReset);
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetApp();
+            }
+        });
+
         return view;
+    }
+
+    private void resetApp() {
+
+        viewModel.deleteAll();
+        MainActivity activity = (MainActivity) getActivity();
+        activity.dbVersion = -1;
+        activity.url = "NO_URL_FOUND";
+        activity.liveNetDBVersion.setValue(0);
+        activity.dbState = Util.DbState.CLEAN;
+
+        activity.gManager.delete(getContext());
+
+        Snackbar.make(getActivity().findViewById(R.id.MainFrame), "Die App wurde erfolgreich zurückgesetzt", Snackbar.LENGTH_SHORT)
+                .show();
+
     }
 }

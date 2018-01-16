@@ -51,9 +51,10 @@ public class Util_Http {
     private static final String LOG_TRACE = "Util_Http";
 
     private static final String SERVER_QUERY_GET = "/getDatabase.php?";
-    private static final String SERVER_QUERY_GET_VERSION = "dbVersion=";
-    private static final String SERVER_QUERY_GET_TABLE = "db_table=";
+    private static final String SERVER_QUERY_GET_VERSION = "dbversion=";
+    private static final String SERVER_QUERY_GET_TABLE = "dbtable=";
     private static final String SERVER_QUERY_GET_GROUP = "groups=";
+    private static final String SERVER_QUERY_GET_NEW_GROUP = "loadfullgroup=1&fullgroups=";
 
     private static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
 
@@ -71,14 +72,18 @@ public class Util_Http {
      * @param group Enthält die abonnierten Gruppen
      * @return
      */
-    static ArrayList<EquipmentItem> requestItems(String url, int dbVersion, String group) {
+    public static ArrayList<EquipmentItem> requestItems(String url, int dbVersion, String group, String newGroups) {
         String httpResponse = null;
 
         String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
                 dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM;
 
-        if (!group.equals(Util.NO_SUBSCRIBED_GROUPS)) {
+        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
             queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
         }
 
         URL urlV = generateURL(queryURL);
@@ -101,15 +106,19 @@ public class Util_Http {
      * führt eine Datenabfrage mittels HTTP-Protokoll durch
      * @return Liste
      */
-    static ArrayList<TrayItem> requestTray(String url, int dbVersion, String group) {
+    public static ArrayList<TrayItem> requestTray(String url, int dbVersion, String group, String newGroups) {
         String httpResponse = null;
 
         //URL generieren, Util_HTTP_URL im Git nicht enthalten
         String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
                 dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY;
 
-        if (!group.equals(Util.NO_SUBSCRIBED_GROUPS)) {
+        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
             queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
         }
 
         URL urlV = generateURL(queryURL);
@@ -133,7 +142,7 @@ public class Util_Http {
      * @param url
      * @return Im Fehlerfall wird -1 zurück gegeben
      */
-    static int requestVersion(String url) {
+    public static int requestVersion(String url) {
             int result = -1;
 
             URL urlV = generateURL(url + SERVER_QUERY_VERSION);
@@ -177,14 +186,18 @@ public class Util_Http {
      * @param group String mit den abonnierten Gruppen
      * @return Liste der Bilder als Imageitems
      */
-    static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context, String group) {
+    public static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context, String group, String newGroups) {
         ArrayList<ImageItem> items = new ArrayList<>();
 
         //URL generieren, Util_HTTP_URL im Git nicht enthalten
         String queryURL = url + SERVER_QUERY_IMAGE + "?" + SERVER_QUERY_IMAGE_VERSION + dbVersion;
 
-        if (!group.equals(Util.NO_SUBSCRIBED_GROUPS)) {
+        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
             queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
         }
 
         URL urlV = generateURL(queryURL);
@@ -247,7 +260,7 @@ public class Util_Http {
     }
 
 
-    static ArrayList<String> requestGroups(String url, int version) {
+    public static ArrayList<String> requestGroups(String url, int version) {
         ArrayList<String> list = new ArrayList<>();
 
         URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
@@ -260,7 +273,6 @@ public class Util_Http {
 
         return list;
     }
-
 
     /**
      * {@jsonItemParsing} verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste

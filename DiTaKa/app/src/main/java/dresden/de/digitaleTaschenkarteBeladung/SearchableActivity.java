@@ -140,7 +140,7 @@ public class SearchableActivity extends AppCompatActivity  implements TrayFragme
             case FRAGMENT_DETAIL:
                 if (newFragment) {
                     fragment = new DetailFragment();
-                    Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
                 }
                 this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 break;

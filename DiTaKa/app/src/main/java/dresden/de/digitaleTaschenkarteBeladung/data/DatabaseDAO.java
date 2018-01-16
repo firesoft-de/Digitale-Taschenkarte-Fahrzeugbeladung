@@ -56,6 +56,9 @@ public interface DatabaseDAO {
     @Query("DELETE FROM equipment WHERE id LIKE :id")
     void deleteItem(int id);
 
+    @Query("DELETE FROM equipment WHERE `group` LIKE :groupKey")
+    void deleteItemByGroup(String groupKey);
+
     @Query("SELECT * FROM equipment WHERE id LIKE :id")
     LiveData<EquipmentItem> findItemByID(int id);
 
@@ -72,7 +75,7 @@ public interface DatabaseDAO {
     LiveData<Integer> countItems();
 
     //Query für das Suchfeld
-    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords LIKE :key OR name LIKE :key)")
+    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords OR name OR mSetName LIKE :key)")
     LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key);
 
 
@@ -88,6 +91,9 @@ public interface DatabaseDAO {
 
     @Query("DELETE FROM tray")
     void deleteTray();
+
+    @Query("DELETE FROM tray WHERE `group` LIKE :groupKey")
+    void deleteTrayByGroup(String groupKey);
 
     @Query("SELECT COUNT(id) FROM tray")
     LiveData<Integer> countTrays();
@@ -118,6 +124,9 @@ public interface DatabaseDAO {
 
     @Query("DELETE FROM image")
     void deleteImage();
+
+    @Query("DELETE FROM image WHERE `group` LIKE :groupKey")
+    void deleteImageByGroup(String groupKey);
 
     @Query("SELECT * FROM image WHERE categoryId LIKE :id")
     LiveData<ImageItem> getImageByCatID(int id);

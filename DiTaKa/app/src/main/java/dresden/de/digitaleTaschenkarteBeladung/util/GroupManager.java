@@ -6,8 +6,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
+import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
 /**
  * Mit dieser Hilfsklasse werden die Gruppen verwaltet
@@ -16,12 +20,14 @@ public class GroupManager {
 
     private ArrayList<String>  subscribedGroups;
     private String activeGroup;
+    private ArrayList<String> newGroups;
 
     private Activity parentActivity;
 
 
-    public static final String PREFS_GROUPS="dresden.de.digitaleTaschenkarteBeladung.groups";
-    public static final String PREFS_ACTIVE_GROUP="dresden.de.digitaleTaschenkarteBeladung.activegroup";
+    public static final String PREFS_GROUPS="groups";
+    public static final String PREFS_ACTIVE_GROUP="activegroup";
+    public static final String NO_SUBSCRIBED_GROUPS="no-subscribed-groups";
 
     //=======================================================
     //=====================Konstruktoren=====================
@@ -32,7 +38,8 @@ public class GroupManager {
      * @param activity Die übergeordnete Activity
      */
     public GroupManager(Activity activity) {
-        this.subscribedGroups = new ArrayList<>();
+        subscribedGroups = new ArrayList<>();
+        newGroups = new ArrayList<>();
         activeGroup = "";
         parentActivity = activity;
     }
@@ -87,60 +94,6 @@ public class GroupManager {
     }
 
     //=======================================================
-    //====================Arbeitsmethoden====================
-    //=======================================================
-
-    /**
-     * Identifiziert Gruppen, welche in der neu ausgewählten Gruppenliste erstmalig auftauchen
-     * @param selectedGroups Die neue Gruppenauswahl des Benutzers
-     * @return Liste der neuen Gruppen
-     */
-    public ArrayList<String> identifyNewGroups(ArrayList<String> selectedGroups) {
-        for (String group: selectedGroups
-             ) {
-            if(subscribedGroups.contains(group)) {
-                selectedGroups.remove(group);
-            }
-        }
-        return selectedGroups;
-    }
-
-    /**
-     * Identifiziert Gruppen, welche in der neu ausgewählten Gruppenliste nicht mehr enthalten sind
-     * @param selectedGroups Die neue Gruppenauswahl des Benutzers
-     * @return Liste der entfernten Gruppen
-     */
-    public ArrayList<String> identifyRemovedGroups(ArrayList<String> selectedGroups) {
-        ArrayList<String> list = subscribedGroups;
-        for (String group: selectedGroups
-                ) {
-            if(!subscribedGroups.contains(group)) {
-                list.add(group);
-            }
-        }
-        return list;
-    }
-
-    /**
-     * Prüft ob ein String in der Liste der abonnierten Gruppen enthalten ist
-     * @param groupCandidate Der zu prüfende Kandidate
-     * @return True = ist enthalten, False = ist nicht enthalten
-     */
-    public boolean contains(String groupCandidate) {
-        return subscribedGroups.contains(groupCandidate);
-    }
-
-    public int getActiveGroupIndex() {
-
-        if (subscribedGroups.size() > 0 && subscribedGroups.contains(activeGroup)) {
-            return subscribedGroups.indexOf(activeGroup);
-        }
-        else {
-            return 0;
-        }
-    }
-
-    //=======================================================
     //=====================GETTER/SETTER=====================
     //=======================================================
 
@@ -149,7 +102,8 @@ public class GroupManager {
     }
 
     public void setSubscribedGroups(ArrayList<String> groups) {
-        subscribedGroups = groups;
+        subscribedGroups = new ArrayList<>();
+        subscribedGroups.addAll(groups);
     }
 
     /**
@@ -209,5 +163,136 @@ public class GroupManager {
     public int getSubscribedGroupsCount() {
         return subscribedGroups.size();
     }
+
+
+    //=======================================================
+    //====================Arbeitsmethoden====================
+    //=======================================================
+
+    /**
+     * Identifiziert Gruppen, welche in der neu ausgewählten Gruppenliste erstmalig auftauchen
+     * @param selectedGroups Die neue Gruppenauswahl des Benutzers
+     * @return Liste der neuen Gruppen
+     */
+    public void identifyNewGroups(ArrayList<String> selectedGroups) {
+        ArrayList<String> list = new ArrayList<>();
+        list.addAll(selectedGroups);
+        for (String group: selectedGroups
+             ) {
+            if(subscribedGroups.contains(group)) {
+                list.remove(group);
+            }
+        }
+        newGroups = list;
+    }
+
+    /**
+     * Identifiziert Gruppen, welche in der neu ausgewählten Gruppenliste nicht mehr enthalten sind
+     * @param selectedGroups Die neue Gruppenauswahl des Benutzers
+     * @return Liste der entfernten Gruppen
+     */
+    public void deleteRemovedGroups(ArrayList<String> selectedGroups, DataFragViewModel viewModel) {
+        ArrayList<String> list = new ArrayList<>();
+        for (String group: subscribedGroups
+                ) {
+            if(!selectedGroups.contains(group)) {
+                list.add(group);
+            }
+        }
+        //TODO: Items, Trays, Positionimage und die Bilder löschen
+
+        if (list.size() > 0) {
+            for (String group: list
+                 ) {
+                viewModel.deleteByGroup(group);
+            }
+        }
+    }
+
+    /**
+     * Prüft ob ein String in der Liste der abonnierten Gruppen enthalten ist
+     * @param groupCandidate Der zu prüfende Kandidate
+     * @return True = ist enthalten, False = ist nicht enthalten
+     */
+    public boolean contains(String groupCandidate) {
+        return subscribedGroups.contains(groupCandidate);
+    }
+
+    public int getActiveGroupIndex() {
+
+        if (subscribedGroups.size() > 0 && subscribedGroups.contains(activeGroup)) {
+            return subscribedGroups.indexOf(activeGroup);
+        }
+        else {
+            return 0;
+        }
+    }
+
+    /**
+     * Die Methode erzeugt den Query für die gruppengestützte HTTP-Abfrage
+     * @return
+     */
+    public String subscribedToQuery() {
+
+        if (subscribedGroups.size() > 0) {
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (String group : subscribedGroups
+                    ) {
+                stringBuilder.append(group);
+                stringBuilder.append("_");
+            }
+
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            return stringBuilder.toString();
+        }
+        else {
+            return NO_SUBSCRIBED_GROUPS;
+        }
+    }
+
+    /**
+     * Die Methode erzeugt den Query für die gruppengestützte HTTP-Abfrage der neu hinzugekommenen Gruppen
+     * @return
+     */
+    public String newToQuery() {
+
+        if (newGroups.size() > 0) {
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            for (String group : newGroups
+                    ) {
+                stringBuilder.append(group);
+                stringBuilder.append("_");
+            }
+
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            return stringBuilder.toString();
+        }
+        else {
+            return NO_SUBSCRIBED_GROUPS;
+        }
+
+    }
+
+    public void delete(Context context) {
+
+        try {
+            subscribedGroups.clear();
+            newGroups.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Util.deletePref(context);
+
+    }
+
+    //=======================================================
+    //===================Interne Methoden====================
+    //=======================================================
+
 
 }

@@ -28,7 +28,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ActionMenuItem;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,14 +35,11 @@ import android.view.SubMenu;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-
-import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
@@ -51,7 +47,7 @@ import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
 import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
-import dresden.de.digitaleTaschenkarteBeladung.util.VersionLoader;
+import dresden.de.digitaleTaschenkarteBeladung.loader.VersionLoader;
 
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_ITEM;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_TRAY;
@@ -68,14 +64,13 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     private final static String LOG_TAG="MainActivity_LOG";
 
     //DEBUG Modus ein- oder ausschalten
-    public final static Boolean DEBUG_ENABLED = true;
+    public static Boolean DEBUG_ENABLED;
 
     //Globale Variablen
     private FragmentManager fManager;
     private LoaderManager lManager;
 
     public int dbVersion;
-//    public int netDBVersion;
     public String url;
     public Util.DbState dbState;
 
@@ -98,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        DEBUG_ENABLED = BuildConfig.DEBUG;
 
         fManager = this.getSupportFragmentManager();
 
@@ -534,15 +531,15 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         fragment.setArguments(args);
                     }
                     else {
-                        Toast.makeText(this, "Fehler beim Erstellen des Import-Fragmentes!", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(this.findViewById(R.id.MainFrame), "Fehler beim Erstellen des Import-Fragmentes!", Snackbar.LENGTH_LONG)
+                                .show();
                         return;
                     }
                     break;
 
                 case Util.FRAGMENT_DETAIL:
                     if (newFragment) {
-                        //fragment = new DataImportFragment();
-                        Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
+                        fragment = new DetailFragment();
                     }
                     break;
 
@@ -673,7 +670,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     private void setGroupButton(String tag) {
         if (tag.equals(Util.FRAGMENT_LIST_TRAY)) {
             if (xMenu != null) {
-                xMenu.findItem(R.id.ActionGroup).setVisible(true);
+                if (gManager.getSubscribedGroupsCount() > 1) {
+                    xMenu.findItem(R.id.ActionGroup).setVisible(true);
+                }
+                else {
+                    xMenu.findItem(R.id.ActionGroup).setVisible(false);
+                }
             }
         }
         else {

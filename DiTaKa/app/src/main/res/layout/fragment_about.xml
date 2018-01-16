@@ -1,20 +1,20 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment"
-android:layout_margin="@dimen/margin_normal">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/margin_normal"
+    tools:context="dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment">
 
     <TextView
         android:id="@+id/about_app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/text_size_highlight"
-        android:text="Digitale\nTaschenkarte\nBeladung"
         android:layout_marginStart="@dimen/margin_normal"
+        android:text="Digitale\nTaschenkarte\nBeladung"
         android:textColor="@color/text"
-        app:layout_constraintLeft_toRightOf="@+id/about_imageView"/>
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintLeft_toRightOf="@+id/about_imageView" />
 
     <ImageView
         android:id="@+id/about_imageView"
@@ -26,79 +26,91 @@ android:layout_margin="@dimen/margin_normal">
         android:id="@+id/about_version_static"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_normal"
         android:text="App-Version"
-        android:textSize="@dimen/text_size_normal"
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@id/about_app_name"
-        android:layout_marginTop="@dimen/margin_normal"/>
+        android:textSize="@dimen/text_size_normal"
+        app:layout_constraintTop_toBottomOf="@id/about_app_name" />
 
     <TextView
         android:id="@+id/about_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="v0.3.1"
-        android:textSize="@dimen/text_size_normal"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_marginTop="@dimen/margin_normal"
         android:textColor="@color/text"
+        android:textSize="@dimen/text_size_normal"
         app:layout_constraintLeft_toRightOf="@id/about_version_static"
         app:layout_constraintTop_toBottomOf="@id/about_app_name"
-        android:layout_marginTop="@dimen/margin_normal"
-        android:layout_marginLeft="@dimen/margin_normal"/>
+        tools:text="v0.3.1" />
 
     <TextView
         android:id="@+id/about_tv1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Beschreibung"
-        android:layout_row="2"
         android:layout_column="1"
-        android:textSize="@dimen/text_size_highlight"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:layout_row="2"
+        android:text="Beschreibung"
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@id/about_version_static"
-        android:layout_marginTop="@dimen/margin_normal"/>
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintTop_toBottomOf="@id/about_version_static" />
 
     <TextView
         android:id="@+id/about_tv2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Die Digitale Taschenkarte - Beladung bringt die klassische Taschenkarten in die digitale Welt. Mit der App kann die Beladung von Fahrzeugen (vor allem aus dem BOS-Bereich) dargestellt werden. "
-        android:layout_row="2"
         android:layout_column="1"
+        android:layout_row="2"
         android:maxLines="10"
+        android:text="Die Digitale Taschenkarte - Beladung bringt die klassische Taschenkarten in die digitale Welt. Mit der App kann die Beladung von Fahrzeugen (vor allem aus dem BOS-Bereich) dargestellt werden. "
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@id/about_tv1"/>
+        app:layout_constraintTop_toBottomOf="@id/about_tv1" />
 
     <TextView
         android:id="@+id/about_tv3"
-        android:layout_marginTop="@dimen/margin_normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/about_text"
-        android:layout_row="2"
         android:layout_column="0"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:layout_row="2"
         android:autoLink="web"
+        android:text="@string/about_text"
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@+id/about_tv2"/>
+        app:layout_constraintTop_toBottomOf="@+id/about_tv2" />
 
     <TextView
         android:id="@+id/about_tv4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nutzungshinweise"
-        android:layout_row="2"
         android:layout_column="1"
-        android:textSize="@dimen/text_size_highlight"
+        android:layout_marginTop="@dimen/margin_normal"
+        android:layout_row="2"
+        android:text="Nutzungshinweise"
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@id/about_tv3"
-        android:layout_marginTop="@dimen/margin_normal"/>
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintTop_toBottomOf="@id/about_tv3" />
 
     <TextView
         android:id="@+id/about_tv5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="In vielen Organisationen ist die Nutzung von privaten Smartphones nur bei dienstlicher Erfordernis gestattet. Ob diese bei der Benutzung dieser Applikation vorliegt, muss durch die verantwortliche Führungskraft im Einzelfall entschieden werden. Es sei daher darauf hingewiesen, dass Schäden am Gerät wahrscheinlich nicht durch die jeweilige Organisation gedeckt werden."
-        android:layout_row="2"
         android:layout_column="1"
+        android:layout_row="2"
+        android:text="In vielen Organisationen ist die Nutzung von privaten Smartphones nur bei dienstlicher Erfordernis gestattet. Ob diese bei der Benutzung dieser Applikation vorliegt, muss durch die verantwortliche Führungskraft im Einzelfall entschieden werden. Es sei daher darauf hingewiesen, dass Schäden am Gerät wahrscheinlich nicht durch die jeweilige Organisation gedeckt werden."
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@id/about_tv4"/>
+        app:layout_constraintTop_toBottomOf="@id/about_tv4" />
+
+    <Button
+        android:id="@+id/buttonReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/app_reset"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/about_tv5" />
 
 </android.support.constraint.ConstraintLayout>

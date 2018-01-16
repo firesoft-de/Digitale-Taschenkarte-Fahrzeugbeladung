@@ -4,13 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_item_height"
+    android:layout_height="wrap_content"
+    android:maxHeight="@dimen/list_item_height"
     android:minHeight="@dimen/list_item_height_min"
     android:orientation="horizontal"
     android:padding="8dp"
     android:gravity="center_vertical"
     android:baselineAligned="true">
-
 
     <ImageView
         android:id="@+id/imageView"
@@ -19,11 +19,12 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_weight="1"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:paddingRight="16dp"
+        android:layout_marginBottom="@dimen/margin_supersmall">
 
         <TextView
             android:id="@+id/listItem_tv_name"
@@ -39,7 +40,7 @@
             android:id="@+id/listItem_tv_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Geräteraum 6 - Kiste 6.3"
+            tools:text="Geräteraum 6 - Kiste 6.3 - ASDASDASDASDASDASD - ASDASDASDASDASD"
             android:maxLines="3"
             android:textSize="@dimen/text_size_small"
             android:textColor="@color/text"/>
