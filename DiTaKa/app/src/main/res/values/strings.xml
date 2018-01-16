@@ -53,5 +53,6 @@
 
     <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
     <string name="data_first_time_url">Gib hier die Server-URL ein!</string>
+    <string name="app_reset">App zurücksetzen</string>
 
 </resources>

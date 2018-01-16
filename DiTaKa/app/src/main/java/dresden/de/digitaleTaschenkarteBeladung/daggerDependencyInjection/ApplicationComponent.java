@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import dresden.de.digitaleTaschenkarteBeladung.SearchableActivity;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment;
@@ -41,6 +42,7 @@ public interface ApplicationComponent {
     void inject(DebugFragment debugFragment);
     void inject(DetailFragment detailFragment);
     void inject(SearchableActivity searchableActivity);
+    void inject(AboutFragment aboutFragment);
 
     Application application();
 

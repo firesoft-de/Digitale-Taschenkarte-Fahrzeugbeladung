@@ -119,9 +119,12 @@ public class SearchResultListFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        itemList.clear();
+        if (itemList != null) {
+            itemList.clear();
+        }
         super.onDestroy();
     }
+
 
     @Override
     public void onPause() {
@@ -161,6 +164,10 @@ public class SearchResultListFragment extends Fragment {
         lv.setAdapter(searchAdapter);
 
         searchAdapter.notifyDataSetChanged();
+
+        if(state != null) {
+            lv.onRestoreInstanceState(state);
+        }
     }
 
     private void refreshData(View view) {

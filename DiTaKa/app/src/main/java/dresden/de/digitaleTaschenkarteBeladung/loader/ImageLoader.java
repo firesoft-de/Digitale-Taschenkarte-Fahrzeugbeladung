@@ -12,7 +12,7 @@
 
     For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
 
-package dresden.de.digitaleTaschenkarteBeladung.util;
+package dresden.de.digitaleTaschenkarteBeladung.loader;
 
 
 import android.content.Context;
@@ -22,6 +22,7 @@ import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 
 public class ImageLoader extends AsyncTaskLoader<List<ImageItem>> {
 
@@ -30,18 +31,20 @@ public class ImageLoader extends AsyncTaskLoader<List<ImageItem>> {
     private String url;
     private int version;
     private String group;
+    private String newGroup;
 
-    public ImageLoader(Context context, String url, int version, String group){
+    public ImageLoader(Context context, String url, int version, String group, String newGroup){
             super(context);
             this.url = url;
             this.version = version;
             this.group = group;
+            this.newGroup = newGroup;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<ImageItem> loadInBackground() {
-        return Util_Http.requestImages(url, version, getContext(), group);
+        return Util_Http.requestImages(url, version, getContext(), group, newGroup);
     }
 
     @Override

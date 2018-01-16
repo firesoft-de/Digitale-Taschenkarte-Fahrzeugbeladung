@@ -93,6 +93,36 @@ public class DataFragViewModel extends ViewModel {
         }
     }
 
+    public void deleteByGroup(String groupKey) {
+        deleteByGroupTask task = new deleteByGroupTask();
+        task.execute(groupKey);
+    }
+
+    private class deleteByGroupTask extends AsyncTask<String,Void,Void> {
+        @Override
+        protected Void doInBackground(String... groupKey) {
+            repository.deleteImageByGroup(groupKey[0]);
+            repository.deleteItemByGroup(groupKey[0]);
+            repository.deleteTrayByGroup(groupKey[0]);
+            return null;
+        }
+    }
+
+    public void deleteAll() {
+        deleteAllTask task = new deleteAllTask();
+        task.execute();
+    }
+
+    private class deleteAllTask extends AsyncTask<Void,Void,Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            repository.deleteAllImages();
+            repository.deleteAllItems();
+            repository.deleteAllTrays();
+            return null;
+        }
+    }
+
     public LiveData<Integer> countTrays() {
         return repository.countTrays();
     }

@@ -12,14 +12,16 @@
 
     For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
 
-package dresden.de.digitaleTaschenkarteBeladung.util;
+package dresden.de.digitaleTaschenkarteBeladung.loader;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 
 import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 
 
 /**
@@ -32,19 +34,21 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
     private String url;
     private int version;
     private String group;
+    private String newGroup;
 
-    public ItemLoader(Context context, String url, int version, String group){
+    public ItemLoader(Context context, String url, int version, String group, String newGroup){
 
         super(context);
         this.url = url;
         this.version = version;
         this.group = group;
+        this.newGroup = newGroup;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<EquipmentItem> loadInBackground() {
-        return Util_Http.requestItems(url, version,group);
+        return Util_Http.requestItems(url, version,group,newGroup);
     }
 
     @Override
