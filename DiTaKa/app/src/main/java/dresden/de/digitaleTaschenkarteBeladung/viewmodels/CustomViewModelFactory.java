@@ -39,7 +39,7 @@ public class CustomViewModelFactory implements ViewModelProvider.Factory{
         if (modelClass.isAssignableFrom(ItemViewModel.class)) {
             return (T) new ItemViewModel(repository);
         }
-        //TODO ANPASSEN AN DIE ANDEREN
+        //Weitere Viewmodels müssen hier eingetragen werden
         else if (modelClass.isAssignableFrom(DataFragViewModel.class)) {
             return (T) new DataFragViewModel(repository);
         }

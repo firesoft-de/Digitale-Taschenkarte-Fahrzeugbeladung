@@ -2,8 +2,8 @@
 <resources>
 
     <!--Dimensionen list_item-->
-    <dimen name="list_item_height">15mm</dimen>
-    <dimen name="list_item_height_min">10mm</dimen>
+    <dimen name="list_item_height">160dp</dimen>
+    <dimen name="list_item_height_min">80dp</dimen>
 
     <dimen name="text_size_highlight">18sp</dimen>
     <dimen name="text_size_normal">14sp</dimen>

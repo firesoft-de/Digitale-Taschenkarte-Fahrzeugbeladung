@@ -20,7 +20,8 @@
     <string name="option_menu_settings">Einstellungen</string>
     <string name="option_menu_about">Über</string>
     <string name="option_menu_license">Lizenz</string>
-    <string name="action_sort">Sortieren</string>
+    <string name="action_sort">Sortierung</string>
+    <string name="action_group">Aktive Gruppe</string>
 
     <string name="search_title">Suchergebnisse</string>
     <string name="search_hint">Suche starten...</string>
@@ -47,8 +48,11 @@
     <string name="data_no_db">Noch keine lokale Datenbank vorhanden!</string>
     <string name="data_no_net_db">Konnte Serverversion nicht abrufen!</string>
     <string name="data_url_error">Die Server-URL ist wahrscheinlich fehlerhaft!</string>
+    <string name="daten_button_text_get_group">Daten abrufen</string>
+    <string name="data_groups">Verfügbare Gruppen</string>
 
     <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
     <string name="data_first_time_url">Gib hier die Server-URL ein!</string>
+    <string name="app_reset">App zurücksetzen</string>
 
 </resources>

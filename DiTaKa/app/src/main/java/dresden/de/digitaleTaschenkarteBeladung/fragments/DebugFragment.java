@@ -40,6 +40,7 @@ import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DebugViewModel;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_ExampleData;
@@ -181,8 +182,11 @@ public class DebugFragment extends Fragment {
                 SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
                 editor.remove(Util.PREFS_URL);
                 editor.remove(Util.PREFS_DBVERSION);
+                editor.remove(GroupManager.PREFS_GROUPS);
+                editor.remove(GroupManager.PREFS_ACTIVE_GROUP);
+                editor.remove(Util.PREFS_SORT);
 
-                editor.commit();
+                editor.apply();
 
                 Toast.makeText(getContext(),"Prefs gelöscht!",Toast.LENGTH_SHORT).show();
             }

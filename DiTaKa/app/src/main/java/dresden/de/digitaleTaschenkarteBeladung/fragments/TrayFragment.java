@@ -108,9 +108,11 @@ public class TrayFragment extends Fragment {
         }
 
         final ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
+        MainActivity activity = (MainActivity) getActivity();
+
 
         if (dbState == Util.DbState.VALID || dbState == Util.DbState.EXPIRED || dbState == Util.DbState.UNKNOWN) {
-            viewModel.getTrays().observe(this, new Observer<List<TrayItem>>() {
+            viewModel.getTrays(activity.gManager.getActiveGroup()).observe(this, new Observer<List<TrayItem>>() {
                 @Override
                 public void onChanged(@Nullable List<TrayItem> trayItems) {
                     trays = (ArrayList<TrayItem>) trayItems;
@@ -139,7 +141,6 @@ public class TrayFragment extends Fragment {
             displayFirstRun(lv);
         }
 
-        MainActivity activity = (MainActivity) getActivity();
         activity.liveSort.observe(this, new Observer<Util.Sort>() {
             @Override
             public void onChanged(@Nullable Util.Sort sort) {
@@ -250,4 +251,15 @@ public class TrayFragment extends Fragment {
             }
         }
     }
+
+    public void changeGroup(String activeGroup) {
+        viewModel.getTrays(activeGroup).observe(this, new Observer<List<TrayItem>>() {
+            @Override
+            public void onChanged(@Nullable List<TrayItem> trayItems) {
+                trays = (ArrayList<TrayItem>) trayItems;
+                changeSorting(((MainActivity) getActivity()).liveSort.getValue());
+            }
+        });
+    }
+
 }

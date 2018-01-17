@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_item_height"
+    android:layout_height="wrap_content"
+    android:maxHeight="@dimen/list_item_height"
     android:minHeight="@dimen/list_item_height_min"
     android:orientation="horizontal"
-    android:padding="8dp"
+    android:padding="@dimen/margin_supersmall"
     android:gravity="center_vertical"
     android:baselineAligned="true">
 
+    <TextView
+        android:id="@+id/listItem_tv_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:maxLines="2"
+        android:textAlignment="viewStart"
+        android:textColor="@color/text"
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintBottom_toTopOf="@+id/listItem_tv_position"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Latthammer mit einem ganz ganz ganz ganz langen Titel" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="80dp"
-        android:layout_height="800dp"/>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="1"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
-
-        <TextView
-            android:id="@+id/listItem_tv_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Latthammer "
-            android:maxLines="2"
-            android:textSize="@dimen/text_size_highlight"
-            android:textColor="@color/text"
-            android:layout_marginTop="@dimen/margin_small"/>
-
-        <TextView
-            android:id="@+id/listItem_tv_position"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Geräteraum 6 - Kiste 6.3"
-            android:maxLines="3"
-            android:textSize="@dimen/text_size_small"
-            android:textColor="@color/text"/>
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/listItem_tv_position"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:maxLines="3"
+        android:textAlignment="viewStart"
+        android:textColor="@color/text"
+        android:textSize="@dimen/text_size_small"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listItem_tv_name"
+        tools:text="Geräteraum 6 - Kiste 6.3 - ASDASDASDASDASDASD - ASDASDASDASDASD" />
 
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:tint="@color/colorPrimaryDark"
-        app:srcCompat="@drawable/ic_arrow_forward_black_24dp"/>
+        app:srcCompat="@drawable/ic_arrow_forward"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

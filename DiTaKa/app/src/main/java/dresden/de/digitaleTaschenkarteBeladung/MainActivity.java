@@ -31,21 +31,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
-import dresden.de.digitaleTaschenkarteBeladung.util.VersionLoader;
+import dresden.de.digitaleTaschenkarteBeladung.loader.VersionLoader;
 
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_ITEM;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_TRAY;
@@ -60,20 +62,21 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     //DEBUG Konstanten
     private final static String LOG_TAG="MainActivity_LOG";
-    //TODO: Debug ausschalten
-    public final static Boolean DEBUG_ENABLED = false;
+
+    //DEBUG Modus ein- oder ausschalten
+    public static Boolean DEBUG_ENABLED;
 
     //Globale Variablen
     private FragmentManager fManager;
     private LoaderManager lManager;
 
     public int dbVersion;
-//    public int netDBVersion;
     public String url;
     public Util.DbState dbState;
 
-    public MutableLiveData<Integer> liveNetDBVersion;
+    public GroupManager gManager;
 
+    public MutableLiveData<Integer> liveNetDBVersion;
     public MutableLiveData<Util.Sort> liveSort;
 
     private Menu xMenu;
@@ -91,12 +94,18 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DEBUG_ENABLED = BuildConfig.DEBUG;
+
         fManager = this.getSupportFragmentManager();
 
         lManager = this.getSupportLoaderManager();
 
         dbVersion = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getInt(Util.PREFS_DBVERSION,-1);
         url = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getString(Util.PREFS_URL,"NO_URL_FOUND");
+
+        //Abonnierte Gruppen laden
+        gManager = new GroupManager(this);
+        gManager.loadGroupsFromPref();
 
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
         liveNetDBVersion = new MutableLiveData<>();
@@ -118,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
             else {
                 //Keine Netzwerkverbindung -> Nachricht und Ende
-                Toast.makeText(this,R.string.app_noConnection,Toast.LENGTH_LONG).show();
+                Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_noConnection, Snackbar.LENGTH_LONG)
+                        .show();
             }
         }
         else {
@@ -127,7 +137,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
             else {
                 //Keine Netzwerkverbindung -> Nachricht und Ende
-                Toast.makeText(this,R.string.app_noConnection,Toast.LENGTH_LONG).show();
+                Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_noConnection, Snackbar.LENGTH_LONG)
+                        .show();
             }
         }
 
@@ -167,6 +178,43 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //TODO: Einstellungsdialog wieder einschalten
         menu.findItem(R.id.OptionMenuSettings).setVisible(false);
 
+        //Zählervariale
+        int x = 0;
+
+        //Gruppenauswahl bearbeiten
+        if (gManager.getSubscribedGroupsCount() == 0) {
+            menu.findItem(R.id.ActionGroup).setVisible(false);
+        }
+        else if (gManager.getSubscribedGroupsCount() == 1) {
+            menu.findItem(R.id.ActionGroup).setVisible(false);
+            SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();
+            if (sMenu.size() > 0) {
+                groupItemPressed(sMenu.getItem(0));
+            }
+        }
+        else {
+            SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();
+            //Einträge für die Gruppen einfügen
+            for (String group: gManager.getSubscribedGroups()
+                 ) {
+                sMenu.add(group);
+                sMenu.getItem(x).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        groupItemPressed(menuItem);
+                        return true;
+                    }
+                });
+                x++;
+            }
+            int activeIndex = gManager.getActiveGroupIndex();
+
+            sMenu.setGroupCheckable(0,true,true);
+            sMenu.getItem(activeIndex).setChecked(true);
+            groupItemPressed(sMenu.getItem(activeIndex));
+        }
+
+
         // Suchfunktionalität mittels SearchManager hinzufügen
         final SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -184,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         //Tastatur anzeigen wenn SearchView expandiert wird
         MenuItem mItem = menu.findItem(R.id.search);
-
 
         //Mit diesen Befehlen wird das ActionItem "Sortieren" ausgeblendet, sobald die Suche geöffnet wird.
         mItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
@@ -231,6 +278,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             menu.findItem(R.id.OptionMenuDebug).setVisible(false);
         }
 
+        //Initalen Wert für das Sortierungsmenü festlegen
         switch (liveSort.getValue()) {
             case AZ:
                 menu.findItem(R.id.SortAZ).setChecked(true);
@@ -242,6 +290,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 menu.findItem(R.id.SortXY).setChecked(true);
                 break;
 
+        }
+
+        if (fManager != null && fManager.getBackStackEntryCount() > 1) {
+            if (fManager.getBackStackEntryAt(fManager.getBackStackEntryCount()-1).getName() == Util.FRAGMENT_DATA) {
+                manageActionBar(Util.FRAGMENT_DATA);
+            }
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -318,6 +372,13 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     @Override
     public boolean onQueryTextChange(String s) {
         return false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        gManager.saveGroupsToPref();
     }
 
     //=======================================================
@@ -470,15 +531,15 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         fragment.setArguments(args);
                     }
                     else {
-                        Toast.makeText(this, "Fehler beim Erstellen des Import-Fragmentes!", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(this.findViewById(R.id.MainFrame), "Fehler beim Erstellen des Import-Fragmentes!", Snackbar.LENGTH_LONG)
+                                .show();
                         return;
                     }
                     break;
 
                 case Util.FRAGMENT_DETAIL:
                     if (newFragment) {
-                        //fragment = new DataImportFragment();
-                        Toast.makeText(getApplicationContext(), "Hier muss noch ein DetailFragment gebaut werden!",Toast.LENGTH_LONG).show();
+                        fragment = new DetailFragment();
                     }
                     break;
 
@@ -547,11 +608,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     }
 
-    private void manageActionBar(String tag) {
+    public void manageActionBar(String tag) {
         setBackButton(tag);
         setTitle(tag);
         setSortButton(tag);
         setSearchButton(tag);
+        setGroupButton(tag);
     }
 
     /**
@@ -605,6 +667,24 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     }
 
+    private void setGroupButton(String tag) {
+        if (tag.equals(Util.FRAGMENT_LIST_TRAY)) {
+            if (xMenu != null) {
+                if (gManager.getSubscribedGroupsCount() > 1) {
+                    xMenu.findItem(R.id.ActionGroup).setVisible(true);
+                }
+                else {
+                    xMenu.findItem(R.id.ActionGroup).setVisible(false);
+                }
+            }
+        }
+        else {
+            if (xMenu != null) {
+                xMenu.findItem(R.id.ActionGroup).setVisible(false);
+            }
+        }
+    }
+
     private void setTitle(String tag) {
         switch (tag) {
             case Util.FRAGMENT_DATA:
@@ -642,7 +722,34 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
             default:
                 throw new IllegalArgumentException("Kein passendes Fragment gefunden!");
+        }
+    }
 
+    private void groupItemPressed(MenuItem item) {
+
+        //Manuelles anhacken der Items (Standardmethode funktionieren nicht, warum auch immer)
+        item.setChecked(true);
+
+        for (String group: gManager.getSubscribedGroups()
+             ) {
+            if (group.equals(item.getTitle().toString())) {
+                 String fragmentName = fManager.getBackStackEntryAt(fManager.getBackStackEntryCount()-1).getName();
+
+                 gManager.setActiveGroup(group);
+
+                 switch (fragmentName) {
+                     case FRAGMENT_LIST_ITEM:
+                         ItemFragment itemFragment = (ItemFragment) fManager.findFragmentByTag(fragmentName);
+                         itemFragment.changeGroup(item.getTitle().toString());
+                         break;
+
+                     case FRAGMENT_LIST_TRAY:
+                         TrayFragment trayFragment = (TrayFragment) fManager.findFragmentByTag(fragmentName);
+                         trayFragment.changeGroup(item.getTitle().toString());
+                         break;
+                 }
+                 return;
+            }
         }
     }
 }

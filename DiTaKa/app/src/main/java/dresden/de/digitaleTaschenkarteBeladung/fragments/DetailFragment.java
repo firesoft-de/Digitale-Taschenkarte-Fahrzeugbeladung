@@ -23,9 +23,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,6 +103,16 @@ public class DetailFragment extends Fragment {
             throw new IllegalArgumentException("Keine Argumente weitergegeben!");
         }
 
+        //Elevation der Cards setzen
+        Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+//        drawable.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
+
+        CardView card = view.findViewById(R.id.card1);
+        card.setBackground(drawable);
+
+        card = view.findViewById(R.id.card2);
+        card.setBackground(drawable);
+
         return view;
     }
 
@@ -163,8 +175,8 @@ public class DetailFragment extends Fragment {
             tvNotes.setVisibility(View.VISIBLE);
             tvNotesStatic.setVisibility(View.VISIBLE);
 
-            //Ein unbekannter Fehler führt zum Abschneiden der letzten Zeile. Als Workaround wird hier manuell eine weitere Zeile eingefügt.
-            tvNotes.append("\nx");
+            //Ein unbekannter Fehler führt zum Abschneiden der letzten Zeile. Als Workaround/Hotfix wird hier manuell eine weitere Zeile eingefügt.
+            //tvNotes.append("\nx");
 
         }
 
@@ -182,8 +194,19 @@ public class DetailFragment extends Fragment {
 
         viewModel.getImageByCatID(item.getCategoryId()).observe(this, new Observer<ImageItem>() {
             @Override
-            public void onChanged(@Nullable ImageItem imageItem) {
-                drawBitmap(imageItem);
+            public void onChanged(@Nullable ImageItem imageItemX) {
+                if (imageItemX != null) {
+                    imageItem = imageItemX;
+                    if (!modifyBitmap) {
+                        //Trayitem noch nicht geladen. Marker auf true setzen und warten bis Trayitem geladen wurden
+                        modifyBitmap = true;
+                    }
+                    else {
+                        //Wenn das Trayitem schon geladen wurde direkt die Bildbearbeitung beginnen
+
+                        modifyBitmap();
+                    }
+                }
             }
         });
 
@@ -194,9 +217,12 @@ public class DetailFragment extends Fragment {
                     trayItem = trayItemX;
 
                     if (!modifyBitmap) {
+                        //ImageItem noch nicht geladen. Marker auf true setzen und warten bis ImageItem geladen wurden
                         modifyBitmap = true;
                     }
                     else {
+                        //Wenn das ImageItem schon geladen wurde direkt die Bildbearbeitung beginnen
+
                         modifyBitmap();
                     }
                 }
@@ -212,23 +238,12 @@ public class DetailFragment extends Fragment {
         super.onDetach();
     }
 
-    private void drawBitmap(ImageItem imageItem) {
-        if (imageItem != null) {
-            this.imageItem = imageItem;
-            if (!modifyBitmap) {
-                modifyBitmap = true;
-            }
-            else {
-                modifyBitmap();
-            }
-        }
-    }
 
     //Zeigt die Bitmap an und modifziert sie ggf.
     private void modifyBitmap() {
 
         //Prüfen ob ein Bild hinterlegt ist
-        if (imageItem != null) {
+        if (imageItem != null && !imageItem.getPath().equals("-1")) {
 
             //ImageView initalisieren und das Bild vom Dauerspeicher abrufen
             ImageView imageView = getActivity().findViewById(R.id.detailItemImage);
@@ -237,8 +252,8 @@ public class DetailFragment extends Fragment {
             //Bitmap in eine modfizierbare Bitmap umwandeln
             Bitmap workBitmap = image.copy(Bitmap.Config.ARGB_8888, true);
 
-            //Prüfen ob Koordinaten hinterlegt sind und damit eine Position eingezeichnet werden kann
-            if (trayItem.getPositionCoordinates() != null) {
+            //Prüfen ob Koordinaten hinterlegt sind und damit eine Position eingezeichnet werden kann und prüfen ob im Item eine Position hinterlegt ist
+            if (trayItem.getPositionCoordinates() != null && equipmentItem.getPositionIndex() > -1) {
 
                 //Koordinaten abrufen
                 int left = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4);
@@ -262,7 +277,6 @@ public class DetailFragment extends Fragment {
 
                     canvas.drawRect(rectangle, painter);
                 }
-
             }
 
             imageView.setImageBitmap(workBitmap);

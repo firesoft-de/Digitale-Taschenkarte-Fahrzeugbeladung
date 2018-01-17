@@ -20,7 +20,9 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Parcelable;
+import android.os.Trace;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +59,8 @@ public class ItemFragment extends Fragment {
     public final static  String BUNDLE_TAG_ITEMS="bundleItems";
     public final static  String BUNDLE_TAG_DETAIL="bundleDetail";
 
+    private int catID;
+
     private ItemAdapter itemAdapter;
 
     private ArrayList<DatabaseEquipmentMininmal> itemList;
@@ -83,6 +88,12 @@ public class ItemFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        MainActivity activity = (MainActivity) getActivity();
+
+//        if (activity.DEBUG_ENABLED) {
+//            Debug.startMethodTracing("sample");
+//        }
+
         //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
         itemViewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(ItemViewModel.class);
@@ -91,14 +102,12 @@ public class ItemFragment extends Fragment {
 
             Bundle args = this.getArguments();
 
-            int catID =  args.getInt(BUNDLE_TAG_ITEMS);
+            catID =  args.getInt(BUNDLE_TAG_ITEMS);
             //Observer einrichten
-            itemViewModel.getItemsByCatID(catID).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+            itemViewModel.getItemsByCatID(catID, activity.gManager.getActiveGroup()).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
                 @Override
                 public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
-//                    if (ItemFragment.this.itemList == null) {
                         insertData(null,items);
-//                    }
                 }
             });
 
@@ -107,13 +116,16 @@ public class ItemFragment extends Fragment {
             throw new IllegalArgumentException("Keine Behälter-ID angegeben!");
         }
 
-        MainActivity activity = (MainActivity) getActivity();
         activity.liveSort.observe(this, new Observer<Util.Sort>() {
             @Override
             public void onChanged(@Nullable Util.Sort sort) {
                 changeSorting(sort);
             }
         });
+
+//        if (activity.DEBUG_ENABLED) {
+//            Debug.stopMethodTracing();
+//        }
 
     }
 
@@ -141,8 +153,12 @@ public class ItemFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        itemList.clear();
-        itemAdapter.clear();
+        if (itemList != null) {
+        itemList.clear(); }
+
+        if (itemAdapter != null) {
+        itemAdapter.clear(); }
+
         super.onDetach();
     }
 
@@ -155,6 +171,8 @@ public class ItemFragment extends Fragment {
     }
 
     private void insertData(@Nullable ArrayList<EquipmentItem> equipmentItems, @Nullable List<DatabaseEquipmentMininmal> minimalItem) {
+
+        Trace.beginSection("insertData");
 
         if (equipmentItems == null && minimalItem != null) {
             itemList = (ArrayList<DatabaseEquipmentMininmal>) minimalItem;
@@ -173,6 +191,7 @@ public class ItemFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
+                Trace.beginSection("LV ItemClickListener");
                 DatabaseEquipmentMininmal item = itemList.get(i);
 
                 DetailFragment detailFragment = new DetailFragment();
@@ -184,6 +203,8 @@ public class ItemFragment extends Fragment {
 
                 masterCallback.switchFragment(R.id.MainFrame,detailFragment, Util.FRAGMENT_DETAIL);
 
+                Trace.endSection();
+
             }
         });
 
@@ -193,10 +214,13 @@ public class ItemFragment extends Fragment {
             lv.onRestoreInstanceState(state);
         }
 
+        Trace.endSection();
+
     }
 
     private void setData(List<DatabaseEquipmentMininmal> items, @Nullable ListView lv) {
 
+        Trace.beginSection("setData");
         itemList = (ArrayList<DatabaseEquipmentMininmal>) items;
 
         itemAdapter = new ItemAdapter(getActivity(),(ArrayList) items);
@@ -206,6 +230,9 @@ public class ItemFragment extends Fragment {
         }
 
         lv.setAdapter(itemAdapter);
+
+        Trace.endSection();
+
     }
 
     /**
@@ -253,6 +280,15 @@ public class ItemFragment extends Fragment {
                     break;
             }
         }
+    }
+
+    public void changeGroup(String activeGroup) {
+        itemViewModel.getItemsByCatID(catID, activeGroup).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+            @Override
+            public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
+                insertData(null,items);
+            }
+        });
     }
 
 }

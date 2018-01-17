@@ -66,7 +66,6 @@ public class SearchResultListFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 //Detailansicht anzeigen
 
-                //TODO: Detailansicht aktivieren
                 showDetail(i);
             }
         });
@@ -120,9 +119,12 @@ public class SearchResultListFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        itemList.clear();
+        if (itemList != null) {
+            itemList.clear();
+        }
         super.onDestroy();
     }
+
 
     @Override
     public void onPause() {
@@ -162,6 +164,10 @@ public class SearchResultListFragment extends Fragment {
         lv.setAdapter(searchAdapter);
 
         searchAdapter.notifyDataSetChanged();
+
+        if(state != null) {
+            lv.onRestoreInstanceState(state);
+        }
     }
 
     private void refreshData(View view) {

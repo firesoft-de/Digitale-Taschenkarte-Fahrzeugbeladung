@@ -21,16 +21,16 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.provider.ContactsContract;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
@@ -54,11 +54,11 @@ public class Util {
     public static final String ARGS_CALLFORUSER = "ARGS_CALLFORUSER";
 
     public static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
-    public static final String PREFS_URL="dresden.de.digitaleTaschenkarteBeladung.url";
-    public static final String PREFS_DBVERSION="dresden.de.digitaleTaschenkarteBeladung.dbversion";
-    public static final String PREFS_SORT="dresden.de.digitaleTaschenkarteBeladung.sort";
+    public static final String PREFS_URL="url";
+    public static final String PREFS_DBVERSION="dbversion";
+    public static final String PREFS_SORT="sort";
 
-    public static final String FILE_DESTINATION_IMAGE = "image";
+    private static final String FILE_DESTINATION_IMAGE = "image";
 
     public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
 
@@ -169,4 +169,9 @@ public class Util {
         }
     }
 
+    public static void deletePref(Context context) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE).edit();
+        editor.clear();
+        editor.apply();
+    }
 }

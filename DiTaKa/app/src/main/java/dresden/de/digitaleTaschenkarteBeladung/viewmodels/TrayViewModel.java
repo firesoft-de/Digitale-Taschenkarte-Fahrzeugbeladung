@@ -31,7 +31,7 @@ public class TrayViewModel extends ViewModel {
         this.repository = repository;
     }
 
-    public LiveData<List<TrayItem>> getTrays() {return repository.getTrays();}
+    public LiveData<List<TrayItem>> getTrays(String group) {return repository.getTrays(group);}
 
     public void deleteTrays() {repository.deleteAllTrays();}
 

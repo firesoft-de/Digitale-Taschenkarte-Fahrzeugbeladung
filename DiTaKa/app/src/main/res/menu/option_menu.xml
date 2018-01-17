@@ -27,8 +27,7 @@
                 <item
                     android:id="@+id/SortAZ"
                     android:title="A-Z"
-                    app:showAsAction="never"
-                    />
+                    app:showAsAction="never"/>
 
                 <item
                     android:id="@+id/SortZA"
@@ -37,6 +36,20 @@
             </group>
         </menu>
     </item>
+
+
+    <item
+        android:id="@+id/ActionGroup"
+        android:title="@string/action_group"
+        app:showAsAction="ifRoom|collapseActionView"
+        android:icon="@drawable/ic_group_24dp">
+        <menu>
+            <group
+                android:checkableBehavior="single">
+            </group>
+        </menu>
+    </item>
+
 
     <item
         android:id="@+id/OptionMenuItemData"

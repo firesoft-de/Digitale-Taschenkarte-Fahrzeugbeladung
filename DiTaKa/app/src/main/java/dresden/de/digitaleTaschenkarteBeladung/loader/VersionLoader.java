@@ -12,13 +12,13 @@
 
     For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
 
-package dresden.de.digitaleTaschenkarteBeladung.util;
+package dresden.de.digitaleTaschenkarteBeladung.loader;
 
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
-import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
+import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 
 public class VersionLoader extends AsyncTaskLoader<Integer> {
 
@@ -34,7 +34,7 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
     @Override
     public Integer loadInBackground() {
 
-        return Util_Http.checkVersion(url);
+        return Util_Http.requestVersion(url);
     }
 
     @Override

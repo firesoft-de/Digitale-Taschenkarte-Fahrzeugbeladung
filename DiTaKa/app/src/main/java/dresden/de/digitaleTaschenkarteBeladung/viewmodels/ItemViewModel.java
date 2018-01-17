@@ -42,6 +42,10 @@ public class ItemViewModel extends ViewModel{
         return repository.getItems();
     }
 
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemsMinimal() {
+        return repository.getItemsMinimal();
+    }
+
     public LiveData<EquipmentItem> getItem(int id) {return repository.getItemByID(id);}
 
     public void deleteItem(int id) {
@@ -60,7 +64,7 @@ public class ItemViewModel extends ViewModel{
         }
     }
 
-    public LiveData<List<DatabaseEquipmentMininmal>> getItemsByCatID(int catID) {return repository.getItemByCatID(catID); }
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemsByCatID(int catID, String group) {return repository.getItemByCatID(catID, group); }
 
     public LiveData<ImageItem> getImageByCatID(int catID) {return repository.getImageByCatID(catID);}
 

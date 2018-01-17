@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "be02c646ae3738ad34d4c2024d34e168",
+    "identityHash": "4220bdbf5e56c47a41d2398cd6a0e7fc",
     "entities": [
       {
         "tableName": "equipment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, `positionIndex` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, `group` TEXT, `positionIndex` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -57,6 +57,12 @@
             "notNull": false
           },
           {
+            "fieldPath": "group",
+            "columnName": "group",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "positionIndex",
             "columnName": "positionIndex",
             "affinity": "INTEGER",
@@ -74,7 +80,7 @@
       },
       {
         "tableName": "tray",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `descriptionTwo` TEXT, `positions` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `descriptionTwo` TEXT, `group` TEXT, `positions` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -101,6 +107,12 @@
             "notNull": false
           },
           {
+            "fieldPath": "group",
+            "columnName": "group",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "positionCoordinates",
             "columnName": "positions",
             "affinity": "TEXT",
@@ -118,7 +130,7 @@
       },
       {
         "tableName": "image",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `path` TEXT, `categoryID` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `path` TEXT, `categoryID` INTEGER NOT NULL, `group` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -137,6 +149,12 @@
             "columnName": "categoryID",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "group",
+            "columnName": "group",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -151,7 +169,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"be02c646ae3738ad34d4c2024d34e168\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4220bdbf5e56c47a41d2398cd6a0e7fc\")"
     ]
   }
 }

@@ -33,13 +33,13 @@ import java.util.List;
 @Dao
 public interface DatabaseDAO {
 
-    //DAO für die Items
+    //=======================================================
+    //======================DAO ITEMS========================
+    //=======================================================
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertItem(EquipmentItem... item); //Eventuell Long
-
-/*    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertItemList(ArrayList<DatabaseClass> items);*/
 
     @Update
     void upadteItem(EquipmentItem... item);
@@ -56,40 +56,49 @@ public interface DatabaseDAO {
     @Query("DELETE FROM equipment WHERE id LIKE :id")
     void deleteItem(int id);
 
+    @Query("DELETE FROM equipment WHERE `group` LIKE :groupKey")
+    void deleteItemByGroup(String groupKey);
+
     @Query("SELECT * FROM equipment WHERE id LIKE :id")
     LiveData<EquipmentItem> findItemByID(int id);
 
-    @Query("SELECT id, name, position FROM equipment WHERE id LIKE :id")
+    @Query("SELECT id, name, position FROM equipment WHERE id LIKE :id AND NOT name LIKE '%#X#x#X#%'")
     DatabaseEquipmentMininmal findMinimalItemByID(int id);
 
-    @Query("SELECT id, name, position FROM equipment WHERE categoryId LIKE :id")
-    LiveData<List<DatabaseEquipmentMininmal>> findItemByCatID(int id);
+    @Query("SELECT id, name, position FROM equipment WHERE categoryId LIKE :id AND `group` LIKE :groupKey AND NOT name LIKE '%#X#x#X#%'")
+    LiveData<List<DatabaseEquipmentMininmal>> findItemByCatID(int id, String groupKey);
 
-    @Query("SELECT id, name, position FROM equipment")
+    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%'")
     LiveData<List<DatabaseEquipmentMininmal>> getMinimalItems();
 
     @Query("SELECT COUNT(id) FROM equipment")
     LiveData<Integer> countItems();
 
-    //Query für das Suchfeld TODO: Einbinden!
-    @Query("SELECT id, name, position FROM equipment WHERE keywords LIKE :key OR name LIKE :key")
+    //Query für das Suchfeld
+    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords LIKE :key OR name LIKE :key OR mSetName LIKE :key)")
     LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key);
 
 
-    //DAO für die Trays
+    //=======================================================
+    //======================DAO TRAYS========================
+    //=======================================================
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTray(TrayItem tray);
 
-    @Query("SELECT * FROM tray")
-    LiveData<List<TrayItem>> getAllTrays();
+    @Query("SELECT * FROM tray WHERE NOT name LIKE '%#X#x#X#%' AND `group` LIKE :groupKey")
+    LiveData<List<TrayItem>> getAllTrays(String groupKey);
 
     @Query("DELETE FROM tray")
     void deleteTray();
 
+    @Query("DELETE FROM tray WHERE `group` LIKE :groupKey")
+    void deleteTrayByGroup(String groupKey);
+
     @Query("SELECT COUNT(id) FROM tray")
     LiveData<Integer> countTrays();
 
-    @Query("SELECT * FROM tray WHERE id LIKE :id")
+    @Query("SELECT * FROM tray WHERE id LIKE :id AND NOT name LIKE '%#X#x#X#%'")
     LiveData<TrayItem> getTrayById(int id);
 
     //    @Query("SELECT positions FROM tray WHERE id LIKE :id")
@@ -97,7 +106,10 @@ public interface DatabaseDAO {
 //    LiveData<List<Integer>> getPositionCoordinates(int id);
 
 
-    //DAO für Image
+    //=======================================================
+    //======================DAO IMAGE========================
+    //=======================================================
+
     @Query("SELECT COUNT(id) FROM image")
     LiveData<Integer> countImage();
 
@@ -112,6 +124,9 @@ public interface DatabaseDAO {
 
     @Query("DELETE FROM image")
     void deleteImage();
+
+    @Query("DELETE FROM image WHERE `group` LIKE :groupKey")
+    void deleteImageByGroup(String groupKey);
 
     @Query("SELECT * FROM image WHERE categoryId LIKE :id")
     LiveData<ImageItem> getImageByCatID(int id);

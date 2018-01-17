@@ -46,7 +46,7 @@ public class DatabaseRepository {
         return daoObject.findItemByID(id);
     }
 
-    public LiveData<List<DatabaseEquipmentMininmal>> getItemByCatID(int id) {return daoObject.findItemByCatID(id);}
+    public LiveData<List<DatabaseEquipmentMininmal>> getItemByCatID(int id, String group) {return daoObject.findItemByCatID(id, group);}
 
     public void deleteItem(int id) {
         daoObject.deleteItem(id);
@@ -54,15 +54,23 @@ public class DatabaseRepository {
 
     public void deleteAllItems() {daoObject.deleteAllItems();}
 
+    public void deleteItemByGroup(String groupKey) {daoObject.deleteItemByGroup(groupKey);}
+
     public LiveData<Integer> countItems() {return daoObject.countItems();}
 
     public LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key) {return daoObject.searchItemsMinimal(key);}
 
+
+
+
+
     public void add(TrayItem object) {daoObject.insertTray(object);}
 
     public void deleteAllTrays() {daoObject.deleteTray();}
+    
+    public void deleteTrayByGroup(String groupKey) {daoObject.deleteTrayByGroup(groupKey);}
 
-    public LiveData<List<TrayItem>> getTrays() {return daoObject.getAllTrays();}
+    public LiveData<List<TrayItem>> getTrays(String group) {return daoObject.getAllTrays(group);}
 
     public LiveData<Integer> countTrays() {return daoObject.countTrays();}
 
@@ -75,6 +83,8 @@ public class DatabaseRepository {
     public LiveData<ImageItem> getImageByID(int id) {return daoObject.findImageByID(id);}
 
     public void deleteAllImages() {daoObject.deleteImage();}
+
+    public void deleteImageByGroup(String groupKey) {daoObject.deleteImageByGroup(groupKey);}
 
     public void add(ImageItem imageItem) {daoObject.insertImages(imageItem);}
 

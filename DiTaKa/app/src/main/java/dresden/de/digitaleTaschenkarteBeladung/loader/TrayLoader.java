@@ -12,7 +12,7 @@
 
     For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
 
-package dresden.de.digitaleTaschenkarteBeladung.util;
+package dresden.de.digitaleTaschenkarteBeladung.loader;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
@@ -31,17 +31,21 @@ public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
 
     private String url;
     private int version;
+    private String group;
+    private String newGroup;
 
-    public TrayLoader(Context context, String url, int version){
+    public TrayLoader(Context context, String url, int version, String group, String newGroup){
         super(context);
         this.url = url;
         this.version = version;
+        this.group = group;
+        this.newGroup = newGroup;
     }
 
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<TrayItem> loadInBackground() {
-        return Util_Http.requestTray(url, version);
+        return Util_Http.requestTray(url, version, group, newGroup);
     }
 
     @Override
