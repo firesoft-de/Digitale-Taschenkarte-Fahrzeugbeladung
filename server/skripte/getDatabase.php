@@ -44,7 +44,7 @@
 	if (isset($_GET['dbversion'])) {
 		$clientdbVersion = $_GET['dbversion'];}
 	else {
-		$clientdbVersion = "";
+		$clientdbVersion = "-1";
 	}
 	
 	//Gruppe abfragen

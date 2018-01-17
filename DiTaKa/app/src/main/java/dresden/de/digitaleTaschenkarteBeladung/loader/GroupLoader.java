@@ -12,18 +12,16 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 public class GroupLoader extends AsyncTaskLoader<ArrayList<String>> {
 
     private String url;
-    private int version;
 
-    public GroupLoader(Context context, String url, int version) {
+    public GroupLoader(Context context, String url) {
         super(context);
         this.url = url;
-        this.version = version;
     }
 
     @Nullable
     @Override
     public ArrayList<String> loadInBackground() {
-        return Util_Http.requestGroups(url,version);
+        return Util_Http.requestGroups(url);
     }
 
     @Override
