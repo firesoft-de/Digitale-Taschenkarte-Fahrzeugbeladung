@@ -226,6 +226,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
+
+        drawElevation(result, null,false);
+
         // Inflate the layout for this fragment
         return result;
     }
@@ -238,8 +241,11 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         //addGroupToSelection(activity.groups_subscribed,true);
 
+        drawElevation(view, null,false);
+
         //URL Fehler ausblenden
         toggleURLError(false);
+
     }
 
     @Override
@@ -322,7 +328,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                         addGroupToSelection((ArrayList<String>) data,false);
                         publishProgress(true,false);
                         groupSelectionCompleted = true;
-
                     }
                     downloadsCompleted += 1;
                 } else {
@@ -418,6 +423,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             EditText editText = getActivity().findViewById(R.id.text_url);
             if (editText.getText().toString().equals("")) {
                 publishProgress(true,true);
+                toggleURLError(true);
                 Snackbar.make(activity.findViewById(R.id.MainFrame),R.string.data_url_error,Snackbar.LENGTH_LONG)
                         .show();
                 return;
@@ -623,16 +629,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             errorTV.setVisibility(View.VISIBLE);
 
             //Drawables für Elevation neu setzen, um einen Anzeigefehler zu verhindern
-            Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
-
-            CardView card = getActivity().findViewById(R.id.card1);
-            card.setBackground(drawable);
-
-            card = getActivity().findViewById(R.id.card2);
-            card.setBackground(drawable);
-
-            card = getActivity().findViewById(R.id.cardGroup);
-            card.setBackground(drawable);
+            drawElevation(null, getActivity(),groupSelectionCompleted);
 
         }
         else {
@@ -651,6 +648,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             card.setVisibility(View.VISIBLE);
             card.setMinimumHeight(30);
+
+            drawElevation(null,getActivity(),true);
 
             ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
@@ -718,6 +717,48 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             default:
         }
+    }
+
+    private void drawElevation(View view, Activity activity, boolean groupVisible) {
+
+        if (view != null) {
+            Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+
+            CardView card = view.findViewById(R.id.card1);
+            card.setBackground(drawable);
+
+            drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+
+            card = view.findViewById(R.id.card2);
+            card.setBackground(drawable);
+
+            drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+
+            if (groupVisible) {
+                card = view.findViewById(R.id.cardGroup);
+                card.setBackground(drawable);
+            }
+        }
+        else if (activity != null) {
+            Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+
+            CardView card = activity.findViewById(R.id.card1);
+            card.setBackground(drawable);
+
+            drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+
+            card = activity.findViewById(R.id.card2);
+            card.setBackground(drawable);
+
+            drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+
+            if (groupVisible) {
+                card = activity.findViewById(R.id.cardGroup);
+                card.setBackground(drawable);
+            }
+        }
+
+
     }
 }
 

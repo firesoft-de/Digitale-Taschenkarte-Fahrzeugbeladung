@@ -72,25 +72,28 @@ public class GroupManager {
      */
     public void saveGroupsToPref() {
         //Abonnierte Gruppe speichern
-        SharedPreferences.Editor editor = parentActivity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-        StringBuilder saveString = new StringBuilder();
 
-        for (String group: subscribedGroups
-                ) {
-            saveString.append(group);
-            saveString.append(";");
+        if (subscribedGroups.size() > 0) {
+            SharedPreferences.Editor editor = parentActivity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+            StringBuilder saveString = new StringBuilder();
+
+            for (String group : subscribedGroups
+                    ) {
+                saveString.append(group);
+                saveString.append(";");
+            }
+
+            //Abschließendes ; entfernen
+            saveString.deleteCharAt(saveString.length() - 1);
+            //Speichern
+            editor.putString(PREFS_GROUPS, saveString.toString());
+            editor.apply();
+
+            //Aktive Gruppe speichern
+            editor = parentActivity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+            editor.putString(PREFS_ACTIVE_GROUP, activeGroup);
+
         }
-
-        //Abschließendes ; entfernen
-        saveString.deleteCharAt(saveString.length() - 1);
-        //Speichern
-        editor.putString(PREFS_GROUPS,saveString.toString());
-        editor.apply();
-
-        //Aktive Gruppe speichern
-        editor = parentActivity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-        editor.putString(PREFS_ACTIVE_GROUP, activeGroup);
-        editor.apply();
     }
 
     //=======================================================
