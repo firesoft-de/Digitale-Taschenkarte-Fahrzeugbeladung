@@ -1,0 +1,11 @@
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\bin\Debug\DesktopConverter.exe.config
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\bin\Debug\DesktopConverter.exe
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\bin\Debug\DesktopConverter.pdb
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\bin\Debug\DesktopConverter.xml
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.vbproj.ResolveComReference.cache
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.Resources.resources
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.vbproj.GenerateResource.Cache
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.vbproj.CoreCompileInputs.cache
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.exe
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.xml
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.pdb
