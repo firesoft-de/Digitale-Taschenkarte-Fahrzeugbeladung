@@ -2,7 +2,7 @@
 <resources>
 
     <!--Dimensionen list_item-->
-    <dimen name="list_item_height">120dp</dimen>
+    <dimen name="list_item_height">160dp</dimen>
     <dimen name="list_item_height_min">80dp</dimen>
 
     <dimen name="text_size_highlight">18sp</dimen>
