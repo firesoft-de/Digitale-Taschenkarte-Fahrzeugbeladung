@@ -15,8 +15,11 @@
 package dresden.de.digitaleTaschenkarteBeladung.dataStructure;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,32 +46,39 @@ public class ItemAdapter extends ArrayAdapter<DatabaseEquipmentMininmal> {
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(int position, @Nullable View view, @NonNull ViewGroup parent) {
 
-            View listItemView = convertView;
+        Trace.beginSection("itemAdapter getView");
 
-            if (listItemView == null) {
-                listItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
-            }
+        Trace.beginSection("inflating View");
+        if (view == null) {
+            LayoutInflater inflater =LayoutInflater.from(getContext());
+            view = inflater.inflate(R.layout.list_item, parent, false);
+        }
+        Trace.endSection();
 
-            DatabaseEquipmentMininmal currentItem = getItem(position);
+        Trace.beginSection("Call ItemByPosition");
+        DatabaseEquipmentMininmal currentItem = getItem(position);
+        Trace.endSection();
 
-            TextView tvItemName = (TextView) listItemView.findViewById(R.id.listItem_tv_name);
 
-            tvItemName.setText(currentItem.name);
+        Trace.beginSection("Set Data");
+        TextView tvItemName = (TextView) view.findViewById(R.id.listItem_tv_name);
 
-            TextView tvItemPosition = (TextView) listItemView.findViewById(R.id.listItem_tv_position);
-            tvItemPosition.setText(currentItem.position);
+        tvItemName.setText(currentItem.name);
 
-            //Weiterpfeil ausblenden
-            ImageView continueArrow = (ImageView) listItemView.findViewById(R.id.imageView2);
-//            continueArrow.setVisibility(View.GONE);
+        TextView tvItemPosition = (TextView) view.findViewById(R.id.listItem_tv_position);
+        tvItemPosition.setText(currentItem.position);
 
-            //ImageView ausblenden
-            ImageView previewImage = (ImageView) listItemView.findViewById(R.id.imageView);
-            previewImage.setVisibility(View.GONE);
+        Trace.endSection();
 
-            return listItemView;
+//        //ImageView ausblenden
+//        ImageView previewImage = (ImageView) listItemView.findViewById(R.id.imageView);
+//        previewImage.setVisibility(View.GONE);
+
+        Trace.endSection();
+
+        return view;
 
     }
 

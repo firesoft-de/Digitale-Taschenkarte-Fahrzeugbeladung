@@ -20,7 +20,9 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Parcelable;
+import android.os.Trace;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -88,6 +90,10 @@ public class ItemFragment extends Fragment {
 
         MainActivity activity = (MainActivity) getActivity();
 
+//        if (activity.DEBUG_ENABLED) {
+//            Debug.startMethodTracing("sample");
+//        }
+
         //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
         itemViewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(ItemViewModel.class);
@@ -116,6 +122,10 @@ public class ItemFragment extends Fragment {
                 changeSorting(sort);
             }
         });
+
+//        if (activity.DEBUG_ENABLED) {
+//            Debug.stopMethodTracing();
+//        }
 
     }
 
@@ -162,6 +172,8 @@ public class ItemFragment extends Fragment {
 
     private void insertData(@Nullable ArrayList<EquipmentItem> equipmentItems, @Nullable List<DatabaseEquipmentMininmal> minimalItem) {
 
+        Trace.beginSection("insertData");
+
         if (equipmentItems == null && minimalItem != null) {
             itemList = (ArrayList<DatabaseEquipmentMininmal>) minimalItem;
 
@@ -179,6 +191,7 @@ public class ItemFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
+                Trace.beginSection("LV ItemClickListener");
                 DatabaseEquipmentMininmal item = itemList.get(i);
 
                 DetailFragment detailFragment = new DetailFragment();
@@ -190,6 +203,8 @@ public class ItemFragment extends Fragment {
 
                 masterCallback.switchFragment(R.id.MainFrame,detailFragment, Util.FRAGMENT_DETAIL);
 
+                Trace.endSection();
+
             }
         });
 
@@ -199,10 +214,13 @@ public class ItemFragment extends Fragment {
             lv.onRestoreInstanceState(state);
         }
 
+        Trace.endSection();
+
     }
 
     private void setData(List<DatabaseEquipmentMininmal> items, @Nullable ListView lv) {
 
+        Trace.beginSection("setData");
         itemList = (ArrayList<DatabaseEquipmentMininmal>) items;
 
         itemAdapter = new ItemAdapter(getActivity(),(ArrayList) items);
@@ -212,6 +230,9 @@ public class ItemFragment extends Fragment {
         }
 
         lv.setAdapter(itemAdapter);
+
+        Trace.endSection();
+
     }
 
     /**

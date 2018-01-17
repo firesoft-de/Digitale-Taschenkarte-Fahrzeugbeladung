@@ -203,6 +203,7 @@ public class DetailFragment extends Fragment {
                     }
                     else {
                         //Wenn das Trayitem schon geladen wurde direkt die Bildbearbeitung beginnen
+
                         modifyBitmap();
                     }
                 }
@@ -221,6 +222,7 @@ public class DetailFragment extends Fragment {
                     }
                     else {
                         //Wenn das ImageItem schon geladen wurde direkt die Bildbearbeitung beginnen
+
                         modifyBitmap();
                     }
                 }

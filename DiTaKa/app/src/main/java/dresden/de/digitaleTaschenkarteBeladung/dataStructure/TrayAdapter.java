@@ -60,9 +60,9 @@ public class TrayAdapter extends ArrayAdapter<TrayItem> {
         TextView tvItemPosition = (TextView) listItemView.findViewById(R.id.listItem_tv_position);
         tvItemPosition.setText(currentItem.getDescription());
 
-        //ImageView ausblenden
-        ImageView previewImage = (ImageView) listItemView.findViewById(R.id.imageView);
-        previewImage.setVisibility(View.GONE);
+//        //ImageView ausblenden
+//        ImageView previewImage = (ImageView) listItemView.findViewById(R.id.imageView);
+//        previewImage.setVisibility(View.GONE);
 
         //Beim ersten Start soll das Weiter Icon ausgeblendet werden
 
