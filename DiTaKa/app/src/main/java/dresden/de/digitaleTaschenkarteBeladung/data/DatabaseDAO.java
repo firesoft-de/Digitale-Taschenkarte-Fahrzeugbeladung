@@ -75,7 +75,7 @@ public interface DatabaseDAO {
     LiveData<Integer> countItems();
 
     //Query für das Suchfeld
-    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords OR name OR mSetName LIKE :key)")
+    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords LIKE :key OR name LIKE :key OR mSetName LIKE :key)")
     LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key);
 
 

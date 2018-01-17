@@ -8,35 +8,41 @@
     android:maxHeight="@dimen/list_item_height"
     android:minHeight="@dimen/list_item_height_min"
     android:orientation="horizontal"
-    android:padding="8dp"
+    android:padding="@dimen/margin_supersmall"
     android:gravity="center_vertical"
     android:baselineAligned="true">
 
     <TextView
         android:id="@+id/listItem_tv_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="Latthammer "
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
         android:maxLines="2"
-        android:textSize="@dimen/text_size_highlight"
+        android:textAlignment="viewStart"
         android:textColor="@color/text"
-        android:layout_marginTop="@dimen/margin_small"
+        android:textSize="@dimen/text_size_highlight"
+        app:layout_constraintBottom_toTopOf="@+id/listItem_tv_position"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="@dimen/margin_normal"/>
+        tools:text="Latthammer mit einem ganz ganz ganz ganz langen Titel" />
 
     <TextView
         android:id="@+id/listItem_tv_position"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="Geräteraum 6 - Kiste 6.3 - ASDASDASDASDASDASD - ASDASDASDASDASD"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
         android:maxLines="3"
-        android:textSize="@dimen/text_size_small"
+        android:textAlignment="viewStart"
         android:textColor="@color/text"
-        app:layout_constraintTop_toBottomOf="@+id/listItem_tv_name"
+        android:textSize="@dimen/text_size_small"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="@dimen/margin_normal"/>
+        app:layout_constraintTop_toBottomOf="@+id/listItem_tv_name"
+        tools:text="Geräteraum 6 - Kiste 6.3 - ASDASDASDASDASDASD - ASDASDASDASDASD" />
 
     <ImageView
         android:id="@+id/imageView2"
