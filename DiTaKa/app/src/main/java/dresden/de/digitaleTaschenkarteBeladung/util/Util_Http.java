@@ -260,11 +260,10 @@ public class Util_Http {
     }
 
 
-    public static ArrayList<String> requestGroups(String url, int version) {
+    public static ArrayList<String> requestGroups(String url) {
         ArrayList<String> list = new ArrayList<>();
 
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
-                version + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_GROUP);
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_TABLE + SERVER_TABLE_GROUP);
 
         InputStream stream = httpsRequester(urlV);
         String response = readStream(stream);
