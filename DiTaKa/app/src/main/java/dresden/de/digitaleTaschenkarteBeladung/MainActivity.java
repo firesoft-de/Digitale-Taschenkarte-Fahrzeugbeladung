@@ -45,6 +45,7 @@ import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
 import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.loader.VersionLoader;
@@ -70,11 +71,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     private FragmentManager fManager;
     private LoaderManager lManager;
 
-    public int dbVersion;
-    public String url;
+
     public Util.DbState dbState;
 
     public GroupManager gManager;
+    public PreferencesManager pManager;
 
     public MutableLiveData<Integer> liveNetDBVersion;
     public MutableLiveData<Util.Sort> liveSort;
@@ -96,32 +97,33 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
         DEBUG_ENABLED = BuildConfig.DEBUG;
 
-        fManager = this.getSupportFragmentManager();
-
-        lManager = this.getSupportLoaderManager();
-
-        dbVersion = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getInt(Util.PREFS_DBVERSION,-1);
-        url = this.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).getString(Util.PREFS_URL,"NO_URL_FOUND");
-
-        //Abonnierte Gruppen laden
-        gManager = new GroupManager(this);
-        gManager.loadGroupsFromPref();
-
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
         liveNetDBVersion = new MutableLiveData<>();
         liveNetDBVersion.setValue(-1);
 
         liveSort = new MutableLiveData<>();
-        liveSort.setValue(Util.loadSortPref(this));
 
-        if (url == "NO_URL_FOUND") {
+        //Manager initalisieren
+        fManager = this.getSupportFragmentManager();
+        lManager = this.getSupportLoaderManager();
+        pManager = new PreferencesManager(this);
+
+        //PREFS laden
+        pManager.load();
+
+        //Abonnierte Gruppen laden
+        gManager = new GroupManager(this);
+        gManager.loadGroupsFromPref();
+
+
+        if (pManager.getUrl() == "NO_URL_FOUND") {
             //Kein SERVER-URL gefunden (App wird das erste Mal gestartet) -> Keine internen Datenbankabfragen durchführen sondern Dummy Tray mit Hinweisen für die Erstbenutzung anzeigen!
             dbState = Util.DbState.CLEAN;
-            dbVersion = 0;
+            pManager.setDbVersion(0);
         }
-        else if (dbVersion == -1) {
+        else if (pManager.getDbVersion() == -1) {
             dbState = Util.DbState.CLEAN;
-            dbVersion = 0;
+            pManager.setDbVersion(0);
             if (Util_Http.checkNetwork(this,this)) {
                 getNetDBState(null,true);
             }
@@ -328,19 +330,19 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
             case R.id.SortAZ:
                 liveSort.postValue(Util.Sort.AZ);
-                Util.saveSortPref(Util.Sort.AZ,this);
+                pManager.save();
                 item.setChecked(true);
                 return true;
 
             case R.id.SortZA:
                 liveSort.postValue(Util.Sort.ZA);
-                Util.saveSortPref(Util.Sort.ZA,this);
+                pManager.save();
                 item.setChecked(true);
                 return true;
 
             case R.id.SortXY:
                 liveSort.postValue(Util.Sort.PRESET);
-                Util.saveSortPref(Util.Sort.PRESET,this);
+                pManager.save();
                 item.setChecked(true);
                 return true;
 
@@ -398,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         int netDBVersion = (int) data;
 
         if ((int) data != -1) {
-            if (netDBVersion > dbVersion) {
+            if (netDBVersion > pManager.getDbVersion()) {
                 //Eine neue Datenbankversion ist verfügbar!
                 dbState = Util.DbState.EXPIRED;
 
@@ -406,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                     Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_db_update_available, Snackbar.LENGTH_LONG)
                             .show();
                 }
-            } else if (netDBVersion == dbVersion) {
+            } else if (netDBVersion == pManager.getDbVersion()) {
                 dbState = Util.DbState.VALID;
             } else {
                 dbState = Util.DbState.UNKNOWN;
@@ -472,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         Bundle args = new Bundle();
 
         if (url == null) {
-        args.putString(Util.ARGS_URL,this.url);
+        args.putString(Util.ARGS_URL,pManager.getUrl());
         }
         else {
             args.putString(Util.ARGS_URL,url);
@@ -524,10 +526,10 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                     if (newFragment) {
                        fragment = new DataImportFragment();
                     }
-                    if (url != "" || dbVersion == -1) {
+                    if (pManager.getUrl() != "" || pManager.getDbVersion() == -1) {
                         Bundle args = new Bundle();
-                        args.putString(Util.ARGS_URL,url);
-                        args.putInt(Util.ARGS_VERSION,dbVersion);
+                        args.putString(Util.ARGS_URL, pManager.getUrl());
+                        args.putInt(Util.ARGS_VERSION, pManager.getDbVersion());
                         fragment.setArguments(args);
                     }
                     else {

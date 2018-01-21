@@ -39,6 +39,7 @@ import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
@@ -591,9 +592,6 @@ public class Util_Http {
      * @return Die bearbietete URL
      */
     public static String handleURL(String url, Activity activity) {
-        //Den PREF Manager initaliseren
-        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-
         //https einfügen falls nicht vorhanden
         if (!url.contains("http://") && !url.contains("https://")) {
             //TODO: ACHTUNG! AUS PERFORMANCEGRÜNDEN WIRD DER HTTPS REQUEST HIER ÜBERSCHRIEBEN!!
@@ -605,8 +603,9 @@ public class Util_Http {
             url = (String) url.subSequence(0, url.length() - 3);
         }
 
-        editor.putString(Util.PREFS_URL, url);
-        editor.apply();
+        MainActivity parent = (MainActivity) activity;
+        parent.pManager.setUrl(url);
+        parent.pManager.save();
 
         return url;
     }

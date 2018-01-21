@@ -198,7 +198,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 if (integer != -1) {
 
-                    activity.url = url;
+                    activity.pManager.setUrl(url);
 
                     if (!initLoaderAfterNetVersionRefresh) {
                         updateNetVersion(integer, null);
@@ -364,14 +364,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 GroupManager gManager = activity.gManager;
 
-                //Preferences aktualisieren
-                SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-                editor.putInt(Util.PREFS_DBVERSION, activity.dbVersion);
-                editor.apply();
-
-                //Angezeigte Datenbankversion aktualisieren
-                updateDBVersion(dbversion, null);
-
                 //Wird nur benötigt, falls der erste Download abgeschlossen wurde. Wird aber trotzdem zur Sicherheit immer true gesetzt
                 activity.FirstDownloadCompleted = true;
 
@@ -389,10 +381,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                         .show();
 
                 //Variablen aktualisieren
-                activity.dbVersion = activity.liveNetDBVersion.getValue();
+                activity.pManager.setDbVersion(activity.liveNetDBVersion.getValue());
                 activity.dbState = Util.DbState.VALID;
-                dbversion = activity.dbVersion;
+                dbversion = activity.pManager.getDbVersion();
 
+                //Preferences speichern
+                activity.pManager.save();
+
+                //Angezeigte Datenbankversion aktualisieren
                 updateDBVersion(dbversion,null);
 
                 //Aufräumen

@@ -53,11 +53,6 @@ public class Util {
     public static final String ARGS_DBSTATE = "ARGS_DBSTATE";
     public static final String ARGS_CALLFORUSER = "ARGS_CALLFORUSER";
 
-    public static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
-    public static final String PREFS_URL="url";
-    public static final String PREFS_DBVERSION="dbversion";
-    public static final String PREFS_SORT="sort";
-
     private static final String FILE_DESTINATION_IMAGE = "image";
 
     public static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.de.html";
@@ -139,7 +134,7 @@ public class Util {
         return null;
     }
 
-    public static void saveSortPref(Sort sort, Activity activity) {
+/*    public static void saveSortPref(Sort sort, Activity activity) {
         SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
 
         switch (sort) {
@@ -155,9 +150,9 @@ public class Util {
         }
 
         editor.apply();
-    }
+    }*/
 
-    public static Sort loadSortPref(Activity activity) {
+/*    public static Sort loadSortPref(Activity activity) {
         int pref = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(PREFS_SORT, 0);
         switch (pref) {
             default:
@@ -167,11 +162,19 @@ public class Util {
             case 2:
                 return Sort.ZA;
         }
-    }
+    }*/
 
-    public static void deletePref(Context context) {
+/*    public static void deletePref(Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE).edit();
         editor.clear();
         editor.apply();
-    }
+    }*/
+
+//    public static void saveBasicPrefs(MainActivity activity) {
+//        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
+//        editor.putString(PREFS_URL, activity.url);
+//        editor.putInt(PREFS_DBVERSION, activity.dbVersion);
+//        editor.apply();
+//    }
+
 }
