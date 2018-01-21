@@ -107,12 +107,8 @@ public class AboutFragment extends Fragment {
 
         viewModel.deleteAll();
         MainActivity activity = (MainActivity) getActivity();
-        activity.dbVersion = -1;
-        activity.url = "NO_URL_FOUND";
-        activity.liveNetDBVersion.setValue(0);
-        activity.dbState = Util.DbState.CLEAN;
-
-        activity.gManager.delete(getContext());
+        activity.gManager.delete();
+        activity.pManager.reset();
 
         Snackbar.make(getActivity().findViewById(R.id.MainFrame), "Die App wurde erfolgreich zurückgesetzt", Snackbar.LENGTH_SHORT)
                 .show();
