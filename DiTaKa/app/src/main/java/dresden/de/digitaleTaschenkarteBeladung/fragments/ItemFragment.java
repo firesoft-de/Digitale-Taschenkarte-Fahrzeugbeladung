@@ -44,6 +44,7 @@ import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.ItemAdapter;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
@@ -58,6 +59,8 @@ public class ItemFragment extends Fragment {
 
     public final static  String BUNDLE_TAG_ITEMS="bundleItems";
     public final static  String BUNDLE_TAG_DETAIL="bundleDetail";
+
+    private boolean noItems = false;
 
     private int catID;
 
@@ -172,13 +175,20 @@ public class ItemFragment extends Fragment {
 
     private void insertData(@Nullable ArrayList<EquipmentItem> equipmentItems, @Nullable List<DatabaseEquipmentMininmal> minimalItem) {
 
+        if ((equipmentItems == null && minimalItem == null) || (equipmentItems == null && minimalItem.size() == 0)) {
+            noItems = true;
+            DatabaseEquipmentMininmal mininmal = new DatabaseEquipmentMininmal();
+            mininmal.setName("Keine verfügbaren Daten");
+            mininmal.setPosition("Für diesen Eintrag sind keine Daten verfügbar");
+
+            minimalItem.add(mininmal);
+        }
         Trace.beginSection("insertData");
 
         if (equipmentItems == null && minimalItem != null) {
             itemList = (ArrayList<DatabaseEquipmentMininmal>) minimalItem;
 
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Es darf nur ein Argument der Methode insertData null sein!");
         }
 
@@ -191,31 +201,32 @@ public class ItemFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                Trace.beginSection("LV ItemClickListener");
-                DatabaseEquipmentMininmal item = itemList.get(i);
+                if (!noItems) {
+                    Trace.beginSection("LV ItemClickListener");
+                    DatabaseEquipmentMininmal item = itemList.get(i);
 
-                DetailFragment detailFragment = new DetailFragment();
-                Bundle bundle = new Bundle();
+                    DetailFragment detailFragment = new DetailFragment();
+                    Bundle bundle = new Bundle();
 
-                bundle.putInt(BUNDLE_TAG_DETAIL, item.getId());
+                    bundle.putInt(BUNDLE_TAG_DETAIL, item.getId());
 
-                detailFragment.setArguments(bundle);
+                    detailFragment.setArguments(bundle);
 
-                masterCallback.switchFragment(R.id.MainFrame,detailFragment, Util.FRAGMENT_DETAIL);
+                    masterCallback.switchFragment(R.id.MainFrame, detailFragment, Util.FRAGMENT_DETAIL);
 
-                Trace.endSection();
+                    Trace.endSection();
+                }
 
             }
         });
 
         // Restore previous state (including selected item index and scroll position)
         // https://stackoverflow.com/questions/3014089/maintain-save-restore-scroll-position-when-returning-to-a-listview/5688490#5688490
-        if(state != null) {
+        if (state != null) {
             lv.onRestoreInstanceState(state);
         }
 
         Trace.endSection();
-
     }
 
     private void setData(List<DatabaseEquipmentMininmal> items, @Nullable ListView lv) {
