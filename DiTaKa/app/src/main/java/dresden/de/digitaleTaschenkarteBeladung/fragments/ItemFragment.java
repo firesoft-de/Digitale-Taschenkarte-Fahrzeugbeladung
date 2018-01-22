@@ -104,7 +104,7 @@ public class ItemFragment extends Fragment {
 
             catID =  args.getInt(BUNDLE_TAG_ITEMS);
             //Observer einrichten
-            itemViewModel.getItemsByCatID(catID, activity.gManager.getActiveGroup()).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+            itemViewModel.getItemsByCatID(catID, activity.gManager.getActiveGroup().getName()).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
                 @Override
                 public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
                         insertData(null,items);
