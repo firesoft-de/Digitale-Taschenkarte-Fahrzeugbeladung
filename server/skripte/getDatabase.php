@@ -61,12 +61,12 @@
 	else {
 		$fullgroups = "";
 	}
-	
+		
 	$fullgroup = "";
 	
 	//Downloadmodus abfragen
-	if (isset($_GET['loadFullGroup'])) {
-		$fullgroup = $_GET['loadFullGroup'];}
+	if (isset($_GET['loadfullgroup'])) {
+		$fullgroup = $_GET['loadfullgroup'];}
 	
 	//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
 	switch ($table_input) {
@@ -135,7 +135,7 @@
 		
 	$stmt->bindParam(':dbversion', $dbversion, PDO::PARAM_INT);
 			
-	if ($dbtable != "groupx" && $fullgroup != 1) {
+	if ($dbtable != "groupx") {
 		$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
 	}
 	
@@ -164,8 +164,7 @@
 		$results["OUTPUT"][] = $row;
  
 	}
-	
-	
+		
 	
 	
 	//Falls ein vollständiger Download von Gruppen angefragt wurde, wird dieser nun bearbeitet
@@ -175,8 +174,9 @@
 		$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version <= :dbversion";
 	}	
 	
-	if ($fullgroup != null && $fullgroup != ""){	
-		$queryString = $queryString . " AND (" . builtGroupQueryByName($fullgroup);
+	if ($fullgroups != null && $fullgroups != ""){	
+		var_dump($fullgroup);
+		$queryString = $queryString . " AND (" . builtGroupQueryByName($fullgroups);
 	}
 	
 	//Datenbankabfrage vorbereiten
@@ -245,5 +245,6 @@
     // }
 	
 	print($json);	
+
 		
 ?>

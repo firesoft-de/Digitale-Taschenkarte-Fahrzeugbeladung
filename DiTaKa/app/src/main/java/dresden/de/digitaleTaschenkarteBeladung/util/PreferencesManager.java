@@ -18,8 +18,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import dresden.de.digitaleTaschenkarteBeladung.BuildConfig;
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
+import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 
 /**
  * Der PreferencesManager ist für das Laden der Einstellungen aus den PREFS zuständig. Er gewährleistet dabei die Kompatibilität zu alten App-Versionen
@@ -40,6 +48,8 @@ public class PreferencesManager {
     private static final String PREFS_DBVERSION="dbversion";
     private static final String PREFS_SORT="sort";
     private static final String PREFS_VERSION="version";
+    private static final String PREFS_GROUPS="groups";
+    public static final String PREFS_ACTIVE_GROUP="activegroup";
 
 
     public PreferencesManager(Activity parent) {
@@ -59,10 +69,11 @@ public class PreferencesManager {
             case 11:
                 //Version 0.4.3
                 loadv11();
+                outdatedPref = true;
                 break;
             case 12:
                 //Version 0.5
-                loadv11();
+                loadv12();
                 break;
         }
 
@@ -78,10 +89,12 @@ public class PreferencesManager {
             delete();
         }
 
+        //Allgemeine Einstellungen
         editor.putString(PREFS_URL, url);
         editor.putInt(PREFS_DBVERSION, dbVersion);
         editor.putInt(PREFS_VERSION, BuildConfig.VERSION_CODE);
 
+        //Sortierung
         switch (parent.liveSort.getValue()) {
             case PRESET:
                 editor.putInt(PREFS_SORT,0);
@@ -94,8 +107,32 @@ public class PreferencesManager {
                 break;
         }
 
-        editor.apply();
 
+
+        //Gruppe
+        GroupManager gManager = parent.gManager;
+
+        if (gManager.getSubscribedGroups().size() > 0) {
+
+            JSONArray jsonArray = new JSONArray();
+
+            for (Group group : gManager.getSubscribedGroups())
+            {
+                jsonArray.put(group.toJSON());
+            }
+
+            try {
+                JSONObject object = new JSONObject();
+                object.put("GROUPS",jsonArray);
+                //Speichern
+                editor.putString(PREFS_GROUPS, object.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        editor.apply();
     }
 
     public void delete() {
@@ -140,9 +177,11 @@ public class PreferencesManager {
 
         SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
+        //Allgemeine Einstellungen
         dbVersion = preferences.getInt(PREFS_DBVERSION,-1);
         url = preferences.getString(PREFS_URL,"NO_URL_FOUND");
 
+        //Sortierung
         int pref = preferences.getInt(PREFS_SORT, 0);
         switch (pref) {
             default:
@@ -156,7 +195,72 @@ public class PreferencesManager {
                 break;
         }
 
+        //Gruppen laden
+        GroupManager gManager = parent.gManager;
+        String saveString = preferences.getString(PREFS_GROUPS,"");
+        ArrayList<String> subscribedGroups = new ArrayList<>();
+
+        if (!saveString.equals("")) {
+            String[] array = saveString.split(";");
+            subscribedGroups.addAll(Arrays.asList(array));
+        }
+
+        int index = 0;
+        for (String name: subscribedGroups) {
+
+            Group group = new Group(index,name,true);
+            gManager.add(group);
+            index += 1;
+        }
+
+        //Aktive Gruppe laden
+        gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP,""));
     }
 
+    public void loadv12() {
+
+        SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        //Allgemeine Einstellungen
+        dbVersion = preferences.getInt(PREFS_DBVERSION,-1);
+        url = preferences.getString(PREFS_URL,"NO_URL_FOUND");
+
+        //Sortierung
+        int pref = preferences.getInt(PREFS_SORT, 0);
+        switch (pref) {
+            default:
+                parent.liveSort.setValue(Util.Sort.PRESET);
+                break;
+            case 1:
+                parent.liveSort.setValue(Util.Sort.AZ);
+                break;
+            case 2:
+                parent.liveSort.setValue(Util.Sort.ZA);
+                break;
+        }
+
+        //Gruppen laden
+        GroupManager gManager = parent.gManager;
+        String json = preferences.getString(PREFS_GROUPS,"");
+
+        JSONArray array = new JSONArray();
+        try {
+            JSONObject object = new JSONObject(json);
+            array = object.getJSONArray("GROUPS");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < array.length(); i++)
+        {
+            try {
+                Group group = new Group((JSONObject) array.get(i));
+                gManager.add(group);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 }

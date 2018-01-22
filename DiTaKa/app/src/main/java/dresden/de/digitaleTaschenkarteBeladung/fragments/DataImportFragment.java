@@ -48,6 +48,7 @@ import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.loader.GroupLoader;
@@ -55,6 +56,7 @@ import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.loader.ImageLoader;
 import dresden.de.digitaleTaschenkarteBeladung.loader.ItemLoader;
 import dresden.de.digitaleTaschenkarteBeladung.loader.TrayLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
@@ -136,14 +138,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         url = this.getArguments().getString(Util.ARGS_URL);
         dbversion = this.getArguments().getInt(Util.ARGS_VERSION);
 
-//        //ClickListener für das Hinzufügen der Daten einbauen
-//        Button dataButton = result.findViewById(R.id.DataButton);
-//        dataButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                buttonAddClick(false);
-//            }
-//        });
 
         //Progressbar einrichten
         ProgressBar progressBar = result.findViewById(R.id.DataProgress);
@@ -286,7 +280,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             default:
                 //Irgendwas ist schief gegangen -> Falsche ID
-                LogError(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
+                LogError(LOG_TAG, "Fehler beim Starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
                 return null;
         }
     }
@@ -330,9 +324,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             case GROUP_LOADER:
                 if (data != null) {
-                    if (((ArrayList<String>) data).size() != 0) {
+                    if (((ArrayList<Group>) data).size() != 0) {
 
-                        addGroupToSelection((ArrayList<String>) data,false);
+                        addGroupToSelection((ArrayList<Group>) data,false);
                         publishProgress(true,false);
                         groupSelectionCompleted = true;
                     }
@@ -363,15 +357,18 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 MainActivity activity = (MainActivity) getActivity();
 
                 GroupManager gManager = activity.gManager;
+                PreferencesManager pManager = activity.pManager;
 
                 //Wird nur benötigt, falls der erste Download abgeschlossen wurde. Wird aber trotzdem zur Sicherheit immer true gesetzt
                 activity.FirstDownloadCompleted = true;
 
+                gManager.moveNewGroupsToMainList();
+
                 //Gruppen speichern
-                gManager.setActiveGroup(null);
+                gManager.setActiveGroup("");
                 activity.invalidateOptionsMenu();
 
-                gManager.saveGroupsToPref();
+                pManager.save();
 
                 transformFAB(2);
 
@@ -468,18 +465,18 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             //Überprüfen welche Gruppen und überhaupt welche ausgewählt wurden
             ArrayList<String> list = checkSelectedGroups();
+            ArrayList<Group> groups = gManager.getGroupsByName(list,true);
             if (list.size() == 0) {
                 publishProgress(true,true);
                 Snackbar.make(activity.findViewById(R.id.MainFrame),"Bitte wähle mindestens eine Gruppe aus",Snackbar.LENGTH_LONG)
                         .show();
             }
             else {
-                //TODO: Prüfen ob Gruppen neu dazugekommen sind oder gelöscht wurden
-                gManager.deleteRemovedGroups(list, viewModel);
-                gManager.identifyNewGroups(list);
+                gManager.deleteRemovedGroups(groups, viewModel);
+                gManager.identifyNewGroups(groups);
 
                 //Neue Gruppen setzen
-                gManager.setSubscribedGroups(list);
+                gManager.setSubscribedGroups(groups,true);
 
                 //Loader starten
                 initateLoader(activity.liveNetDBVersion.getValue());
@@ -648,11 +645,15 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
-    private void addGroupToSelection(ArrayList<String> groups, boolean fragmentStart)  {
+    private void addGroupToSelection(ArrayList<Group> groups, boolean fragmentStart)  {
+
+        MainActivity activity = (MainActivity) getActivity();
+        GroupManager gManager = activity.gManager;
+
+        groups = gManager.mergeNewGroupList(groups);
+        gManager.addToTmpList(groups);
 
         if (groups.size() > 0) {
-
-            MainActivity activity = (MainActivity) getActivity();
 
             CardView card = activity.findViewById(R.id.cardGroup);
 
@@ -663,12 +664,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
-            for (String group : groups
+            for (Group group : groups
                     ) {
                 ViewGroupSelector groupSelector = new ViewGroupSelector(LayoutInflater.from(getContext()), getContext(), viewGroup);
-                groupSelector.setGroupName(group);
+                groupSelector.setGroupName(group.getName());
 
-                if (activity.gManager.contains(group)) {
+                if (group.isSubscribed()) {
                     groupSelector.setCheckState(true);
                 }
 

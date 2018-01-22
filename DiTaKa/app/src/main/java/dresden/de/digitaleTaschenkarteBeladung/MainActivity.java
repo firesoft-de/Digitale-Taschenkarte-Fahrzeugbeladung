@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 
+import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
@@ -107,14 +108,12 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         fManager = this.getSupportFragmentManager();
         lManager = this.getSupportLoaderManager();
         pManager = new PreferencesManager(this);
+        gManager = new GroupManager(this);
 
         //PREFS laden
         pManager.load();
 
-        //Abonnierte Gruppen laden
-        gManager = new GroupManager(this);
-        gManager.loadGroupsFromPref();
-
+        dbState = Util.DbState.VALID;
 
         if (pManager.getUrl() == "NO_URL_FOUND") {
             //Kein SERVER-URL gefunden (App wird das erste Mal gestartet) -> Keine internen Datenbankabfragen durchführen sondern Dummy Tray mit Hinweisen für die Erstbenutzung anzeigen!
@@ -143,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         .show();
             }
         }
-
         FirstDownloadCompleted = false;
 
         //Erstes Fragment einfügen
@@ -197,9 +195,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         else {
             SubMenu sMenu = menu.findItem(R.id.ActionGroup).getSubMenu();
             //Einträge für die Gruppen einfügen
-            for (String group: gManager.getSubscribedGroups()
+            for (Group group: gManager.getSubscribedGroups()
                  ) {
-                sMenu.add(group);
+                sMenu.add(group.getName());
                 sMenu.getItem(x).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem) {
@@ -380,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     protected void onStop() {
         super.onStop();
 
-        gManager.saveGroupsToPref();
+        pManager.save();
     }
 
     //=======================================================
@@ -474,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         Bundle args = new Bundle();
 
         if (url == null) {
-        args.putString(Util.ARGS_URL,pManager.getUrl());
+            args.putString(Util.ARGS_URL,pManager.getUrl());
         }
         else {
             args.putString(Util.ARGS_URL,url);
@@ -698,7 +696,13 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 break;
 
             case FRAGMENT_LIST_TRAY:
-                this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
+                String trayname = gManager.getActiveGroup().getTrayname();
+                if (!trayname.equals("default")) {
+                    this.getSupportActionBar().setTitle(trayname);
+                }
+                else {
+                    this.getSupportActionBar().setTitle(R.string.fragment_title_tray);
+                }
                 break;
 
             case FRAGMENT_LIST_ITEM:
@@ -732,9 +736,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         //Manuelles anhacken der Items (Standardmethode funktionieren nicht, warum auch immer)
         item.setChecked(true);
 
-        for (String group: gManager.getSubscribedGroups()
+        for (Group group: gManager.getSubscribedGroups()
              ) {
-            if (group.equals(item.getTitle().toString())) {
+            if (group.getName().equals(item.getTitle().toString())) {
                  String fragmentName = fManager.getBackStackEntryAt(fManager.getBackStackEntryCount()-1).getName();
 
                  gManager.setActiveGroup(group);

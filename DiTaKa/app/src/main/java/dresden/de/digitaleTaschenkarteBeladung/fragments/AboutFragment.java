@@ -109,6 +109,7 @@ public class AboutFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         activity.gManager.delete();
         activity.pManager.reset();
+        activity.dbState = Util.DbState.CLEAN;
 
         Snackbar.make(getActivity().findViewById(R.id.MainFrame), "Die App wurde erfolgreich zurückgesetzt", Snackbar.LENGTH_SHORT)
                 .show();
