@@ -185,10 +185,7 @@ public class GroupManager {
     }
 
     public void setActiveGroup(Group group) {
-        if (groups.contains(group)) {
-            int index = groups.indexOf(group);
-            groups.get(index).setActive(true);
-        }
+        setActiveGroup(group.getName());
     }
 
     public void moveNewGroupsToMainList() {
