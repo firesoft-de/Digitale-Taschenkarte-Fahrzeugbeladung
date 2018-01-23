@@ -24,6 +24,7 @@
 	// - group
 	// - table
 	// - data
+	// - newversion
 	
 	
 	//=====================================================================
@@ -54,16 +55,21 @@
 		
 		//Mitgelieferte Autorisierungsdaten überprüfen
 		$userid = checkUser();
+		loginteral("Nutzer " . $userid . " hat sich eingeloggt");
 		
 		//Befehl abrufen
 		receiveCommand();
 		$basequery = buildQuery();
+		loginteral("Auszuführender Befehl: " . $basequery);
 		
 		//Daten abrufen
 		$dataarray = receiveData();
 		
 		//Daten verarbeiten
 		work($basequery,$dataarray);
+				
+		echo("CONFIRM_WORK_DONE");
+		loginteral("CONFIRM_WORK_DONE");	
 		
 	
 	//=====================================================================
@@ -146,12 +152,14 @@
 			// Überprüfen ob der Nutzer gültig ist
 			if ($res["id"] == -1) {
 				echo('INVALID_AUTH');
+				loginteral("Gescheiterter Loginversuch für Account: " . $user);
 				die;
 			}	
 			$id = $res["id"];			
 
 			if ($res == false) {
 				echo('INVALID_AUTH');
+				loginteral("Gescheiterter Loginversuch für Account: " . $user);
 				die;
 			}
 						
@@ -167,6 +175,7 @@
 				}
 				else {
 					echo("MISSING_GROUP_PERMISSION");
+					loginteral("Fehlende Berechtigung Account: " . $user);
 					die;
 				}	
 			}	
@@ -301,6 +310,10 @@
 					$query = "UPDATE ";
 					break;	
 				
+				case 'version':
+					setversion();
+					die;
+				
 				default:
 					echo('UNKNOWN_COMMAND');
 					die;
@@ -387,5 +400,68 @@
 				
 			}
 			return $dbtable;
-		}		
+		}	
+
+		function setversion() {
+			
+			if (isSet($_POST['newversion'])) {
+				$newversion = $_POST['newversion'];
+			}
+			else {
+				echo 'NO_VERSION';
+				die;
+			}
+			
+			$dbFile = fopen("db_Version.txt",'r');
+			$dbVersion = fgets($dbFile);
+			fclose($dbFile);
+			
+			// echo($dbVersion);
+			// echo("-");
+			// echo($newversion);
+				
+			loginteral("Eingegebene Version: " . $newversion . ", aktuelle Serverversion: " . $dbVersion);
+			
+			if ($dbVersion < $newversion) {
+				$dbFile = fopen("db_Version.txt",'w');
+				fwrite($dbFile, $newversion);
+				fclose($dbFile);		
+				echo("CONFIRM_VERSION_UPDATE");
+				loginteral("Neue Version eingetragen: " . $newversion);	
+			}	
+			else if ($dbVersion == $newversion) {
+				echo("WARNING_SAME_VERSION");
+				loginteral("Keine Versionsänderung möglich.");
+			}
+			else {
+				if (isSet($_POST['overrideversion'])) {
+					$overrideversion = $_POST['overrideversion'];
+					if ($overrideversion == 1) {
+						$dbFile = fopen("db_Version.txt",'w');
+						fwrite($dbFile, $newversion);
+						fclose($dbFile);		
+						echo("CONFIRM_VERSION_UPDATE_WITH_OVERRIDE");
+						loginteral("Version zwangsweise überschrieben. Neue Version: " . $newversion);
+					}
+				}
+				else {
+					echo("ERROR_OUTDATED_VERSION");
+					loginteral("Versionsupdate abgewiesen");
+					die;
+				}			
+			}
+					
+		}
+	
+		function loginteral($message) {
+			$dbFile = fopen("config/log_managment.txt",'a');
+			
+			fwrite($dbFile,"Timestamp: ");
+			fwrite($dbFile,date("Y-m-d H:i:s"));
+			fwrite($dbFile,"; Message: ");
+			fwrite($dbFile,$message);
+			fwrite($dbFile,"\r\n");
+			
+			fclose($dbFile);
+		}
 ?>
