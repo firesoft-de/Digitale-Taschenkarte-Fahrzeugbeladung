@@ -83,8 +83,70 @@ Module Module1
         Console.Write(cols.ToString)
         Console.WriteLine(" Spalte/Spalten erkannt!")
 
+        Console.WriteLine("Exportmethode angeben! (1 - klassische CSV, 2 - für phpmyadmin angepasste CSV)!")
+
+        Dim cont As Boolean = False
+
+        While cont = False
+
+            Dim mark As String = Console.ReadLine.ToString
+
+            exportString = ""
+
+            If (mark = "1") Then
+                exportString = classicCSV(rows, cols)
+                cont = True
+            ElseIf (mark = "2") Then
+                exportString = modifiedCSV(rows, cols)
+                cont = True
+            End If
+
+        End While
+
+
+    End Sub
+
+    Function modifiedCSV(ByVal rows As Integer, ByVal cols As Integer)
+
         Dim r As Range
-        exportString = ""
+        Dim result As String = ""
+
+        For currentrow = 1 To rows
+
+            Dim s As String = ""
+
+            For currentcol = 1 To cols
+
+                Dim exRng As Excel.Range = CType(exSheet.Cells(currentrow, currentcol), Excel.Range)
+                If (exRng.Value() IsNot Nothing) Then
+
+                    s = s.Replace("\""", """""")
+
+                    s &= """" & exRng.Value().ToString & """"
+                Else
+                    s &= """" & """"
+                End If
+                s &= ","
+
+            Next
+
+            s = s.Remove(s.Length - 1, 1)
+
+            result &= s
+            result &= Environment.NewLine
+
+        Next
+
+        result = result.Remove(result.Length - 1, 1)
+
+        Return result
+
+    End Function
+
+    Function classicCSV(ByVal rows As Integer, ByVal cols As Integer)
+
+        Dim r As Range
+        Dim result As String = ""
 
         For currentrow = 1 To rows
 
@@ -104,12 +166,15 @@ Module Module1
 
             s = s.Remove(s.Length - 1, 1)
 
-            exportString &= s
-            exportString &= Environment.NewLine
+            result &= s
+            result &= Environment.NewLine
 
         Next
+        result = result.Remove(result.Length - 1, 1)
 
-    End Sub
+        Return result
+
+    End Function
 
     Sub saveDatabase()
 
