@@ -9,3 +9,4 @@ D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConv
 D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.exe
 D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.xml
 D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.pdb
+D:\Development\Android\BlueProject\DesktopConverter\DesktopConverter\DesktopConverter\obj\Debug\DesktopConverter.vbprojResolveAssemblyReference.cache
