@@ -115,21 +115,24 @@
 		
 		$queryString = "";		
 	
-		$resultsY = fullDelivery($pdo, $dbtable, $fullgroup, $fullgroups);
+		$resultsY = fullDelivery($pdo, $dbtable, $fullgroup, $fullgroups, $dbversion);
 		
 		if (count($resultsX) > 0) {
-			$results["OUTPUT"][] = $resultsX;
+			$results["OUTPUT"] = $resultsX;
 		}
+		// var_dump($results);
 				
 		if (count($resultsY) > 0) {
-			$results["OUTPUT"][] = $resultsY;
+			$results["OUTPUT"] = $resultsY;
 		}
 		
 		//Ausgabe als JSON codieren	
 		$json = json_encode($results,JSON_PRETTY_PRINT);
 			
 		//DEBUG
-		// var_dump($results);
+		 // var_dump($results);
+		// var_dump($resultsX);
+		// var_dump($resultsY);
 		// var_dump($json);
 		// debugJSON();
 		
@@ -182,6 +185,7 @@
 			//DEBUG Ausgabe SQL Query
 			// $stmt->debugDumpParams();
 			
+			$results = array();
 			$group_array = getGroupArray();
 			
 			while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
@@ -200,8 +204,7 @@
 			return $results;
 		}
 		
-		function fullDelivery($pdo, $dbtable, $fullgroup, $fullgroups) {
-			global $results;
+		function fullDelivery($pdo, $dbtable, $fullgroup, $fullgroups, $dbversion) {
 			
 			$queryString = "";
 			
