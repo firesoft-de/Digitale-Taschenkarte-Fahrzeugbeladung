@@ -39,7 +39,9 @@ import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 
@@ -260,11 +262,10 @@ public class Util_Http {
     }
 
 
-    public static ArrayList<String> requestGroups(String url, int version) {
-        ArrayList<String> list = new ArrayList<>();
+    public static ArrayList<Group> requestGroups(String url) {
+        ArrayList<Group> list;
 
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
-                version + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_GROUP);
+        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_TABLE + SERVER_TABLE_GROUP);
 
         InputStream stream = httpsRequester(urlV);
         String response = readStream(stream);
@@ -360,9 +361,9 @@ public class Util_Http {
         return trayList;
     }
 
-    private static ArrayList<String> jsonGroupParsing(String response) {
+    private static ArrayList<Group> jsonGroupParsing(String response) {
 
-        ArrayList<String> list  = new ArrayList<>();
+        ArrayList<Group> list  = new ArrayList<>();
 
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
@@ -370,7 +371,8 @@ public class Util_Http {
 
             for (int i = 0; i < responseArray.length(); i ++) {
                 JSONObject object =  responseArray.getJSONObject(i);
-                list.add(object.getString("name"));
+                Group group = new Group(object);
+                list.add(group);
             }
 
         } catch (JSONException e) {
@@ -592,9 +594,6 @@ public class Util_Http {
      * @return Die bearbietete URL
      */
     public static String handleURL(String url, Activity activity) {
-        //Den PREF Manager initaliseren
-        SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-
         //https einfügen falls nicht vorhanden
         if (!url.contains("http://") && !url.contains("https://")) {
             //TODO: ACHTUNG! AUS PERFORMANCEGRÜNDEN WIRD DER HTTPS REQUEST HIER ÜBERSCHRIEBEN!!
@@ -606,8 +605,9 @@ public class Util_Http {
             url = (String) url.subSequence(0, url.length() - 3);
         }
 
-        editor.putString(Util.PREFS_URL, url);
-        editor.apply();
+        MainActivity parent = (MainActivity) activity;
+        parent.pManager.setUrl(url);
+        parent.pManager.save();
 
         return url;
     }

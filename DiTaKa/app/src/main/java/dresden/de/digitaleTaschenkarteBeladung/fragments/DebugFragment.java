@@ -159,7 +159,7 @@ public class DebugFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MainActivity activity = (MainActivity) getActivity();
-                activity.dbVersion = 0;
+                activity.pManager.setDbVersion(0);
                 activity.liveNetDBVersion.postValue(0);
                 activity.getNetDBState(null,true);
             }
@@ -170,7 +170,7 @@ public class DebugFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 MainActivity activity = (MainActivity) getActivity();
-                activity.dbVersion -= 1;
+                activity.pManager.setDbVersion( activity.pManager.getDbVersion() - 1);
             }
         });
 
@@ -179,14 +179,7 @@ public class DebugFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 MainActivity activity = (MainActivity) getActivity();
-                SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-                editor.remove(Util.PREFS_URL);
-                editor.remove(Util.PREFS_DBVERSION);
-                editor.remove(GroupManager.PREFS_GROUPS);
-                editor.remove(GroupManager.PREFS_ACTIVE_GROUP);
-                editor.remove(Util.PREFS_SORT);
-
-                editor.apply();
+                activity.pManager.delete();
 
                 Toast.makeText(getContext(),"Prefs gelöscht!",Toast.LENGTH_SHORT).show();
             }

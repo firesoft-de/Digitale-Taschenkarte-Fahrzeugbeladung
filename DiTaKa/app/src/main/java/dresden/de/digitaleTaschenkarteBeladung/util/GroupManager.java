@@ -1,5 +1,18 @@
-package dresden.de.digitaleTaschenkarteBeladung.util;
+/*  Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+    Copyright (C) 2017  David Schlossarczyk
 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    For the full license visit https://www.gnu.org/licenses/gpl-3.0.*/
+
+package dresden.de.digitaleTaschenkarteBeladung.util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
+import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
 /**
@@ -18,15 +32,17 @@ import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
  */
 public class GroupManager {
 
-    private ArrayList<String>  subscribedGroups;
-    private String activeGroup;
-    private ArrayList<String> newGroups;
+    private ArrayList<Group> groups;
+    private ArrayList<Group> newGroups;
+
+    private ArrayList<Group> tmpList;
+//    private ArrayList<String>  subscribedGroups;
+//    private String activeGroup;
+//    private ArrayList<String> newGroups;
 
     private Activity parentActivity;
 
 
-    public static final String PREFS_GROUPS="groups";
-    public static final String PREFS_ACTIVE_GROUP="activegroup";
     public static final String NO_SUBSCRIBED_GROUPS="no-subscribed-groups";
 
     //=======================================================
@@ -38,125 +54,142 @@ public class GroupManager {
      * @param activity Die übergeordnete Activity
      */
     public GroupManager(Activity activity) {
-        subscribedGroups = new ArrayList<>();
+        groups = new ArrayList<>();
         newGroups = new ArrayList<>();
-        activeGroup = "";
         parentActivity = activity;
-    }
 
-    //=======================================================
-    //====================Daten-Methoden=====================
-    //=======================================================
+        tmpList = new ArrayList<>();
 
-    /**
-     * Lädt die abonnierten Gruppen aus den PREFS.
-     */
-    public void loadGroupsFromPref() {
-
-        //Abonnierte Gruppen laden
-        String saveString = parentActivity.getSharedPreferences(Util.PREFS_NAME,Context.MODE_PRIVATE).getString(PREFS_GROUPS,"");
-        subscribedGroups = new ArrayList<>();
-
-        if (!saveString.equals("")) {
-            String[] array = saveString.split(";");
-            subscribedGroups.addAll(Arrays.asList(array));
-        }
-
-        //Aktive Gruppe laden
-        activeGroup = parentActivity.getSharedPreferences(Util.PREFS_NAME,Context.MODE_PRIVATE).getString(PREFS_ACTIVE_GROUP,"");
-
-    }
-
-    /**
-     * Speichert die abonnierten Gruppen in den PREFS
-     */
-    public void saveGroupsToPref() {
-        //Abonnierte Gruppe speichern
-
-        if (subscribedGroups.size() > 0) {
-            SharedPreferences.Editor editor = parentActivity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-            StringBuilder saveString = new StringBuilder();
-
-            for (String group : subscribedGroups
-                    ) {
-                saveString.append(group);
-                saveString.append(";");
-            }
-
-            //Abschließendes ; entfernen
-            saveString.deleteCharAt(saveString.length() - 1);
-            //Speichern
-            editor.putString(PREFS_GROUPS, saveString.toString());
-            editor.apply();
-
-            //Aktive Gruppe speichern
-            editor = parentActivity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-            editor.putString(PREFS_ACTIVE_GROUP, activeGroup);
-
-        }
+//        activeGroup = "";
+//        subscribedGroups = new ArrayList<>();
     }
 
     //=======================================================
     //=====================GETTER/SETTER=====================
     //=======================================================
 
-    public ArrayList<String> getSubscribedGroups() {
-        return subscribedGroups;
+    public ArrayList<Group> getSubscribedGroups() {
+        ArrayList<Group> result = new ArrayList<>();
+
+        for (Group group: groups)
+        {
+            if (group.isSubscribed()) {
+                result.add(group);
+            }
+        }
+
+        return result;
     }
 
-    public void setSubscribedGroups(ArrayList<String> groups) {
-        subscribedGroups = new ArrayList<>();
-        subscribedGroups.addAll(groups);
+    public void add(Group group) {
+        groups.add(group);
+    }
+
+    public ArrayList<Group> mergeNewGroupList(ArrayList<Group> newg) {
+
+        ArrayList<Group> result = new ArrayList<>();
+        result.addAll(groups);
+
+        for (int i = 0; i < newg.size(); i++) {
+            Group newgroup = newg.get(i);
+            boolean existing = false;
+
+            for (int d = 0; d < groups.size(); d++) {
+                Group group = groups.get(d);
+
+                if (newgroup.getName().equals(group.getName())) {
+                    existing = true;
+                    d = groups.size();
+                }
+            }
+
+            if (!existing) {
+                result.add(newgroup);
+            }
+        }
+        return result;
+    }
+
+    public void addToTmpList(ArrayList<Group> group) {
+        tmpList = group;
+    }
+
+    public void setSubscribedGroups(ArrayList<Group> input, boolean includeTmpList) {
+
+        for (Group group: groups)
+        {
+            if (input.contains(group)) {
+                group.setSubscribed(true);
+            }
+        }
+
+        if (includeTmpList) {
+            for (Group group: tmpList)
+            {
+                if (input.contains(group)) {
+                    group.setSubscribed(true);
+                }
+            }
+
+        }
+
+    }
+
+    public void setSubscribedGroupsByName(ArrayList<String> input) {
+
+        for (Group group: groups)
+        {
+            if (input.contains(group.getName())) {
+                group.setSubscribed(true);
+            }
+        }
     }
 
     /**
      * Gibt die aktive Gruppe aus
      * @return
      */
-    public String getActiveGroup() {
-        if (activeGroup.equals("")) {
-            if (subscribedGroups.size() > 0) {
-                return subscribedGroups.get(0);
-            }
-            else {
-                return "";
+    public Group getActiveGroup() {
+
+        for (Group group: groups)
+        {
+            if (group.isActive()) {
+                return group;
             }
         }
-        else {
-            return activeGroup;
-        }
+        return null;
     }
 
     /**
      * Setzt die angezeigte (aktive) Gruppe
      * @param activeGroup Zu setzende Gruppe, falls der Parameter null ist, wird das erste Element der Liste genommen
      */
-    public void setActiveGroup(@Nullable String activeGroup) {
-        if (activeGroup == null) {
-            if (subscribedGroups.size() > 0) {
-                this.activeGroup = subscribedGroups.get(0);
+    public void setActiveGroup(String activeGroup) {
+
+        if (activeGroup == "") {
+            if (groups.size() > 0) {
+                groups.get(0).setActive(true);
             }
         }
         else {
-            this.activeGroup = activeGroup;
+            for (Group group: groups)
+            {
+                if (group.getName().equals(activeGroup)) {
+                    group.setActive(true);
+                }
+                else {
+                    group.setActive(false);
+                }
+            }
         }
     }
 
-    /**
-     * Setzt die angezeigte (aktive) Gruppe
-     * @param index Index der zu setzende Gruppe, falls der Parameter null ist, wird das erste Element der Liste genommen
-     */
-    public void setActiveGroup(@Nullable int index) {
-        if (activeGroup == null) {
-            if (subscribedGroups.size() > 0) {
-                this.activeGroup = subscribedGroups.get(0);
-            }
-        }
-        else {
-            if (subscribedGroups.size() > 0) {
-                this.activeGroup = subscribedGroups.get(index);
-            }
-        }
+    public void setActiveGroup(Group group) {
+        setActiveGroup(group.getName());
+    }
+
+    public void moveNewGroupsToMainList() {
+        groups.addAll(newGroups);
     }
 
     /**
@@ -164,9 +197,38 @@ public class GroupManager {
      * @return
      */
     public int getSubscribedGroupsCount() {
-        return subscribedGroups.size();
+        int count = 0;
+
+        for (Group group: groups)
+        {
+            if (group.isSubscribed()) {
+                count += 1;
+            }
+        }
+        return count;
     }
 
+    public ArrayList<Group> getGroupsByName(ArrayList<String> names, boolean includeTmpList) {
+        ArrayList<Group> list = new ArrayList<>();
+
+        for (Group group: groups)
+        {
+            if (names.contains(group.getName())) {
+                list.add(group);
+            }
+        }
+
+        if (includeTmpList) {
+            for (Group group: tmpList)
+            {
+                if (names.contains(group.getName()) && !list.contains(group)) {
+                    list.add(group);
+                }
+            }
+        }
+
+        return list;
+    }
 
     //=======================================================
     //====================Arbeitsmethoden====================
@@ -177,12 +239,12 @@ public class GroupManager {
      * @param selectedGroups Die neue Gruppenauswahl des Benutzers
      * @return Liste der neuen Gruppen
      */
-    public void identifyNewGroups(ArrayList<String> selectedGroups) {
-        ArrayList<String> list = new ArrayList<>();
+    public void identifyNewGroups(ArrayList<Group> selectedGroups) {
+        ArrayList<Group> list = new ArrayList<>();
         list.addAll(selectedGroups);
-        for (String group: selectedGroups
+        for (Group group: selectedGroups
              ) {
-            if(subscribedGroups.contains(group)) {
+            if(groups.contains(group)) {
                 list.remove(group);
             }
         }
@@ -194,9 +256,9 @@ public class GroupManager {
      * @param selectedGroups Die neue Gruppenauswahl des Benutzers
      * @return Liste der entfernten Gruppen
      */
-    public void deleteRemovedGroups(ArrayList<String> selectedGroups, DataFragViewModel viewModel) {
-        ArrayList<String> list = new ArrayList<>();
-        for (String group: subscribedGroups
+    public void deleteRemovedGroups(ArrayList<Group> selectedGroups, DataFragViewModel viewModel) {
+        ArrayList<Group> list = new ArrayList<>();
+        for (Group group: groups
                 ) {
             if(!selectedGroups.contains(group)) {
                 list.add(group);
@@ -205,9 +267,10 @@ public class GroupManager {
         //TODO: Items, Trays, Positionimage und die Bilder löschen
 
         if (list.size() > 0) {
-            for (String group: list
+            for (Group group: list
                  ) {
-                viewModel.deleteByGroup(group);
+                viewModel.deleteByGroup(group.getName());
+                groups.remove(group);
             }
         }
     }
@@ -217,18 +280,21 @@ public class GroupManager {
      * @param groupCandidate Der zu prüfende Kandidate
      * @return True = ist enthalten, False = ist nicht enthalten
      */
-    public boolean contains(String groupCandidate) {
-        return subscribedGroups.contains(groupCandidate);
+    public boolean contains(Group groupCandidate) {
+        return groups.contains(groupCandidate);
     }
 
     public int getActiveGroupIndex() {
 
-        if (subscribedGroups.size() > 0 && subscribedGroups.contains(activeGroup)) {
-            return subscribedGroups.indexOf(activeGroup);
+        if (groups.size() > 0) {
+            for (Group group: groups)
+            {
+                if (group.isActive()) {
+                    return groups.indexOf(group);
+                }
+            }
         }
-        else {
-            return 0;
-        }
+        return 0;
     }
 
     /**
@@ -237,13 +303,13 @@ public class GroupManager {
      */
     public String subscribedToQuery() {
 
-        if (subscribedGroups.size() > 0) {
+        if (groups.size() > 0) {
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            for (String group : subscribedGroups
+            for (Group group : groups
                     ) {
-                stringBuilder.append(group);
+                stringBuilder.append(group.getName());
                 stringBuilder.append("_");
             }
 
@@ -265,9 +331,9 @@ public class GroupManager {
 
             StringBuilder stringBuilder = new StringBuilder();
 
-            for (String group : newGroups
+            for (Group group : newGroups
                     ) {
-                stringBuilder.append(group);
+                stringBuilder.append(group.getName());
                 stringBuilder.append("_");
             }
 
@@ -280,22 +346,18 @@ public class GroupManager {
 
     }
 
-    public void delete(Context context) {
+    public void delete() {
 
         try {
-            subscribedGroups.clear();
+            groups.clear();
             newGroups.clear();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Util.deletePref(context);
-
     }
 
-    //=======================================================
-    //===================Interne Methoden====================
-    //=======================================================
-
-
+    public ArrayList<Group> getGroups() {
+        return groups;
+    }
 }

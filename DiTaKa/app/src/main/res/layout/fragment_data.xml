@@ -207,6 +207,9 @@
                     android:hint="@string/data_first_time_url"
                     android:paddingBottom="@dimen/margin_small"
                     android:paddingTop="@dimen/margin_supersmall"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:inputType="text"
                     android:textSize="@dimen/text_size_highlight"
                     android:theme="@style/EditTextTheme"
                     card_view:layout_constraintTop_toBottomOf="@id/DataTextView"
@@ -281,7 +284,6 @@
             </LinearLayout>
 
         </android.support.v7.widget.CardView>
-
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/flActBt"

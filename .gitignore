@@ -2,6 +2,9 @@
 server/skripte/access.txt
 *.csv
 *.sql
-server/Datenbank
+/datenbank
 Vorstellung
 server/skripte/config/.htaccess
+*.apk
+*.apk
+DiTaKa/app/release/app-release.apk

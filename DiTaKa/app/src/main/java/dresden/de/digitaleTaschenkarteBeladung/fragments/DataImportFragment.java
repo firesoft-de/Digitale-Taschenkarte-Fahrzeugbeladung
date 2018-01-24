@@ -48,6 +48,7 @@ import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.loader.GroupLoader;
@@ -55,6 +56,7 @@ import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.loader.ImageLoader;
 import dresden.de.digitaleTaschenkarteBeladung.loader.ItemLoader;
 import dresden.de.digitaleTaschenkarteBeladung.loader.TrayLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
@@ -136,14 +138,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         url = this.getArguments().getString(Util.ARGS_URL);
         dbversion = this.getArguments().getInt(Util.ARGS_VERSION);
 
-        //ClickListener für das Hinzufügen der Daten einbauen
-        Button dataButton = result.findViewById(R.id.DataButton);
-        dataButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonAddClick();
-            }
-        });
 
         //Progressbar einrichten
         ProgressBar progressBar = result.findViewById(R.id.DataProgress);
@@ -156,6 +150,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         final EditText editText = result.findViewById(R.id.text_url);
         if (url != "NO_URL_FOUND") {
             editText.setText(url);
+            updateDBVersion(dbversion,result);
         }
         else {
             //Es ist davon auszugehen, dass dies der erste Start ist
@@ -197,7 +192,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 if (integer != -1) {
 
-                    activity.url = url;
+                    activity.pManager.setUrl(url);
 
                     if (!initLoaderAfterNetVersionRefresh) {
                         updateNetVersion(integer, null);
@@ -222,10 +217,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                buttonAddClick();
+                buttonAddClick(false);
             }
         });
-
 
         drawElevation(result, null,false);
 
@@ -245,6 +239,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         //URL Fehler ausblenden
         toggleURLError(false);
+        transformFAB(0);
+
+        //Verwaltungsmodus für die Gruppen einschalten, wenn eine URL vorhanden ist.
+        //Der Nutzer kann damit die Gruppen unabhängig vom Versionsstand abonnieren oder deabonnieren
+        if (url != "NO_URL_FOUND") {
+            buttonAddClick(true);
+        }
 
     }
 
@@ -275,11 +276,11 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             case GROUP_LOADER:
                 //ID 3: Ein neuer ImageLoader wird gebraucht!
-                return new GroupLoader(getContext(),url,version);
+                return new GroupLoader(getContext(),url);
 
             default:
                 //Irgendwas ist schief gegangen -> Falsche ID
-                LogError(LOG_TAG, "Fehler beim starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
+                LogError(LOG_TAG, "Fehler beim Starten des Loaders! Konnte keine zu einem Loader passende ID finden!");
                 return null;
         }
     }
@@ -323,19 +324,25 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             case GROUP_LOADER:
                 if (data != null) {
-                    if (((ArrayList<String>) data).size() != 0) {
+                    if (((ArrayList<Group>) data).size() != 0) {
 
-                        addGroupToSelection((ArrayList<String>) data,false);
+                        addGroupToSelection((ArrayList<Group>) data,false);
                         publishProgress(true,false);
                         groupSelectionCompleted = true;
                     }
-                    downloadsCompleted += 1;
+                    else {
+                        publishProgress(true,true);
+                        Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Es ist ein Fehler beim Herunterladen der Daten aufgetreten!",Snackbar.LENGTH_LONG)
+                                .show();
+                        error = true;
+                    }
                 } else {
                     publishProgress(true,true);
                     Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Es ist ein Fehler beim Herunterladen der Daten aufgetreten!",Snackbar.LENGTH_LONG)
                             .show();
                     error = true;
                 }
+                downloadsCompleted += 1;
                 break;
         }
 
@@ -350,23 +357,18 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 MainActivity activity = (MainActivity) getActivity();
 
                 GroupManager gManager = activity.gManager;
-
-                //Preferences aktualisieren
-                SharedPreferences.Editor editor = activity.getSharedPreferences(Util.PREFS_NAME, Context.MODE_PRIVATE).edit();
-                editor.putInt(Util.PREFS_DBVERSION, activity.dbVersion);
-                editor.apply();
-
-                //Angezeigte Datenbankversion aktualisieren
-                updateDBVersion(dbversion, null);
+                PreferencesManager pManager = activity.pManager;
 
                 //Wird nur benötigt, falls der erste Download abgeschlossen wurde. Wird aber trotzdem zur Sicherheit immer true gesetzt
                 activity.FirstDownloadCompleted = true;
 
+                gManager.moveNewGroupsToMainList();
+
                 //Gruppen speichern
-                gManager.setActiveGroup(null);
+                gManager.setActiveGroup("");
                 activity.invalidateOptionsMenu();
 
-                gManager.saveGroupsToPref();
+                pManager.save();
 
                 transformFAB(2);
 
@@ -376,10 +378,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                         .show();
 
                 //Variablen aktualisieren
-                activity.dbVersion = activity.liveNetDBVersion.getValue();
+                activity.pManager.setDbVersion(activity.liveNetDBVersion.getValue());
                 activity.dbState = Util.DbState.VALID;
-                dbversion = activity.dbVersion;
+                dbversion = activity.pManager.getDbVersion();
 
+                //Preferences speichern
+                activity.pManager.save();
+
+                //Angezeigte Datenbankversion aktualisieren
                 updateDBVersion(dbversion,null);
 
                 //Aufräumen
@@ -399,26 +405,18 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     //===================WICHTIGE METHODEN===================
     //=======================================================
 
-    private void buttonAddClick() {
-        //Ablauf
-        //1. Netzwerküberprüfung
-        //2. Versionsabfrage
-        //3.    -> Neue Version
-        //      -> Daten abfragen
-        //      -> Daten verarbeiten
-        //Ansonsten Ende
-
+    private void buttonAddClick(boolean groupManagementMode) {
         MainActivity activity = (MainActivity) getActivity();
         GroupManager gManager = activity.gManager;
+
+        //URL Fehlermeldung zurücksetzen
+        toggleURLError(false);
+        //Fortschritt auf Idle setzen
+        publishProgress(false,false);
 
         if(!groupSelectionCompleted) {
             //Gruppenauswahl hat noch nicht stattgefunden
             //D.h. Phase 1 des Downloads findet jetzt statt (Gruppen und Version abfragen)
-
-            //URL Fehlermeldung ausblenden
-            toggleURLError(false);
-
-            publishProgress(false,false);
 
             EditText editText = getActivity().findViewById(R.id.text_url);
             if (editText.getText().toString().equals("")) {
@@ -431,15 +429,26 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             url = Util_Http.handleURL(editText.getText().toString(), getActivity());
 
-            //Netzwerkstatus überpüfen
+            // Netzwerkstatus überpüfen
             if (Util_Http.checkNetwork(getActivity(),getContext())) {
-                //Netzwerkverbindung i.O.
+                // Netzwerkverbindung i.O.
 
-                //Serverdatenbankversion abrufen
+                // Serverdatenbankversion abrufen
                 activity.getNetDBState(url, false);
 
-                //Marker für den Observer setzen. Mit diesem werden bei einer Änderung der Live-Variable netVersion die Loader gestartet.
-                initLoaderAfterNetVersionRefresh = true;
+                // Wenn der Gruppenmanagment Modus aktiviert ist, wird manuell der Gruppenloader gestartet
+                // Der Gruppenmanagment Modus zeigt direkt die verfügbaren Gruppen an. Damit kann der Nutzer Gruppen abonnieren oder deabonnieren ohne auf eine neue Serverversion warten zu müssen.
+                if (groupManagementMode) {
+                    //Zur Sicherheit groupSelectionCompleted nochmal auf false setzen
+                    groupSelectionCompleted = false;
+                    initateLoader(0);
+                }
+                else {
+                    // Für den Fall, dass noch keine URL eingegeben wurde, muss zuerst eine URL eingegeben werden, dann kann der Nutzer einmal auf den FAB drücken.
+                    // Dann wird die Serverversion und die verfügbaren Gruppen heruntergeladen.
+                    // Marker für den Observer setzen. Mit diesem werden bei einer Änderung der Live-Variable netVersion die Loader gestartet.
+                    initLoaderAfterNetVersionRefresh = true;
+                }
 
                 //Auf das Ergebniss des LiveData Objects warten
 
@@ -453,22 +462,21 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
         else {
             //Gruppenauswahl ist abgeschlossen. Als nächstes soll der richtige Download stattfinden
-            publishProgress(false,false);
 
             //Überprüfen welche Gruppen und überhaupt welche ausgewählt wurden
             ArrayList<String> list = checkSelectedGroups();
+            ArrayList<Group> groups = gManager.getGroupsByName(list,true);
             if (list.size() == 0) {
                 publishProgress(true,true);
                 Snackbar.make(activity.findViewById(R.id.MainFrame),"Bitte wähle mindestens eine Gruppe aus",Snackbar.LENGTH_LONG)
                         .show();
             }
             else {
-                //TODO: Prüfen ob Gruppen neu dazugekommen sind oder gelöscht wurden
-                gManager.deleteRemovedGroups(list, viewModel);
-                gManager.identifyNewGroups(list);
+                gManager.deleteRemovedGroups(groups, viewModel);
+                gManager.identifyNewGroups(groups);
 
                 //Neue Gruppen setzen
-                gManager.setSubscribedGroups(list);
+                gManager.setSubscribedGroups(groups,true);
 
                 //Loader starten
                 initateLoader(activity.liveNetDBVersion.getValue());
@@ -486,7 +494,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     private void initateLoader(int netVersion) {
 
         if (netVersion != -1) {
-            if (dbversion < netVersion) {
+//            if (dbversion < netVersion) {
 
                 //Loader initialiseren
                 LoaderManager loaderManager = getLoaderManager();
@@ -523,15 +531,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     }
                 }
 
-            } else {
-//                Toast.makeText(getContext(), R.string.app_nodbRefresh, Toast.LENGTH_LONG).show();
-                Snackbar.make(getActivity().findViewById(R.id.MainFrame),R.string.app_nodbRefresh,Snackbar.LENGTH_LONG)
-                        .show();
-
-                transformFAB(2);
-                publishProgress(true,false);
-
-            }
+//            } else {
+//                Snackbar.make(getActivity().findViewById(R.id.MainFrame),R.string.app_nodbRefresh,Snackbar.LENGTH_LONG)
+//                        .show();
+//
+//                transformFAB(2);
+//                publishProgress(true,false);
+//
+//            }
         }
     }
 
@@ -638,11 +645,15 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
-    private void addGroupToSelection(ArrayList<String> groups, boolean fragmentStart)  {
+    private void addGroupToSelection(ArrayList<Group> groups, boolean fragmentStart)  {
+
+        MainActivity activity = (MainActivity) getActivity();
+        GroupManager gManager = activity.gManager;
+
+        groups = gManager.mergeNewGroupList(groups);
+        gManager.addToTmpList(groups);
 
         if (groups.size() > 0) {
-
-            MainActivity activity = (MainActivity) getActivity();
 
             CardView card = activity.findViewById(R.id.cardGroup);
 
@@ -653,12 +664,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
-            for (String group : groups
+            for (Group group : groups
                     ) {
                 ViewGroupSelector groupSelector = new ViewGroupSelector(LayoutInflater.from(getContext()), getContext(), viewGroup);
-                groupSelector.setGroupName(group);
+                groupSelector.setGroupName(group.getName());
 
-                if (activity.gManager.contains(group)) {
+                if (group.isSubscribed()) {
                     groupSelector.setCheckState(true);
                 }
 
@@ -696,10 +707,19 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
      * @param state 1 = Gruppenauswahl, 2 = Download abgeschlossen
      */
     private void transformFAB(int state) {
+        FloatingActionButton floatingActionButton = getActivity().findViewById(R.id.flActBt);
+        Drawable draw;
         switch (state) {
+            case 0:
+                draw = floatingActionButton.getBackground();
+                draw.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.SRC_ATOP);
+                floatingActionButton.setBackground(draw);
+                floatingActionButton.setImageResource(R.drawable.ic_cloud_upload);
+                floatingActionButton.invalidate();
+                break;
+
             case 1:
-                FloatingActionButton floatingActionButton = getActivity().findViewById(R.id.flActBt);
-                Drawable draw = floatingActionButton.getBackground();
+                draw = floatingActionButton.getBackground();
                 draw.setColorFilter(getResources().getColor(R.color.fab_highlight), PorterDuff.Mode.SRC_ATOP);
                 floatingActionButton.setBackground(draw);
                 floatingActionButton.setImageResource(R.drawable.ic_cloud_download);
@@ -707,7 +727,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 break;
 
             case 2:
-                floatingActionButton = getActivity().findViewById(R.id.flActBt);
                 draw = floatingActionButton.getBackground();
                 draw.setColorFilter(getResources().getColor(R.color.fab_completed), PorterDuff.Mode.SRC_ATOP);
                 floatingActionButton.setBackground(draw);

@@ -20,7 +20,7 @@
 	dbversion = Die Datenbankversion des Clients (nicht erforderlich wenn loadFullGroup geliefert wird)
 	dbtable = Die abzufragende Tabelle
 	groups = Die Gruppen zu welchen die Daten abgefragt werden sollen. Als Muster wird "Gruppe1_Gruppe2_Gruppe3" verwendet
-	loadfullfroup = Wenn alle verfügbaren Datenbankeinträge zu einer Gruppe heruntergeladen werden sollen, wird dieser Parameter mit 1 gefüttert
+	loadfullgroup = Wenn alle verfügbaren Datenbankeinträge zu einer Gruppe heruntergeladen werden sollen, wird dieser Parameter mit 1 gefüttert
 	fullgroups = Die Gruppen welche vollständig heruntergeladen werden sollen
 	*/
 	
@@ -29,6 +29,7 @@
 
 	//Header setzen
 	header('Content-Type: application/json');
+	include 'util.php';
 	
 	//Datenbankversion abfragen
 	$dbFile = fopen("db_Version.txt",'r');
@@ -44,7 +45,7 @@
 	if (isset($_GET['dbversion'])) {
 		$clientdbVersion = $_GET['dbversion'];}
 	else {
-		$clientdbVersion = "";
+		$clientdbVersion = "-1";
 	}
 	
 	//Gruppe abfragen
@@ -60,12 +61,12 @@
 	else {
 		$fullgroups = "";
 	}
-	
+		
 	$fullgroup = "";
 	
 	//Downloadmodus abfragen
-	if (isset($_GET['loadFullGroup'])) {
-		$fullgroup = $_GET['loadFullGroup'];}
+	if (isset($_GET['loadfullgroup'])) {
+		$fullgroup = $_GET['loadfullgroup'];}
 	
 	//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
 	switch ($table_input) {
@@ -134,7 +135,7 @@
 		
 	$stmt->bindParam(':dbversion', $dbversion, PDO::PARAM_INT);
 			
-	if ($dbtable != "groupx" && $fullgroup != 1) {
+	if ($dbtable != "groupx") {
 		$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
 	}
 	
@@ -163,8 +164,7 @@
 		$results["OUTPUT"][] = $row;
  
 	}
-	
-	
+		
 	
 	
 	//Falls ein vollständiger Download von Gruppen angefragt wurde, wird dieser nun bearbeitet
@@ -174,8 +174,9 @@
 		$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version <= :dbversion";
 	}	
 	
-	if ($fullgroup != null && $fullgroup != ""){	
-		$queryString = $queryString . " AND (" . builtGroupQueryByName($fullgroup);
+	if ($fullgroups != null && $fullgroups != ""){	
+		var_dump($fullgroup);
+		$queryString = $queryString . " AND (" . builtGroupQueryByName($fullgroups);
 	}
 	
 	//Datenbankabfrage vorbereiten
@@ -244,107 +245,6 @@
     // }
 	
 	print($json);	
-	
-	//============================================================================
-	//============================Funktionen======================================
-	//============================================================================
-	
-	//Gruppenname in ID übersetzen
-	function translateGroupNameToId($array, $name) {
-		
-		foreach ($array as $element) {
-			if ($element['name'] == $name) {
-				return $element['id'];
-			}
-		}
-		
-		//Gruppe ist nicht bekannt
-		return -1;
-	}
-	
-	//Gruppenid in Name übersetzen
-	function translateGroupIdToName($array, $id) {
-		
-		foreach ($array as $element) {
-			if ($element['id'] == $id) {
-				return $element['name'];
-			}
-		}
-		
-		//Gruppe ist nicht bekannt
-		return "-1";
-	}
-	
-	//Erzeugt einen Anhang für die SQL Query mit der nach Gruppenitems gesucht werden kann
-	function builtGroupQueryByName($names) {
-		
-		$name_array = explode("_", $names);
-		$group_array = getGroupArray();
-		$query = "";
-		
-		$id = translateGroupNameToId($group_array,$name_array[0]);
-		
-		if ($id != -1) {
-			
-			$query = "groupId = " . $id . " ";
-			
-			for ($x = 1; $x < count($name_array); $x++) {
-				
-				$id = translateGroupNameToId($group_array,$name_array[$x]);
-		
-				if ($id != -1) {
-					
-					$query = $query . " OR groupId = " . $id;
-					
-				}
-				else {
-					error_log("Es wurde eine fehlerhafte GruppenID übergeben!");
-				}				
-			}
 
-			$query = $query . ")";
-		}
-		else {
-			error_log("Es wurde eine fehlerhafte GruppenID übergeben!");
-		}		
-		return $query;
-	}
-	
-	function getGroupArray() {
 		
-		global $dbtable;
-		global $clientdbVersion;
-		global $pdo;
-	
-		//SQL Query zum Abfragen der Daten konstruieren
-		$queryString = "SELECT * FROM `groupx`";
-		
-		//Ausgabe per JSON
-		$statment=$pdo->prepare($queryString);
-			
-		//Die Benutzereingaben sicher in den Querystring einfügen
-		//$statment->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
-		
-		//Statment schließen
-		$statment->closeCursor();
-		
-		//SQL Abfrage ausführen
-		$statment->execute();	
-		
-		//DEBUG Ausgabe SQL Query
-		//$statment->debugDumpParams();
-		
-		$results = array();
-	
-		while($res=$statment->fetch(PDO::FETCH_ASSOC)){
-			
-			$results[] = $res;
-			//print($results[0]["name"] . "-");
-			//print($res["name"] . "-");
-	 
-		}
-		
-		return $results;
-	}
-	
 ?>
