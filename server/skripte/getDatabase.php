@@ -27,224 +27,228 @@
 	//Basierend auf
 	//https://stackoverflow.com/questions/2770273/pdostatement-to-json
 
-	//Header setzen
-	header('Content-Type: application/json');
-	include 'util.php';
+	//=====================================================================
+	//============================Variablen================================
+	//=====================================================================	
 	
-	//Datenbankversion abfragen
-	$dbFile = fopen("db_Version.txt",'r');
+		//Header setzen
+		header('Content-Type: application/json');
+		include 'util.php';
 	
-	$dbversion = fgets($dbFile);
+	//=====================================================================
+	//========================Paramter abfragen============================
+	//=====================================================================		
 	
-	fclose($dbFile);
 	
-	//Mitgegebene Paramter abrufen
-	$table_input = $_GET['dbtable'];
-	
-	//Clientversion abfragen
-	if (isset($_GET['dbversion'])) {
-		$clientdbVersion = $_GET['dbversion'];}
-	else {
-		$clientdbVersion = "-1";
-	}
-	
-	//Gruppe abfragen
-	if (isset($_GET['groups'])) {
-		$groups = $_GET['groups'];}
-	else {
-		$groups = "";
-	}
-	
-	//Vollständig herunterzuladende Gruppen abfragen
-	if (isset($_GET['fullgroups'])) {
-		$fullgroups = $_GET['fullgroups'];}
-	else {
-		$fullgroups = "";
-	}
+		//Datenbankversion abfragen
+		$dbversion = getDBVersion();
 		
-	$fullgroup = "";
-	
-	//Downloadmodus abfragen
-	if (isset($_GET['loadfullgroup'])) {
-		$fullgroup = $_GET['loadfullgroup'];}
-	
-	//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
-	switch ($table_input) {
-		case "equipment":
-			$dbtable = "equipment";
-			break;
-			
-		case "tray":
-			$dbtable = "tray";
-			break;
-			
-		case "positionimage":
-			$dbtable = "positionimage";
-			break;
-
-		case "group":
-			$dbtable = "groupx";
-			break;
-			
-		default:
-			$dbtable = "";
+		//Mitgegebene Paramter abrufen
+		$table_input = $_GET['dbtable'];
+		log_db("Abfrage für Tabelle " . $table_input);
 		
-	}
-	
-	//Datenbankzugangsdaten
-	$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
-	
-	$db_server = fgets($dbFile);	
-	$db_name = fgets($dbFile);	
-	$db_user = fgets($dbFile);
-	$db_password = fgets($dbFile);
-	
-	fclose($dbFile);
-	 
-	$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
-	$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
-	$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
-	$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
-	
-	//Zugangsobjekt erzeugen
-	$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
-	
-	//SQL Query zum Abfragen der Daten konstruieren
-	$queryString;
-	
-	//Abfrage welche Tabelle abgefragt werden soll. Fall die Gruppen abgefragt werden, müssen auch alle nicht geänderte Gruppen angezeigt werden.
-	//Ansonsten würde in der App zu wenig im Gruppendialog angezeigt werden.
-	if ($dbtable == "groupx") {
-		$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version <= :dbversion";
-	}
-	else {
-		//Es sollen nur die geänderten Einträge heruntergeladen werden
-		$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version > :clientdbversion AND version <= :dbversion";			
-	}
-	
-	//Falls Gruppen vorhanden sind diese anhängen
-	if ($groups != null && $groups != ""){	
-		$queryString = $queryString . " AND (" . builtGroupQueryByName($groups);
-	}
-	
-	//Debug Ausgabe		
-	//print($queryString);
-	
-	//Datenbankabfrage vorbereiten
-	$stmt=$pdo->prepare($queryString);
-		
-	$stmt->bindParam(':dbversion', $dbversion, PDO::PARAM_INT);
-			
-	if ($dbtable != "groupx") {
-		$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
-	}
-	
-	//Statment schließen
-	$stmt->closeCursor();
-	
-	//SQL Abfrage ausführen
-	$stmt->execute();	
-	
-	//DEBUG Ausgabe SQL Query
-	//$stmt->debugDumpParams();
-	
-	$results = array(); 
-	
-	$group_array = getGroupArray();
-	
-	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-		
-		//Numerische Gruppenbezeichnung gegen alphabetische Gruppenbezeichnung austauschen
-		if ($dbtable != "groupx"){			
-			$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
+		//Clientversion abfragen
+		if (isset($_GET['dbversion'])) {
+			$clientdbVersion = $_GET['dbversion'];}
+		else {
+			$clientdbVersion = "-1";
 		}
-		//var_dump($row);
 		
-		//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
-		$results["OUTPUT"][] = $row;
- 
-	}
-		
-	
-	
-	//Falls ein vollständiger Download von Gruppen angefragt wurde, wird dieser nun bearbeitet
-	
-	if ($fullgroup == 1) {
-		//Es sollen alle Datenbankeinträge heruntergeladen werden
-		$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version <= :dbversion";
-	}	
-	
-	if ($fullgroups != null && $fullgroups != ""){	
-		var_dump($fullgroup);
-		$queryString = $queryString . " AND (" . builtGroupQueryByName($fullgroups);
-	}
-	
-	//Datenbankabfrage vorbereiten
-	$stmt=$pdo->prepare($queryString);
-		
-	$stmt->bindParam(':dbversion', $dbversion, PDO::PARAM_INT);
-			
-	if ($dbtable != "groupx" && $fullgroup != 1) {
-		$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
-	}
-	
-	//Statment schließen
-	$stmt->closeCursor();
-	
-	//SQL Abfrage ausführen
-	$stmt->execute();	
-	
-	//DEBUG Ausgabe SQL Query
-	//$stmt->debugDumpParams();
-	
-	$results = array(); 
-	
-	$group_array = getGroupArray();
-	
-	while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
-		
-		//Numerische Gruppenbezeichnung gegen alphabetische Gruppenbezeichnung austauschen
-		if ($dbtable != "groupx"){			
-			$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
+		//Gruppe abfragen
+		if (isset($_GET['groups'])) {
+			$groups = $_GET['groups'];}
+		else {
+			$groups = "";
 		}
-		//var_dump($row);
 		
-		//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
-		$results["OUTPUT"][] = $row;
- 
-	}
-	
-	//Ausgabe als JSON codieren	
-	$json = json_encode($results,JSON_PRETTY_PRINT);
-	
-	//DEBUG
-	//print_r($results);
+		//Vollständig herunterzuladende Gruppen abfragen
+		if (isset($_GET['fullgroups'])) {
+			$fullgroups = $_GET['fullgroups'];
+			log_db("Vollständige Gruppenabfrage");}
+		else {
+			$fullgroups = "";
+		}
 		
-	// switch (json_last_error()) {
-        // case JSON_ERROR_NONE:
-            // echo ' - No errors';
-        // break;
-        // case JSON_ERROR_DEPTH:
-            // echo ' - Maximum stack depth exceeded';
-        // break;
-        // case JSON_ERROR_STATE_MISMATCH:
-            // echo ' - Underflow or the modes mismatch';
-        // break;
-        // case JSON_ERROR_CTRL_CHAR:
-            // echo ' - Unexpected control character found';
-        // break;
-        // case JSON_ERROR_SYNTAX:
-            // echo ' - Syntax error, malformed JSON';
-        // break;
-        // case JSON_ERROR_UTF8:
-            // echo ' - Malformed UTF-8 characters, possibly incorrectly encoded';
-        // break;
-        // default:
-            // echo ' - Unknown error';
-        // break;
-    // }
-	
-	print($json);	
+		$fullgroup = "";
+		
+		//Downloadmodus abfragen
+		if (isset($_GET['loadfullgroup'])) {
+			$fullgroup = $_GET['loadfullgroup'];}
+		
+		//Datenbanktabelle festlegen (zum verhindern von SQL Injcetions findet hier eine Entkopplung der Eingabe und des in die SQL Query gegebenen Wertes statt
+		switch ($table_input) {
+			case "equipment":
+				$dbtable = "equipment";
+				break;
+				
+			case "tray":
+				$dbtable = "tray";
+				break;
+				
+			case "positionimage":
+				$dbtable = "positionimage";
+				break;
 
+			case "group":
+				$dbtable = "groupx";
+				break;
+				
+			default:
+				$dbtable = "";
+				echo("NO_TABLE");
+				log_db("Keine passende Tabelle gefunden!");
+				die;
+			
+		}
 		
+	//=====================================================================
+	//============================Hauptteil================================
+	//=====================================================================			
+		
+		//Datenbankzugangsdaten generieren
+		getDBAccess();
+		
+		$pdo = new PDO('mysql:host=' . $db_server . ';dbname=' . $db_name, $db_user, $db_password);
+				
+		$results = array();
+		$resultsX = basicDelivery($pdo, $dbtable, $groups, $dbversion, $clientdbVersion);
+		
+		$queryString = "";		
+	
+		$resultsY = fullDelivery($pdo, $dbtable, $fullgroup, $fullgroups);
+		
+		if (count($resultsX) > 0) {
+			$results["OUTPUT"][] = $resultsX;
+		}
+				
+		if (count($resultsY) > 0) {
+			$results["OUTPUT"][] = $resultsY;
+		}
+		
+		//Ausgabe als JSON codieren	
+		$json = json_encode($results,JSON_PRETTY_PRINT);
+			
+		//DEBUG
+		// var_dump($results);
+		// var_dump($json);
+		// debugJSON();
+		
+		print($json);	
+	
+			
+	//=====================================================================
+	//===========================Funktionen================================
+	//=====================================================================	
+	//=====================================================================	
+	
+		function basicDelivery($pdo, $dbtable, $groups, $dbversion, $clientdbVersion) {	
+		
+			//SQL Query zum Abfragen der Daten konstruieren
+			$queryString = "";
+			
+			//Abfrage welche Tabelle abgefragt werden soll. Fall die Gruppen abgefragt werden, müssen auch alle nicht geänderte Gruppen angezeigt werden.
+			//Ansonsten würde in der App zu wenig im Gruppendialog angezeigt werden.
+			if ($dbtable == "groupx") {
+				$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version <= :dbversion";
+			}
+			else {
+				//Es sollen nur die geänderten Einträge heruntergeladen werden
+				$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version > :clientdbversion AND version <= :dbversion";				
+			}
+			
+			//Falls Gruppen vorhanden sind diese anhängen
+			if ($groups != null && $groups != ""){	
+				$queryString = $queryString . " AND (" . builtGroupQueryByName($groups);
+			}
+			
+			//Debug Ausgabe		
+			// print($queryString);
+			
+			//Datenbankabfrage vorbereiten
+			$stmt=$pdo->prepare($queryString);
+				
+			$stmt->bindParam(':dbversion', $dbversion, PDO::PARAM_INT);
+					
+			if ($dbtable != "groupx") {
+				$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+			}
+			
+			//Statment schließen
+			$stmt->closeCursor();
+			
+			//SQL Abfrage ausführen
+			$stmt->execute();	
+			
+			//DEBUG Ausgabe SQL Query
+			// $stmt->debugDumpParams();
+			
+			$group_array = getGroupArray();
+			
+			while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
+				
+				//Numerische Gruppenbezeichnung gegen alphabetische Gruppenbezeichnung austauschen
+				if ($dbtable != "groupx"){			
+					$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
+				}
+				// var_dump($row);
+				
+				//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
+				$results[] = $row;				
+		 
+			}
+			
+			return $results;
+		}
+		
+		function fullDelivery($pdo, $dbtable, $fullgroup, $fullgroups) {
+			global $results;
+			
+			$queryString = "";
+			
+			if ($fullgroup == 1) {
+				//Es sollen alle Datenbankeinträge heruntergeladen werden
+				$queryString = "SELECT * FROM `" . $dbtable . "` WHERE version <= :dbversion";
+			}	
+			
+			if ($fullgroups != null && $fullgroups != ""){				
+				$queryString = $queryString . " AND (" . builtGroupQueryByName($fullgroups);
+			}
+			
+			//Datenbankabfrage vorbereiten
+			$stmt=$pdo->prepare($queryString);
+				
+			$stmt->bindParam(':dbversion', $dbversion, PDO::PARAM_INT);
+					
+			if ($dbtable != "groupx" && $fullgroup != 1) {
+				$stmt->bindParam(':clientdbversion', $clientdbVersion, PDO::PARAM_INT);
+			}
+			
+			//Statment schließen
+			$stmt->closeCursor();
+			
+			//SQL Abfrage ausführen
+			$stmt->execute();	
+			
+			//DEBUG Ausgabe SQL Query
+			//$stmt->debugDumpParams();
+			
+			$results = array(); 
+			
+			$group_array = getGroupArray();
+			
+			while($row=$stmt->fetch(PDO::FETCH_ASSOC)){
+				
+				//Numerische Gruppenbezeichnung gegen alphabetische Gruppenbezeichnung austauschen
+				if ($dbtable != "groupx"){			
+					$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
+				}
+				//var_dump($row);
+				
+				//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
+				$results[] = $row;
+		 
+			}
+			
+			return $results;
+		}	
 ?>
