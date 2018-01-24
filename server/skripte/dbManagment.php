@@ -25,16 +25,13 @@
 	// - table
 	// - data
 	// - newversion
+	// - overrideversion
 	
 	
 	//=====================================================================
 	//============================Variablen================================
 	//=====================================================================	
 	
-		// $db_server;	
-		// $db_name;	
-		// $db_user;
-		// $db_password;
 		$dbtable = '';
 		
 		$pdo;
@@ -151,14 +148,14 @@
 								
 			// Überprüfen ob der Nutzer gültig ist
 			if ($res["id"] == -1) {
-				echo('INVALID_AUTH');
+				echo('ERROR_INVALID_AUTH');
 				loginteral("Gescheiterter Loginversuch für Account: " . $user);
 				die;
 			}	
 			$id = $res["id"];			
 
 			if ($res == false) {
-				echo('INVALID_AUTH');
+				echo('ERROR_INVALID_AUTH');
 				loginteral("Gescheiterter Loginversuch für Account: " . $user);
 				die;
 			}
@@ -174,7 +171,7 @@
 					//Alles OK
 				}
 				else {
-					echo("MISSING_GROUP_PERMISSION");
+					echo("ERROR_MISSING_GROUP_PERMISSION");
 					loginteral("Fehlende Berechtigung Account: " . $user);
 					die;
 				}	
@@ -258,7 +255,7 @@
 				$data = $_POST['data'];
 			}
 			else {
-				echo 'NO_DATA';
+				echo 'ERROR_NO_DATA';
 				die;
 			}
 			
@@ -278,7 +275,7 @@
 				$command = $_POST['command'];
 			}
 			else {
-				echo 'NO_COMMAND';
+				echo 'ERROR_NO_COMMAND';
 				die;
 			}
 			
@@ -286,7 +283,7 @@
 				$table = $_POST['table'];
 			}
 			else {
-				echo 'NO_TABLE';
+				echo 'ERROR_NO_TABLE';
 				die;
 			}							
 		}
@@ -315,7 +312,7 @@
 					die;
 				
 				default:
-					echo('UNKNOWN_COMMAND');
+					echo('ERROR_UNKNOWN_COMMAND');
 					die;
 			}
 				
@@ -352,7 +349,7 @@
 				}
 			}
 			
-			echo("MISSING_GROUP_PERMISSION");
+			echo("ERROR_MISSING_GROUP_PERMISSION");
 			die;
 		}
 		
@@ -395,7 +392,7 @@
 					break;				
 					
 				default:
-					echo("INVALID_TABLE");
+					echo("ERROR_INVALID_TABLE");
 					die;
 				
 			}
@@ -408,7 +405,7 @@
 				$newversion = $_POST['newversion'];
 			}
 			else {
-				echo 'NO_VERSION';
+				echo 'ERROR_NO_VERSION';
 				die;
 			}
 			
