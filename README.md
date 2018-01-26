@@ -1,4 +1,4 @@
-# Digitale-Taschenkarte-Fahrzeugbeladung <img src="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung/blob/dev/doc/symbol/Symbo%20Vektor.png" width="100"> 
+# Digitale Taschenkarte Fahrzeugbeladung 
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung.svg)]()
 [![GitHub Release Date](https://img.shields.io/github/release-date/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung.svg)]()
