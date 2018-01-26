@@ -72,32 +72,6 @@
 	//=====================================================================
 	//===========================Funktionen================================
 	//=====================================================================
-	
-		function createDatabaseHandler() {
-			//Datenbankzugangsdaten
-			$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
-			
-			// global $db_server;
-			// global $db_name;
-			// global $db_user;
-			// global $db_password;
-			
-			$db_server = fgets($dbFile);	
-			$db_name = fgets($dbFile);	
-			$db_user = fgets($dbFile);
-			$db_password = fgets($dbFile);
-			
-			fclose($dbFile);
-			 
-			$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
-			$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
-			$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
-			$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
-			
-			//Zugangsobjekt erzeugen
-			$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
-			return $pdo;
-		}
 		
 		//Nutzer Autorisierung in der Datenbank checken
 		function  checkUser() {

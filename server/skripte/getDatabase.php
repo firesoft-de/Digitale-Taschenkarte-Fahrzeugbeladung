@@ -106,9 +106,9 @@
 	//=====================================================================			
 		
 		//Datenbankzugangsdaten generieren
-		getDBAccess();
+		//getDBAccess();
 		
-		$pdo = new PDO('mysql:host=' . $db_server . ';dbname=' . $db_name, $db_user, $db_password);
+		$pdo = createDatabaseHandler();
 				
 		$results = array();
 		$resultsX = basicDelivery($pdo, $dbtable, $groups, $dbversion, $clientdbVersion);
