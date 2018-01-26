@@ -16,12 +16,10 @@ package dresden.de.digitaleTaschenkarteBeladung.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,7 +70,7 @@ public class Util_Http {
      * @param url Enthält die rohe Serverurl
      * @param dbVersion Enthält die Datenbankversion des Clients
      * @param group Enthält die abonnierten Gruppen
-     * @return
+     * @return Liste der abgefragten EquipmentItems
      */
     public static ArrayList<EquipmentItem> requestItems(String url, int dbVersion, String group, String newGroups) {
         String httpResponse = null;
@@ -141,11 +139,11 @@ public class Util_Http {
 
     /**
      * Ruft die aktuelle Datenbankversion vom Server ab
-     * @param url
+     * @param url Die Serverurl
      * @return Im Fehlerfall wird -1 zurück gegeben
      */
     public static int requestVersion(String url) {
-            int result = -1;
+            int result;
 
             URL urlV = generateURL(url + SERVER_QUERY_VERSION);
             InputStream stream = null;
@@ -173,8 +171,7 @@ public class Util_Http {
                 return -1;
             }
             else {
-                Integer integer = new Integer(response);
-                result = integer;
+                result = Integer.valueOf(response);
 
                 return result;
             }
@@ -209,13 +206,13 @@ public class Util_Http {
         String response = readStream(stream);
 
         //Bildpfade aufschlüsseln
-        ArrayList<String> path = new ArrayList<>();
+//        ArrayList<String> path = new ArrayList<>();
 
         try {
             JSONObject baseJsonResponse = new JSONObject(response);
 
             JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
-            String returnPath = "";
+            String returnPath;
 
             for (int i = 0; i < responseArray.length(); i ++) {
 
@@ -276,7 +273,7 @@ public class Util_Http {
     }
 
     /**
-     * {@jsonItemParsing} verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste
+     * Die Methode verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste
      * @param response Die Serverantwort
      * @return ArrayListe mit den Ausrüstungsgegenständen
      */
@@ -325,7 +322,7 @@ public class Util_Http {
     }
 
     /**
-     * {@jsonTrayParsing} verarbeitet den Antwortstring des Servers und generiert eine ArrayListe mit den Behältern
+     * Die Methode verarbeitet den Antwortstring des Servers und generiert eine ArrayListe mit den Behältern
      * @param response Die Serverantwort
      * @return Liste mit den Ausrüstungsgegenständen
      */
@@ -520,7 +517,7 @@ public class Util_Http {
      */
     private static String readStream(InputStream input) {
 
-        String response = null;
+        String response;
         StringBuilder builder = new StringBuilder();
 
         if (input != null) {
@@ -570,19 +567,19 @@ public class Util_Http {
         return generatedUrl;
     }
 
-    public static boolean checkNetwork(Activity activity, Context context) {
+    public static boolean checkNetwork(Activity activity) {
         // Get a reference to the ConnectivityManager to check state of network connectivity
         ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // Get details on the currently active default data network
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (connMgr != null) {
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        // If there is a network connection, fetch data
-        if (networkInfo != null && networkInfo.isConnected()) {
-            // Verbindung
-            return true;
-        } else {
-            // Keine Verbindung
+            // If there is a network connection, fetch data
+            return networkInfo != null && networkInfo.isConnected();
+
+        }
+        else {
             return false;
         }
     }

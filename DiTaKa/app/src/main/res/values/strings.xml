@@ -5,13 +5,14 @@
     <string name="app_dbRefresh">Eine neue Datenbankversion ist verfügbar!</string>
     <string name="app_license">Diese App steht unter der GNU GPL v3.0. Du findest den Lizenztext unter \"Lizenz\".</string> <!--Schaue sie dir im Menüpunkt "Lizenz" an.-->
     <string name="app_db_update_available">Es ist ein Datenbankupdate verfügbar.</string>
+    <string name="app_reset">App zurücksetzen</string>
 
     <string name="fragment_title_data">Datenbank</string>
     <string name="fragment_title_tray">Gerätefächer</string>
     <string name="fragment_title_item">Ausrüstung</string>
     <string name="fragment_title_detail">Detailansicht</string>
     <string name="fragment_title_debug">Debug</string>
-    <string name="fragment_title_settings">Debug</string>
+    <string name="fragment_title_settings">Einstellungen</string>
     <string name="fragment_title_about">Über</string>
     <string name="fragment_title_license">Lizenz</string>
 
@@ -50,9 +51,12 @@
     <string name="data_url_error">Die Server-URL ist wahrscheinlich fehlerhaft!</string>
     <string name="daten_button_text_get_group">Daten abrufen</string>
     <string name="data_groups">Verfügbare Gruppen</string>
+    <string name="data_first_time_url">Gib hier die Server-URL ein!</string>
 
     <string name="about_text">Dieses Projekt ist Open Source!\nDu findest das Repository unter\n<a href="https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung">https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung</a></string>
-    <string name="data_first_time_url">Gib hier die Server-URL ein!</string>
-    <string name="app_reset">App zurücksetzen</string>
+
+    <string name="settings_colors">Anzeige</string>
+    <string name="settings_color_position_mark">Farbe der\nPositionsmarkierung</string>
+    <string name="settings_color_position_text">Farbe des\nPositionstextes</string>
 
 </resources>

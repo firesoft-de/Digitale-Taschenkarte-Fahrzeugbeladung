@@ -20,8 +20,6 @@ import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -35,7 +33,6 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -259,7 +256,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         String url = args.getString(Util.ARGS_URL);
         Integer version = args.getInt(Util.ARGS_VERSION);
         String group = activity.gManager.subscribedToQuery();
-        String newGroup = activity.gManager.newToQuery();
+        String newGroup = activity.gManager.newGroupsQuery();
 
         switch (id) {
             case ITEM_LOADER:
@@ -430,7 +427,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             url = Util_Http.handleURL(editText.getText().toString(), getActivity());
 
             // Netzwerkstatus überpüfen
-            if (Util_Http.checkNetwork(getActivity(),getContext())) {
+            if (Util_Http.checkNetwork(getActivity())) {
                 // Netzwerkverbindung i.O.
 
                 // Serverdatenbankversion abrufen
@@ -465,18 +462,18 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             //Überprüfen welche Gruppen und überhaupt welche ausgewählt wurden
             ArrayList<String> list = checkSelectedGroups();
-            ArrayList<Group> groups = gManager.getGroupsByName(list,true);
+            ArrayList<Group> groups = gManager.getGroupsByName(list);
             if (list.size() == 0) {
                 publishProgress(true,true);
                 Snackbar.make(activity.findViewById(R.id.MainFrame),"Bitte wähle mindestens eine Gruppe aus",Snackbar.LENGTH_LONG)
                         .show();
             }
             else {
-                gManager.deleteRemovedGroups(groups, viewModel);
+                gManager.identifyRemovedGroups(groups, viewModel);
                 gManager.identifyNewGroups(groups);
 
                 //Neue Gruppen setzen
-                gManager.setSubscribedGroups(groups,true);
+                gManager.setSubscribedGroups(groups);
 
                 //Loader starten
                 initateLoader(activity.liveNetDBVersion.getValue());
@@ -655,8 +652,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         if (groups.size() > 0) {
 
+            // Karte einstellen
             CardView card = activity.findViewById(R.id.cardGroup);
-
             card.setVisibility(View.VISIBLE);
             card.setMinimumHeight(30);
 
@@ -664,6 +661,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
+            //Abgerufene Gruppen in die Auswahl aufnehmen und dabei die bereits abonnierten Gruppen markieren
             for (Group group : groups
                     ) {
                 ViewGroupSelector groupSelector = new ViewGroupSelector(LayoutInflater.from(getContext()), getContext(), viewGroup);
