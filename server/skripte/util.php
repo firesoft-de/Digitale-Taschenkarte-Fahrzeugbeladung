@@ -1,7 +1,7 @@
 <?php
 	
 	function translateGroupNameToId($array, $name) {
-		
+				
 		foreach ($array as $element) {
 			if ($element['name'] == $name) {
 				return $element['id'];
@@ -39,7 +39,7 @@
 			$query = "groupId = " . $id . " ";
 			
 			for ($x = 1; $x < count($name_array); $x++) {
-				
+		
 				$id = translateGroupNameToId($group_array,$name_array[$x]);
 		
 				if ($id != -1) {
@@ -203,5 +203,32 @@
 				break;
 		}		
 	}
-
+	
+	function checkIfEntryExists($id, $pdo, $table) {
+		
+		$query = "SELECT `id` FROM `" . $table . "` WHERE `id` LIKE " . $id ;					
+						
+		$stmt=$pdo->prepare($query);			
+		$stmt->closeCursor();	
+		$stmt->execute();	
+		
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		//DEBUG
+		// echo "Checkuser for ID: " . $id;
+		// echo "\r\n";
+		// var_dump($res);
+		// echo "\r\n";
+		
+		if ($res == false) {
+			return false;
+		}
+		
+		if (count($res) > 0) {
+			return true;
+		}
+		else {
+			return false;
+		}		
+	}
 ?>

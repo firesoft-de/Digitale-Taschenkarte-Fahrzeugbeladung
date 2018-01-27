@@ -40,7 +40,7 @@
 		$group;
 		$table;
 		$tablecols;
-		
+				
 		include 'util.php';
 	
 	//=====================================================================
@@ -56,14 +56,14 @@
 		
 		//Befehl abrufen
 		receiveCommand();
-		$basequery = buildQuery();
-		loginteral("Auszuführender Befehl: " . $basequery);
+		//$basequery = buildQuery();
+		loginteral("Auszuführender Befehl: " . $command);
 		
 		//Daten abrufen
 		$dataarray = receiveData();
 		
 		//Daten verarbeiten
-		work($basequery,$dataarray);
+		work($dataarray);
 				
 		echo("CONFIRM_WORK_DONE");
 		loginteral("CONFIRM_WORK_DONE");	
@@ -87,7 +87,7 @@
 				$user = $_POST['user'];
 			}
 			else {
-				echo 'NO_USER';
+				echo 'ERROR_NO_USER';
 				die;
 			}
 			
@@ -95,7 +95,7 @@
 				$pass = $_POST['pass'];
 			}
 			else {
-				echo 'NO_PASS';
+				echo 'ERROR_NO_PASS';
 				die;
 			}		
 
@@ -103,7 +103,7 @@
 				$group = $_POST['group'];
 			}
 			else {
-				echo 'NO_GROUP';
+				echo 'ERROR_NO_GROUP';
 				die;
 			}
 			
@@ -137,9 +137,9 @@
 			// Überprüfen ob der Nutzer die Gruppe bearbeiten darf
 			$group_array = explode("_",$res["groups"]);
 			
-			$group = translateGroup($group);
+			$groupInputArray = explode("_",$group);
 			
-			foreach($group as $element) {
+			foreach($groupInputArray as $element) {
 				
 				if (in_array($element, $group_array)) {
 					//Alles OK
@@ -150,75 +150,107 @@
 					die;
 				}	
 			}	
+			
+			$group = translateGroup($group);
+			
 			return $id;
 		}
 		
-		function work($query, $data) {
+		function work($data) {
 			global $group;
 			global $table;
 			global $pdo;
 			global $tablecols;	
 			global $command;
 			
+			$res = 0;
+			
 			for ($x = 0; $x < count($data); $x++) {
 				
-				//Überprüfen ob der angefragte Datenbankeintrag geändert werden darf
-				checkGroupPermission($data[$x]['id']);
+				$current_id = $data[$x]['id'];
 				
-				if ($command == "insert") {
-					
-					$querystring = $query . "(";
-					foreach ($tablecols as $element) {
-						//var_dump($element);
-						$querystring = $querystring . "`" . $element . "`,";
-					}
-					
-					$querystring = rtrim($querystring,",");
-					
-					$querystring = $querystring . ") VALUES (";
-					
-					foreach($data[$x] as $subelement) {
-						$querystring = $querystring . "`" . $subelement . "`,";
-					}
+				//Prüfen ob nach der Änderung der Eintrag noch in einer authorisierten Gruppe liegt
+				if (!checkGroupPermissionOnItem($data[$x]['groupId'])) {
+					$res = -1;
+				}
+				else {
+					if ($command == "insert") {
+						
+						if (!checkIfEntryExists($current_id, $pdo, $table)) {
+							//Wenn der Eintrag noch nicht exisitert, muss er mittels insert eingespielt werden
 							
-					$querystring = rtrim($querystring,",");		
-					$querystring = $querystring . ")";	
-					
-					// Query erstellen
-					//var_dump($querystring);
-					
-				}
-				else if ($command == "update") {
-					
-					$querystring = $query . "SET ";
-					
-					for ($i= 1; $i < count($tablecols); $i++) {
-						$element = $data[$x];
-						$querystring = $querystring . "" . $tablecols[$i] . " = '" . $element[$tablecols[$i]] . "', ";
+							//TODO: Überprüfen, ob der Nutzer neue Einträge anlegen darf.
+													
+							$querystring = "INSERT INTO " . '`' . $table . '`' . " (";
+							$valuestring = "";
+							
+							for ($i= 0; $i < count($tablecols); $i++) {
+								$element = $data[$x];
+								$currentcol = $tablecols[$i];
+
+								if ($currentcol == "groupId" && !is_numeric($element[$currentcol])) {
+									//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
+									$group_array = getGroupArray();
+									$element[$currentcol] = translateGroupNameToId($group_array, $element[$currentcol]);
+								}
+								
+								$querystring = $querystring . "" . $currentcol . ", ";
+								$valuestring = $valuestring . "'" . $element[$currentcol] . "',";
+							}
+																		
+							$querystring = rtrim($querystring,", ");
+							$valuestring = rtrim($valuestring,",");
+							
+							$querystring = $querystring . ") VALUES (" . $valuestring . ")";										
+							
+						}
+						else {
+							checkGroupPermission($current_id);
+							
+							//Wenn der Eintrag bereits exisitert, muss er mittels update eingespielt werden
+							$querystring = "UPDATE " . '`' . $table . '`' . " SET ";
+								
+							for ($i= 1; $i < count($tablecols); $i++) {
+								$element = $data[$x];
+								$currentcol = $tablecols[$i];
+
+								if ($currentcol == "groupId" && !is_numeric($element[$currentcol])) {
+									//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
+									$group_array = getGroupArray();
+									$element[$currentcol] = translateGroupNameToId($group_array, $element[$currentcol]);
+								}
+								
+								$querystring = $querystring . "" . $currentcol . " = '" . $element[$currentcol] . "', ";
+							}
+							
+							$querystring = rtrim($querystring,", ");	
+							$querystring = $querystring . " WHERE " . $tablecols[0] . " = '" . $data[$x][$tablecols[0]] . "'";							
+						}					
 					}
-					
-					$querystring = rtrim($querystring,", ");	
-					$querystring = $querystring . " WHERE " . $tablecols[0] . " = '" . $data[$x][$tablecols[0]] . "'";	
-					
-					//DEBUG
-					// var_dump($querystring);
-					
 				}
 				
-				// Datenbankabfrage durchführen
-				$stmt=$pdo->prepare($querystring);				
-				$stmt->closeCursor();	
-				$stmt->execute();	
+				// var_dump($querystring);
 				
-				$res = $stmt->rowCount();
-				// var_dump($res);
-				
+				if ($res >= 0) {
+					// Datenbankabfrage durchführen
+					$stmt=$pdo->prepare($querystring);				
+					$stmt->closeCursor();	
+					$stmt->execute();	
+					
+					$res = $stmt->rowCount();
+					// var_dump($res);
+				}
+								
 				if ($res == 0) {
 					echo("ID " . $data[$x][$tablecols[0]] . " - SQL_ERROR \r\n");
 				}
+				else if ($res == -1) {
+					echo("ID " . $data[$x][$tablecols[0]] . " - MISSING_GROUP_PERMISSION \r\n");
+				}
 				else {
 					echo("ID " . $data[$x][$tablecols[0]] . " - SUCCESS \r\n");
-				}				
+				}			
+				
 			}			
 		}
 		
@@ -234,6 +266,12 @@
 			}
 			
 			$rawdata = json_decode($data,true);
+			
+			if (!array_key_exists("INPUT",$rawdata)) {
+				echo "ERROR_DATA_FORMAT_INVALID";
+				die;
+			}
+			
 			$rawdata = $rawdata["INPUT"];
 						
 			return $rawdata;
@@ -260,42 +298,8 @@
 				echo 'ERROR_NO_TABLE';
 				die;
 			}							
-		}
-		
-		//Befehl in Query umwandeln
-		function buildQuery() {
-			global $command;
-			global $group;
-			global $table;
-			
-			switch ($command) {				
-				case 'insert':
-					$query = "INSERT INTO ";
-					break;
-					
-				case 'delete':
-				
-					break;
-					
-				case 'update':
-					$query = "UPDATE ";
-					break;	
-				
-				case 'version':
-					setversion();
-					die;
-				
-				default:
-					echo('ERROR_UNKNOWN_COMMAND');
-					die;
-			}
-				
-			// Tabelle in Query einbauen
+						
 			$table = translateTable($table);
-				
-			$query = $query . '`' . $table . '` ';
-
-			return $query;
 		}
 		
 		//Berechtigung zum Ändern des Eintrags prüfen
@@ -314,8 +318,17 @@
 			$res = $stmt->fetch(PDO::FETCH_ASSOC);
 			
 			//DEBUG
+			// echo "query:";
+			// var_dump($query);
+			// echo "\r\n";
+			
+			// echo "res:";
 			// var_dump($res);
+			// echo "\r\n";
+			
+			// echo "group:";
 			// var_dump($group);
+			// echo "\r\n";
 			
 			foreach($group as $element) {
 				if ($element == $res["groupId"]) {
@@ -325,6 +338,23 @@
 			
 			echo("ERROR_MISSING_GROUP_PERMISSION");
 			die;
+		}
+		
+		//Überprüft anhand der groupId eines einzutragenden Datensatzes ob die Zielgruppe durch den Benutzer geändert werden darf.
+		function checkGroupPermissionOnItem($groupId) {		
+			global $group;
+			
+			if (!is_numeric($groupId)) {
+				//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
+				$group_array = getGroupArray();
+				$groupId = translateGroupNameToId($group_array, $groupId);
+			}
+			if (in_array($groupId,$group)) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		
 				
@@ -355,14 +385,18 @@
 					
 				case "positionimage":
 					$dbtable = "positionimage";
+					//TODO: Andere Spalten einbauen
 					break;
 
 				case "group":
 					$dbtable = "groupx";
+					//TODO: Andere Spalten einbauen
 					break;
 					
 				case "user":
 					$dbtable = "userx";
+					//TODO: Andere Spalten einbauen
+					//TODO: 
 					break;				
 					
 				default:

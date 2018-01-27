@@ -95,7 +95,7 @@
 				
 			default:
 				$dbtable = "";
-				echo("NO_TABLE");
+				echo("ERROR_NO_TABLE");
 				log_db("Keine passende Tabelle gefunden!");
 				die;
 			
@@ -120,7 +120,6 @@
 		if (count($resultsX) > 0) {
 			$results["OUTPUT"] = $resultsX;
 		}
-		// var_dump($results);
 				
 		if (count($resultsY) > 0) {
 			$results["OUTPUT"] = $resultsY;
@@ -130,7 +129,7 @@
 		$json = json_encode($results,JSON_PRETTY_PRINT);
 			
 		//DEBUG
-		 // var_dump($results);
+		// var_dump($results);
 		// var_dump($resultsX);
 		// var_dump($resultsY);
 		// var_dump($json);
@@ -183,7 +182,7 @@
 			$stmt->execute();	
 			
 			//DEBUG Ausgabe SQL Query
-			// $stmt->debugDumpParams();
+			//$stmt->debugDumpParams();
 			
 			$results = array();
 			$group_array = getGroupArray();
@@ -194,9 +193,8 @@
 				if ($dbtable != "groupx"){			
 					$row["groupId"] = translateGroupIdToName($group_array,$row["groupId"]);
 				}
-				// var_dump($row);
+				//var_dump($row);
 				
-				//print($row['id'].";".$row['name'].";".$row['description'].";".$row['categoryId'].";".$row['setName'].";".$row['position'].";".$row['keywords']."#-#");
 				$results[] = $row;				
 		 
 			}
