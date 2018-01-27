@@ -33,6 +33,7 @@
                 <Button Content="Exceldatei laden" Background="LightGray" Margin="15,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center"  ToolBar.OverflowMode="Never" Padding="5" Click="BT_Load_Excel" />
                 <Button Content="Test NetManager" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="Button_Click"/>
                 <Button Content="Test Serverconnection" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestServer_Click"/>
+                <Button Content="Test Settings" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestSetting_Click"/>
             </ToolBar>
         </ToolBarTray>
         <GroupBox Header="Datenbankinformationen" Margin="5" Padding="5" Grid.Row="2">
@@ -71,6 +72,8 @@
                 <TextBox x:Name="txb_user" Grid.Column="1" Grid.Row="1" Margin="5"/>
                 <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Passwort</TextBlock>
                 <TextBox x:Name="txb_pass" Grid.Column="1" Grid.Row="2" Margin="5"></TextBox>
+                <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Passwort-Hash</TextBlock>
+                <TextBox x:Name="txb_hash" Grid.Column="1" Grid.Row="3" Margin="5" IsReadOnly="True" />
             </Grid>
         </GroupBox>
 
@@ -87,9 +90,9 @@
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Server Version</TextBlock>
-                <TextBlock x:Name="tb_serverversion" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Server URL</TextBlock>
-                <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">Benutzername</TextBlock>
-                <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Passwort</TextBlock>
+                <TextBlock x:Name="tb_serverversion" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Noch keine Serverversion vorhanden!</TextBlock>
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" VerticalAlignment="Top">Serverantwort</TextBlock>
+                <TextBox x:Name="txb_response" Grid.Column="1" Grid.Row="1" Margin="5" IsReadOnly="True" TextWrapping="Wrap" Height="100"/>
             </Grid>
         </GroupBox>
     </Grid>

@@ -1,4 +1,18 @@
-﻿using Microsoft.Win32;
+﻿/* 	Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+Copyright (C) 2017  David Schlossarczyk
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+For the full license visit https://www.gnu.org/licenses/gpl-3.0. */
+
+using Microsoft.Win32;
 using ServerManager.util;
 using System;
 using System.Collections.Generic;
@@ -24,6 +38,7 @@ namespace ServerManager
     {
 
         ExcelManager eManager;
+        appSettings settings;
 
         //===========================================================================
         //===========================Window Methoden=================================
@@ -32,6 +47,10 @@ namespace ServerManager
         public MainWindow()
         {
             InitializeComponent();
+            settings = new appSettings();
+            settings.load();
+            txb_url.Text = settings.Url;
+            txb_user.Text = settings.User;
         }
 
         //Toolbar Overflowbutton ausblenden
@@ -57,6 +76,8 @@ namespace ServerManager
             {
                 eManager.close();
             }
+
+            settings.save();
         }
 
         //===========================================================================
@@ -80,15 +101,38 @@ namespace ServerManager
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            httpManager netManager = new httpManager("");
-            netManager.setAuth("Nutzer", "pass");
+            settings.User = txb_user.Text;
+            settings.Url = txb_url.Text;
+            settings.save();
+
+            httpManager netManager = new httpManager(settings.Url);
+            netManager.setAuth(settings.User, settings.Url);
+            txb_hash.Text = netManager.Pass;
+            
+            txb_response.Text += netManager.testUserAndPass() + Environment.NewLine;
         }
 
         private void TestServer_Click(object sender, RoutedEventArgs e)
         {
-            httpManager netManager = new httpManager(txb_url.Text);
-            netManager.setAuth(txb_user.Text, txb_pass.Text);
+            settings.User = txb_user.Text;
+            settings.Url = txb_url.Text;
+
+            httpManager netManager = new httpManager(settings.Url);
+            netManager.setAuth(settings.User, settings.Url);
+            txb_hash.Text = netManager.Pass;
             tb_serverversion.Text = netManager.testConnection();
+        }
+
+        private void TestSetting_Click(object sender, RoutedEventArgs e)
+        {
+            appSettings settings = new appSettings();
+            settings.load();
+            settings.Url = "http://test.de";
+            settings.User = "asdf";
+            settings.save();
+            settings = null;
+            settings = new appSettings();
+            settings.load();
         }
     }
 }
