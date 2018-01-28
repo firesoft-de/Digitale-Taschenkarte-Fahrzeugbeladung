@@ -16,6 +16,7 @@ using Microsoft.Win32;
 using ServerManager.util;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace ServerManager
 
         ExcelManager eManager;
         appSettings settings;
-
+        
         //===========================================================================
         //===========================Window Methoden=================================
         //===========================================================================
@@ -72,14 +73,14 @@ namespace ServerManager
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            if (eManager != null)
-            {
-                eManager.close();
-            }
+            //if (eManager != null)
+            //{
+            //    eManager.close();
+            //}
 
             settings.save();
         }
-
+        
         //===========================================================================
         //==============================UI Methoden==================================
         //===========================================================================
@@ -91,7 +92,9 @@ namespace ServerManager
             Nullable<bool> result = fileDialog.ShowDialog();
             
             if (result == true) {
-                eManager = new ExcelManager(fileDialog.FileName);
+                eManager = new ExcelManager(fileDialog.FileName,excelCallback, excelDataRefersh);
+                //eManager.ReportProgressEvent += new EventHandler<ExcelEventArgs>(excelTaskCallback);
+                eManager.Open();
             }
             else
             {
@@ -106,10 +109,10 @@ namespace ServerManager
             settings.save();
 
             httpManager netManager = new httpManager(settings.Url);
-            netManager.setAuth(settings.User, settings.Url);
+            netManager.SetAuth(settings.User, settings.Url);
             txb_hash.Text = netManager.Pass;
-            
-            txb_response.Text += netManager.testUserAndPass() + Environment.NewLine;
+
+            printTXB(netManager.testUserAndPass());
         }
 
         private void TestServer_Click(object sender, RoutedEventArgs e)
@@ -118,7 +121,7 @@ namespace ServerManager
             settings.Url = txb_url.Text;
 
             httpManager netManager = new httpManager(settings.Url);
-            netManager.setAuth(settings.User, settings.Url);
+            netManager.SetAuth(settings.User, settings.Url);
             txb_hash.Text = netManager.Pass;
             tb_serverversion.Text = netManager.testConnection();
         }
@@ -133,6 +136,53 @@ namespace ServerManager
             settings = null;
             settings = new appSettings();
             settings.load();
+        }
+
+        //===========================================================================
+        //==============================Hilfsmethoden================================
+        //===========================================================================
+
+        /// <summary>
+        /// Zeigt eine Nachricht im Ausgabefenster an
+        /// </summary>
+        /// <param name="message"></param>
+        private void printTXB(string message)
+        {
+            txb_response.AppendText(message + Environment.NewLine);
+            txb_response.ScrollToEnd();
+        }
+
+        /// <summary>
+        /// Dient als Rückrufmethode für den excelManager
+        /// </summary>
+        /// <param name="message"></param>
+        private void excelCallback(string message)
+        {
+            printTXB(message);
+        }
+
+        private void excelDataRefersh(int tableCount, int entryCount, List<string> tablenames)
+        {
+            tb_entries.Text = entryCount.ToString();
+            tb_tables.Text = tableCount.ToString();
+
+            foreach (string item in tablenames)
+            {
+                CheckBox checkBox = new CheckBox();
+                checkBox.Content = item.ToString();
+                wrpPnl_tables.Children.Add(checkBox);
+            }
+        }
+
+        private void SendToServer_Click(object sender, RoutedEventArgs e)
+        {
+            settings.User = txb_user.Text;
+            settings.Url = txb_url.Text;
+
+            httpManager netManager = new httpManager(settings.Url);
+            netManager.SetAuth(settings.User, settings.Url);
+            txb_hash.Text = netManager.Pass;
+            //printTXB(netManager.Send());
         }
     }
 }

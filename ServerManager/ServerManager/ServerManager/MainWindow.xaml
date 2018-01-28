@@ -32,7 +32,7 @@
 
                 <Button Content="Exceldatei laden" Background="LightGray" Margin="15,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center"  ToolBar.OverflowMode="Never" Padding="5" Click="BT_Load_Excel" />
                 <Button Content="Test NetManager" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="Button_Click"/>
-                <Button Content="Test Serverconnection" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestServer_Click"/>
+                <Button Content="An Server senden" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="SendToServer_Click"/>
                 <Button Content="Test Settings" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestSetting_Click"/>
             </ToolBar>
         </ToolBarTray>
@@ -40,7 +40,7 @@
             <Grid VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="120" />
-                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -48,10 +48,14 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Height="16" Width="93">Erkannte Tabellen</TextBlock>
-                <TextBlock x:Name="tb_tables" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>
-                <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Height="16" Width="87">Erfasste Einträge</TextBlock>
-                <TextBlock x:Name="tb_entries" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Betroffene Tabellen</TextBlock>
+                <WrapPanel x:Name="wrpPnl_tables" Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                </WrapPanel>
+                <!--<TextBlock x:Name="tb_tables" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>-->
+                <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Erfasste Tabellen</TextBlock>
+                <TextBlock x:Name="tb_tables" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Erfasste Einträge</TextBlock>
+                <TextBlock x:Name="tb_entries" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>
             </Grid>
         </GroupBox>
         <GroupBox Header="Serverdaten" Margin="5" Padding="5" Grid.Row="1">
@@ -90,9 +94,9 @@
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Server Version</TextBlock>
-                <TextBlock x:Name="tb_serverversion" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Noch keine Serverversion vorhanden!</TextBlock>
+                <TextBlock Margin="5,0,0,0" x:Name="tb_serverversion" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Noch keine Serverversion vorhanden!</TextBlock>
                 <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" VerticalAlignment="Top">Serverantwort</TextBlock>
-                <TextBox x:Name="txb_response" Grid.Column="1" Grid.Row="1" Margin="5" IsReadOnly="True" TextWrapping="Wrap" Height="100"/>
+                <TextBox x:Name="txb_response" Grid.Column="1" Grid.Row="1" Margin="5" IsReadOnly="True" TextWrapping="Wrap" Height="200" VerticalScrollBarVisibility="Auto"/>
             </Grid>
         </GroupBox>
     </Grid>

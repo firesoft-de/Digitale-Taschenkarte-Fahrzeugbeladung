@@ -33,12 +33,13 @@ namespace ServerManager.util
         static private string getdbversion = "getDBVersion.php";
         static private string dbManagment = "dbManagment.php";
 
-        public string Pass { get => pass;}
+        public string Pass { get => pass; }
+
 
         public httpManager(string url)
         {
 
-            if (url.Substring(0,7) != "http://")
+            if (url.Substring(0, 7) != "http://")
             {
                 this.url = "http://" + url;
             }
@@ -53,18 +54,18 @@ namespace ServerManager.util
         //==============================Grundfunktionen==================================
         //===============================================================================
 
-        public void setAuth(string user, string pass)
+        public void SetAuth(string user, string pass)
         {
             this.user = user;
             this.pass = hashPasswort(pass);
         }
 
-        public void send()
+        public void Send()
         {
 
         }
-        
-        private string connect(string serverURL)
+
+        private string Connect(string serverURL)
         {
             webRequest = WebRequest.Create(serverURL);
 
@@ -85,10 +86,10 @@ namespace ServerManager.util
         }
 
         //post hat die Form feld1=ABCD&feld2=EFGH
-        private string connect(string serverURL, string post)
+        private string Connect(string serverURL, string post)
         {
-            webRequest = (HttpWebRequest) WebRequest.Create(serverURL);
-            
+            webRequest = (HttpWebRequest)WebRequest.Create(serverURL);
+
             var data = Encoding.ASCII.GetBytes(post);
 
             webRequest.Method = "POST";
@@ -114,6 +115,17 @@ namespace ServerManager.util
             return text;
         }
 
+        public string Send(string data)
+        {
+            string query = dbManagment;
+            StringBuilder post = new StringBuilder();
+            post.Append("user=" + user + "&" + "pass=" + Pass + "&" + "group=B1&command=insert&data=");
+            post.Append(data.ElementAt(0));
+
+            string url = mergeURL(query);
+            return computeResponse(Connect(url, post.ToString()));
+        }
+
         //===============================================================================
         //============================Verbindungsfunktionen==============================
         //===============================================================================
@@ -121,7 +133,7 @@ namespace ServerManager.util
         public string getDBVersion()
         {
             string url = mergeURL(getdbversion);
-            return connect(url);
+            return Connect(url);
         }
 
 
@@ -137,7 +149,7 @@ namespace ServerManager.util
         public string testConnection()
         {
             string url = mergeURL(getdbversion);
-            return connect(url);
+            return Connect(url);
         }
 
         public string testUserAndPass()
@@ -146,7 +158,7 @@ namespace ServerManager.util
             string post = "user=" + user + "&" + "pass=" + Pass + "&" + "group=B1&command=insert&data=null";
 
             string url = mergeURL(query);
-            return computeResponse(connect(url, post));
+            return computeResponse(Connect(url, post));
         }
 
         //===============================================================================
@@ -189,22 +201,24 @@ namespace ServerManager.util
         {
             if (File.Exists("settings.xml"))
             {
-                XmlReader reader = XmlReader.Create("messages.xml");
-                if (!reader.EOF)
-                {
-                    reader.MoveToContent();
+                XmlDocument document = new XmlDocument();
+                document.Load("environment.xml");
+                XmlNode rootnode = document.GetElementsByTagName("messages")[0];
 
-                    while (reader.Read())
-                    {
-                        if (reader.NodeType == XmlNodeType.Element && reader.GetAttribute("name") == response)
-                        {
-                            return reader.ReadElementContentAsString();
-                        }
-                    }
+                try
+                {
+                    XmlNode node = rootnode.SelectNodes("//message[@name='" + response + "']")[0];
+                    return node.InnerText;
                 }
-                reader.Close();
+                catch (Exception)
+                {
+                    return "Konnte keine gültige Zuordnung finden! Servernachricht: " + response;
+                }
             }
-            return "Konnte Nachrichtendatei nicht laden oder eine passende Meldung finden! Servernachricht: " + response;
+            else
+            {
+                return "Konnte Nachrichtendatei nicht laden oder eine passende Meldung finden! Servernachricht: " + response;
+            }
         }
     }
 }
