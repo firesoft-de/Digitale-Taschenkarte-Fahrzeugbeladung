@@ -148,6 +148,12 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         if (url != "NO_URL_FOUND") {
             editText.setText(url);
             updateDBVersion(dbversion,result);
+            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean b) {
+                    onEditTextURLFocusChange(b);
+                }
+            });
         }
         else {
             //Es ist davon auszugehen, dass dies der erste Start ist
@@ -396,6 +402,27 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onLoaderReset(Loader loader) {
         //Hier wird nichts gemacht :/
+    }
+
+    private void onEditTextURLFocusChange(boolean focus) {
+        EditText editText = getActivity().findViewById(R.id.text_url);
+        CardView card = getActivity().findViewById(R.id.cardGroup);
+
+        if (focus) {
+            editText.setText("");
+            transformFAB(0);
+            groupSelectionCompleted = false;
+            ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
+            viewGroup.removeAllViews();
+
+            card.setVisibility(View.GONE);
+        }
+        else {
+            if (editText.getText().equals("")) {
+                editText.setText(url);
+            }
+        }
+
     }
 
     //=======================================================
