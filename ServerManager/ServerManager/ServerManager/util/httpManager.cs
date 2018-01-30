@@ -20,23 +20,36 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Xml;
+using ServerManager.util;
+using System.Threading.Tasks;
 
 namespace ServerManager.util
 {
-    class httpManager
+    class HttpManager
     {
         private string url;
         private string user;
         private string pass;
-        WebRequest webRequest;
+        private string webrequeststatuscode;
 
         static private string getdbversion = "getDBVersion.php";
         static private string dbManagment = "dbManagment.php";
 
         public string Pass { get => pass; }
 
+        ExcelManager.excelcallback caller;
 
-        public httpManager(string url)
+
+        public delegate void UICallback(short method, string response);
+        UICallback uiCaller;
+
+        /// <summary>
+        /// Instantziert einen neuen HttpManager
+        /// </summary>
+        /// <param name="url">URL unter der der Server zu finden ist</param>
+        /// <param name="caller">Callback Methode zur Ausgabe von Fortschrittsnachrichten</param>
+        /// <param name="uiCallback">Callback Methode zum Übergeben von Rückgabewerten aus asynchronen HTTP-Abfragen</param>
+        public HttpManager(string url, ExcelManager.excelcallback caller, UICallback uiCallback)
         {
 
             if (url.Substring(0, 7) != "http://")
@@ -48,28 +61,97 @@ namespace ServerManager.util
                 this.url = url;
             }
 
+            this.caller = caller;
+            uiCaller = uiCallback;
+
+        }
+
+        /// <summary>
+        /// Instantziert einen neuen HttpManager
+        /// </summary>
+        /// <param name="url">URL unter der der Server zu finden ist</param>
+        /// <param name="user">Benutzername für den Serverzugriff</param>
+        /// <param name="pass">Benutzerpasswort für den Serverzugriff</param>
+        /// <param name="caller">Callback Methode zur Ausgabe von Fortschrittsnachrichten</param>
+        /// <param name="uiCallback">Callback Methode zum Übergeben von Rückgabewerten aus asynchronen HTTP-Abfragen</param>
+        public HttpManager(string url, string user, string pass, ExcelManager.excelcallback caller, UICallback uiCallback)
+        {
+
+            if (url.Substring(0, 7) != "http://")
+            {
+                this.url = "http://" + url;
+            }
+            else
+            {
+                this.url = url;
+            }
+
+            this.caller = caller;
+            uiCaller = uiCallback;
+            SetAuth(user,pass);
+
         }
 
         //===============================================================================
         //==============================Grundfunktionen==================================
         //===============================================================================
 
+        /// <summary>
+        /// Hilfsmethode um die Authentifizierungsdaten auch nachträglich schnell setzen zu können
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="pass"></param>
         public void SetAuth(string user, string pass)
         {
             this.user = user;
-            this.pass = hashPasswort(pass);
+            this.pass = CreateHash(pass);
         }
 
-        public void Send()
+        /// <summary>
+        /// Stellt eine Verbindung zum Datenbankserver her
+        /// </summary>
+        /// <param name="serverURL">Die URL unter der der Server zu finden ist.</param>
+        /// <param name="post">Wenn keine Postparameter verwendet werden sollen, kann als Wert "" oder null übergeben werden</param>
+        /// <returns>Den Responsestream des Servers oder eine Fehlermeldung</returns>
+        private string Connect(string serverURL, string post, IProgress<string> reporter)
         {
+            HttpWebRequest webRequest = (HttpWebRequest) WebRequest.Create(serverURL);
+            HttpWebResponse response;
 
-        }
+            try
+            {
+                if (post == null || post == "")
+                {
+                    response = (HttpWebResponse)webRequest.GetResponse();
+                }
+                else
+                {
+                    //Postdatan sind vorhanden, diese jetzt anhängen
+                    webRequest = attachPost(webRequest, post);
+                    response = (HttpWebResponse)webRequest.GetResponse();
+                }
+            }
+            catch (WebException e)
+            {
+                webrequeststatuscode = e.Status.ToString();
 
-        private string Connect(string serverURL)
-        {
-            webRequest = WebRequest.Create(serverURL);
+                if  (e.Status == WebExceptionStatus.ConnectFailure ||
+                    e.Status == WebExceptionStatus.ConnectionClosed || 
+                    e.Status == WebExceptionStatus.RequestCanceled)
+                {
+                    return "INTERNAL_ERROR_WEB_NO_CONNECTION";
+                }      
+                else
+                {
+                    return "INTERNAL_ERROR_WEB_WEBREQUEST";
+                }
+            }
 
-            WebResponse response = webRequest.GetResponse();
+            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Accepted)
+            {
+                return "HTTP_ERROR-" + ((int)response.StatusCode).ToString();
+            }
+
             Stream responseStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(responseStream);
 
@@ -77,7 +159,13 @@ namespace ServerManager.util
 
             while (!reader.EndOfStream)
             {
-                builder.Append(reader.ReadLine());
+                string line = reader.ReadLine();
+
+                if (line.Contains("ID "))
+                { //Aktiv, wenn eine Datenübertragung stattfindet.
+                    reporter.Report(line);
+                }
+                builder.Append(line);
             }
 
             string text = builder.ToString();
@@ -85,87 +173,126 @@ namespace ServerManager.util
             return text;
         }
 
-        //post hat die Form feld1=ABCD&feld2=EFGH
-        private string Connect(string serverURL, string post)
+        /// <summary>
+        /// Hängt an eine HTTPWebRequest POST-Daten an
+        /// </summary>
+        /// <param name="webRequest">Zu bearbeitende HTTPWebRequest.</param>
+        /// <param name="post">Die anzuhängenden Daten.</param>
+        /// <returns>Die bearbeitete HTTPWebRequest.</returns>
+        private HttpWebRequest attachPost(HttpWebRequest webRequest, string post)
         {
-            webRequest = (HttpWebRequest)WebRequest.Create(serverURL);
-
-            var data = Encoding.ASCII.GetBytes(post);
+            //post hat die Form feld1=ABCD&feld2=EFGH
+            var data = Encoding.UTF8.GetBytes(post);
 
             webRequest.Method = "POST";
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.ContentLength = data.Length;
 
-            Stream requestStream = webRequest.GetRequestStream();
+            Stream requestStream = webRequest.GetRequestStream();   
             requestStream.Write(data, 0, data.Length);
 
-            WebResponse response = webRequest.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responseStream);
-
-            StringBuilder builder = new StringBuilder();
-
-            while (!reader.EndOfStream)
-            {
-                builder.Append(reader.ReadLine());
-            }
-
-            string text = builder.ToString();
-            response.Close();
-            return text;
+            return webRequest;
         }
 
-        public string Send(string data)
-        {
-            string query = dbManagment;
-            StringBuilder post = new StringBuilder();
-            post.Append("user=" + user + "&" + "pass=" + Pass + "&" + "group=B1&command=insert&data=");
-            post.Append(data.ElementAt(0));
-
-            string url = mergeURL(query);
-            return computeResponse(Connect(url, post.ToString()));
-        }
+        
 
         //===============================================================================
         //============================Verbindungsfunktionen==============================
         //===============================================================================
 
-        public string getDBVersion()
+        /// <summary>
+        /// Ruft die auf dem Server vorhandene Datenbankversion ab.
+        /// </summary>
+        /// <returns>Serverversion</returns>
+        public void GetDBVersion()
         {
-            string url = mergeURL(getdbversion);
-            return Connect(url);
+            string url = MergeURL(getdbversion);
+
+            ConnectAsync(1, url, null);
+
         }
 
-
-        public string pushData()
+        /// <summary>
+        /// Übermittelt mittels POST Datenbankeinträge an den Server
+        /// </summary>
+        /// <param name="data">Die zu übertragenden Datenbankeinträge im JSON Format</param>
+        /// <returns>Abschlussmeldung</returns>
+        public void PushData(string group, string command, string table, string data)
         {
-            return "";
+            string query = dbManagment;
+            string url = MergeURL(query);
+            StringBuilder post = new StringBuilder();
+
+            post.Append("user=" + user + "&");
+            post.Append("pass=" + Pass + "&");
+            post.Append("group=" + group + "&");
+            post.Append("command=" + command + "&");
+            post.Append("table=" + table + "&");
+            post.Append("data=");
+
+            ConnectAsync(0,url,post.ToString() + data);
+
+        }
+
+        private async void ConnectAsync(short method, string url, string post)
+        {
+            var progressreporter = new Progress<string>(ReportProgress);
+
+            Task<string> connectTask;
+            connectTask = new Task<string>(() => { return Connect(url, post, progressreporter); });
+            connectTask.Start();
+
+            string response = await connectTask;
+            string scannedResponse = ComputeResponse(response);
+
+            if (scannedResponse.Contains("Konnte keine gültige Zuordnung finden!") || scannedResponse == "NO_ERROR")
+            {
+                uiCaller(method, response);
+            }
+            else
+            {
+                caller(scannedResponse);
+            }
         }
 
         //===============================================================================
         //==============================Testfunktionen===================================
         //===============================================================================
 
-        public string testConnection()
-        {
-            string url = mergeURL(getdbversion);
-            return Connect(url);
-        }
+        ///// <summary>
+        ///// Testfunktion für die Verbindungsfunktionalität
+        ///// </summary>
+        ///// <returns></returns>
+        //public string testConnection()
+        //{
+        //    string url = MergeURL(getdbversion);
+        //    return Connect(url, null);
+        //}
 
-        public string testUserAndPass()
-        {
-            string query = dbManagment;
-            string post = "user=" + user + "&" + "pass=" + Pass + "&" + "group=B1&command=insert&data=null";
+        ///// <summary>
+        ///// Testfunktion für die Authentifizierung
+        ///// </summary>
+        ///// <returns></returns>
+        //public string testUserAndPass()
+        //{
+        //    string query = dbManagment;
+        //    string post = "user=" + user + "&" + "pass=" + Pass + "&" + "group=B1&command=insert&data=null";
 
-            string url = mergeURL(query);
-            return computeResponse(Connect(url, post));
-        }
+        //    string url = MergeURL(query);
+        //    return ComputeResponse(Connect(url, post));
+        //}
 
         //===============================================================================
         //==============================Hilfsfunktionen==================================
         //===============================================================================
 
-        private string mergeURL(string query)
+        /// <summary>
+        /// Verbindet die gespeicherte URL mit dem eingegebenen Query. Wird verwendet um die verschiedenen 
+        /// Skriptenamen und GET-Anfragen an die URL anzuhängen.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        private string MergeURL(string query)
         {
             string result = this.url;
             if (result.Substring(url.Length - 1, 1) == "/")
@@ -180,12 +307,17 @@ namespace ServerManager.util
             return result;
         }
 
-        private string hashPasswort(string pass)
+        /// <summary>
+        /// Erzeugt eine zur Eingabe passenden SHA256 Hash. Ist im ServerManager vor allem für das Passwort gedacht
+        /// </summary>
+        /// <param name="raw">Zu hashender String</param>
+        /// <returns>Gehashter Wert</returns>
+        public string CreateHash(string raw)
         {
             SHA256 hash;
             hash = SHA256.Create();
             byte[] hashResult;
-            hashResult = hash.ComputeHash(Encoding.UTF8.GetBytes(pass));
+            hashResult = hash.ComputeHash(Encoding.UTF8.GetBytes(raw));
 
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -197,8 +329,29 @@ namespace ServerManager.util
             return stringBuilder.ToString();
         }
 
-        public string computeResponse(string response)
+        /// <summary>
+        /// Verarbeitet Ausgaben des Servers und prüft sie auf Fehlermeldungen. Falls eine Fehlermeldung gefunden wird, wird aus einer
+        /// mitgelieferten XML-Datei die passende Fehlermeldung ausgegeben
+        /// </summary>
+        /// <param name="response">Antwort des Servers</param>
+        /// <returns>Freigabe oder Fehlermeldung</returns>
+        public string ComputeResponse(string response)
         {
+            //Wenn die Eingabe ausschließlich numerisch ist, wird es sich wahrscheinlich um die Antwort auf die getDBVersion Anfragen handlen
+            //Die kann direkt durchgewunken werden
+            if (Helper.isNumeric(response))
+            {
+                return "NO_ERROR";
+            }
+            else if (response.Contains("HTTP_ERROR"))
+            {
+                return "HTTP-Fehler festgestellt! Fehlercode: " + response.Split('-')[1];
+            }
+            else if (response.Contains("DOCTYPE HTML PUBLIC")) {
+                //Es ist davon auszugehen, dass eine falsche Seite aufgerufen wurde, da vom Server keine HTML-Dokumente zurückgeliefert werden
+                response = "INTERNAL_ERROR_WEB_HTML_DETECTED";
+            }
+
             if (File.Exists("settings.xml"))
             {
                 XmlDocument document = new XmlDocument();
@@ -208,7 +361,16 @@ namespace ServerManager.util
                 try
                 {
                     XmlNode node = rootnode.SelectNodes("//message[@name='" + response + "']")[0];
-                    return node.InnerText;
+
+                    //Für die internen Verbindungsfehler werden noch die ErrorCodes des Fehlers angehängt.
+                    if (response.Contains("ERROR_WEB"))
+                    {
+                        return node.InnerText + webrequeststatuscode;
+                    }
+                    else
+                    {
+                        return node.InnerText;
+                    }
                 }
                 catch (Exception)
                 {
@@ -219,6 +381,14 @@ namespace ServerManager.util
             {
                 return "Konnte Nachrichtendatei nicht laden oder eine passende Meldung finden! Servernachricht: " + response;
             }
+        }
+
+        /// <summary>
+        /// Diese Methode schickt Fortschrittsnachrichten an den Nutzer ohne dabei die Threadbegrenzungen zu durchbrechen
+        /// </summary>
+        private void ReportProgress(string message)
+        {
+            caller(message);
         }
     }
 }

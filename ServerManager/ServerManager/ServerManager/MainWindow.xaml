@@ -7,11 +7,16 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="600" Closed="Window_Closed">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <ToolBarTray 
             Height="35" 
@@ -19,7 +24,8 @@
             Background="White"
             IsLocked="True"
             ClipToBounds="True"
-            Grid.Row="0">
+            Grid.Row="0"
+            Grid.ColumnSpan="2">
 
             <ToolBar x:Name="toolbar" 
                 Height="35"
@@ -31,15 +37,20 @@
                 Loaded="ToolBar_Loaded" >
 
                 <Button Content="Exceldatei laden" Background="LightGray" Margin="15,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center"  ToolBar.OverflowMode="Never" Padding="5" Click="BT_Load_Excel" />
-                <Button Content="Test NetManager" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="Button_Click"/>
-                <Button Content="An Server senden" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="SendToServer_Click"/>
-                <Button Content="Test Settings" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestSetting_Click"/>
+                <Button Content="Server abfragen" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Click_CheckServer"/>
+                <Button Content="Upload starten" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Start_Upload"/>
+                <!--<Button Content="Test Settings" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestSetting_Click"/>-->
+                <Menu  ToolBar.OverflowMode="Never">
+                    <MenuItem Header="Testfunktionen" Background="LightGray" Margin="10,0,0,0" Height="30" VerticalAlignment="Center">
+                        <MenuItem Header="Passwort hashen" />
+                    </MenuItem>
+                </Menu>
             </ToolBar>
         </ToolBarTray>
-        <GroupBox Header="Datenbankinformationen" Margin="5" Padding="5" Grid.Row="2">
+        <GroupBox Header="Datenbankinformationen" Margin="5" Padding="5" Grid.Row="2" Grid.ColumnSpan="2">
             <Grid VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="170" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -48,17 +59,17 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Betroffene Tabellen</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Hochzuladende Tabellen</TextBlock>
                 <WrapPanel x:Name="wrpPnl_tables" Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
                 </WrapPanel>
                 <!--<TextBlock x:Name="tb_tables" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>-->
-                <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Erfasste Tabellen</TextBlock>
-                <TextBlock x:Name="tb_tables" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>
-                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Erfasste Einträge</TextBlock>
-                <TextBlock x:Name="tb_entries" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">ASD</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Anzahl der erfassten Tabellen</TextBlock>
+                <TextBlock x:Name="tb_tables" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">Noch keine Daten verfügbar</TextBlock>
+                <TextBlock Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top">Anzahl der erfassten Einträge</TextBlock>
+                <TextBlock x:Name="tb_entries" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Grid.ColumnSpan="2">Noch keine Daten verfügbar</TextBlock>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Serverdaten" Margin="5" Padding="5" Grid.Row="1">
+        <GroupBox Header="Serverdaten" Margin="5" Padding="5" Grid.Row="1" Grid.ColumnSpan="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />
@@ -81,7 +92,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Header="Serverinformationen" Margin="5" Padding="5" Grid.Row="3">
+        <GroupBox Header="Serverinformationen" Margin="5" Padding="5" Grid.Row="3" Grid.ColumnSpan="2">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />
@@ -95,9 +106,9 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Server Version</TextBlock>
                 <TextBlock Margin="5,0,0,0" x:Name="tb_serverversion" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">Noch keine Serverversion vorhanden!</TextBlock>
-                <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" VerticalAlignment="Top">Serverantwort</TextBlock>
-                <TextBox x:Name="txb_response" Grid.Column="1" Grid.Row="1" Margin="5" IsReadOnly="True" TextWrapping="Wrap" Height="200" VerticalScrollBarVisibility="Auto"/>
             </Grid>
         </GroupBox>
+        <TextBlock Grid.Row="4" Grid.Column="0" Margin="10,10,0,0" VerticalAlignment="Top">Ausgabefenster</TextBlock>
+        <TextBox x:Name="txb_response" Grid.Column="2" Grid.Row="4" Margin="5" IsReadOnly="True" TextWrapping="Wrap" MinHeight="150" VerticalScrollBarVisibility="Auto"/>
     </Grid>
 </Window>

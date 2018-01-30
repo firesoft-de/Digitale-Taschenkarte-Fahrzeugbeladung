@@ -49,6 +49,8 @@ namespace ServerManager
 
         public int CountEntries { get => entries; set => entries = value; }
         public int CountTables { get => tables; set => tables = value; }
+        public List<string> Data { get => data;}
+        public List<string> Tablenames { get => tablenames; }
 
         /// <summary>
         /// Initialisiert den ExcelManager
@@ -67,12 +69,19 @@ namespace ServerManager
             tables = 0;
         }
         
+
+        /// <summary>
+        /// Lädt Datenbankeinträge aus einer Exceltabelle
+        /// </summary>
         public void Open()
         {
             SubOpen();
         }
 
-        public async void SubOpen()
+        /// <summary>
+        /// Führt das Laden aus der Exceltabelle durch. Aus Open() ausgelagert, da ansonsten Probleme mit async und await auftreten.
+        /// </summary>
+        private async void SubOpen()
         {
             var progressreporter = new Progress<string>(ReportProgress);
             Task<List<string>> loadTask;
@@ -98,7 +107,7 @@ namespace ServerManager
             List<string> data = new List<string>();
 
             //Serversortierung laden
-            serversort = loadServerSorting(reporter);
+            serversort = LoadServerSorting(reporter);
 
             if (serversort != null)
             {
@@ -106,7 +115,7 @@ namespace ServerManager
                 {
                     tablenames.Add(sheet.Name);
                     reporter.Report("Lade Daten aus Tabelle: " + sheet.Name);
-                    data.Add(readSheet(sheet, serversort,reporter));
+                    data.Add(ReadSheet(sheet, serversort,reporter));
                     tables += 1;
                 }
             }
@@ -121,7 +130,7 @@ namespace ServerManager
             return data;
         }
 
-        private string readSheet(Worksheet sheet, List<List<string>> serversort, IProgress<string> reporter)
+        private string ReadSheet(Worksheet sheet, List<List<string>> serversort, IProgress<string> reporter)
         {
             StringBuilder output = new StringBuilder();
             List<string> localsort = new List<string>();
@@ -144,7 +153,7 @@ namespace ServerManager
             for (int i = 1; i <= cols; i++)
             {
                 var res = ((Range)sheet.Cells[1, i]).Value;
-                if (res != "Anmerkungen") { //Absicherung gegen die Spalte Anmkerungen
+                if (!res.Contains("Anmerkungen")) { //Absicherung gegen die Spalte Anmkerungen
                     localsort.Add(res);
                 }
                 else
@@ -227,6 +236,7 @@ namespace ServerManager
         {
             int[] sortingTranslation = new int[tablesort.Count];
 
+
             foreach (List<string> item in serversort)
             {
                 if (item.ElementAt(0) == tablename)
@@ -269,6 +279,8 @@ namespace ServerManager
                 output.AppendLine(",");
             }
 
+            output.Remove(output.Length - 3, 2);
+
             output.AppendLine("},");
 
             return output.ToString();
@@ -277,7 +289,7 @@ namespace ServerManager
         /// <summary>
         /// Lädt aus der Datei environment.xml die Tabellensortierung des Servers
         /// </summary>
-        private List<List<string>> loadServerSorting(IProgress<string> reporter)
+        private List<List<string>> LoadServerSorting(IProgress<string> reporter)
         {
             if (System.IO.File.Exists("environment.xml"))
             {
@@ -336,23 +348,7 @@ namespace ServerManager
         /// </summary>
         private void ReportProgress(string message)
         {
-
             caller(message);
-
-            //if (ReportProgressEvent != null)
-            //{
-                
-            //    ISynchronizeInvoke s = (ISynchronizeInvoke) ReportProgressEvent.Target;
-
-            //    if (s != null & s.InvokeRequired)
-            //    {
-            //        s.Invoke(ReportProgressEvent, new object[] { this, new ExcelEventArgs {EventMessage = message }});
-            //    }
-            //    else
-            //    {
-            //        ReportProgressEvent(this, new ExcelEventArgs{EventMessage = message});
-            //    }
-            //}
         }
 
     }

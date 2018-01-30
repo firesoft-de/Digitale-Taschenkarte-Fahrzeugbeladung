@@ -39,7 +39,8 @@ namespace ServerManager
     {
 
         ExcelManager eManager;
-        appSettings settings;
+        AppSettings settings;
+        HttpManager netManager;
         
         //===========================================================================
         //===========================Window Methoden=================================
@@ -48,7 +49,7 @@ namespace ServerManager
         public MainWindow()
         {
             InitializeComponent();
-            settings = new appSettings();
+            settings = new AppSettings();
             settings.load();
             txb_url.Text = settings.Url;
             txb_user.Text = settings.User;
@@ -102,40 +103,92 @@ namespace ServerManager
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            settings.User = txb_user.Text;
-            settings.Url = txb_url.Text;
-            settings.save();
+        //private void Button_Click(object sender, RoutedEventArgs e)
+        //{
+        //    settings.User = txb_user.Text;
+        //    settings.Url = txb_url.Text;
+        //    settings.save();
 
-            httpManager netManager = new httpManager(settings.Url);
-            netManager.SetAuth(settings.User, settings.Url);
-            txb_hash.Text = netManager.Pass;
+        //    HttpManager netManager = new HttpManager(settings.Url, excelCallback, HttpUICallback);
+        //    netManager.SetAuth(settings.User, settings.Url);
+        //    txb_hash.Text = netManager.Pass;
 
-            printTXB(netManager.testUserAndPass());
-        }
+        //    printTXB(netManager.testUserAndPass());
+        //}
 
-        private void TestServer_Click(object sender, RoutedEventArgs e)
-        {
-            settings.User = txb_user.Text;
-            settings.Url = txb_url.Text;
+        //private void TestServer_Click(object sender, RoutedEventArgs e)
+        //{
+        //    settings.User = txb_user.Text;
+        //    settings.Url = txb_url.Text;
 
-            httpManager netManager = new httpManager(settings.Url);
-            netManager.SetAuth(settings.User, settings.Url);
-            txb_hash.Text = netManager.Pass;
-            tb_serverversion.Text = netManager.testConnection();
-        }
+        //    HttpManager netManager = new HttpManager(settings.Url, excelCallback, HttpUICallback);
+        //    netManager.SetAuth(settings.User, settings.Url);
+        //    txb_hash.Text = netManager.Pass;
+        //    tb_serverversion.Text = netManager.testConnection();
+        //}
 
         private void TestSetting_Click(object sender, RoutedEventArgs e)
         {
-            appSettings settings = new appSettings();
+            AppSettings settings = new AppSettings();
             settings.load();
             settings.Url = "http://test.de";
             settings.User = "asdf";
             settings.save();
             settings = null;
-            settings = new appSettings();
+            settings = new AppSettings();
             settings.load();
+        }
+
+        private void SendToServer_Click(object sender, RoutedEventArgs e)
+        {
+            settings.User = txb_user.Text;
+            settings.Url = txb_url.Text;
+
+            HttpManager netManager = new HttpManager(settings.Url, excelCallback, HttpUICallback);
+            netManager.SetAuth(settings.User, settings.Url);
+            txb_hash.Text = netManager.Pass;
+        }
+
+        private void BT_Click_CheckServer(object sender, RoutedEventArgs e)
+        {
+            if (txb_user.Text != "" && txb_url.Text != "" && txb_pass.Text != "")
+            {
+                settings.User = txb_user.Text;
+                settings.Url = txb_url.Text;
+
+                netManager = new HttpManager(settings.Url, settings.User, txb_pass.Text, excelCallback, HttpUICallback);
+                txb_hash.Text = netManager.Pass;
+
+                netManager.GetDBVersion();
+            }
+            else
+            {
+                printTXB("Bitte geben Sie Server-Url, Benutzername und Passwort ein!");
+            }
+        }
+
+        private void BT_Start_Upload(object sender, RoutedEventArgs e)
+        {
+            //Prüfen ob ein HttpManager exisitiert
+            if (netManager != null)
+            {
+                settings.User = txb_user.Text;
+
+                netManager.SetAuth(settings.User, txb_pass.Text);
+                //Prüfen ob Tabellen ausgewählt wurden
+                if (eManager != null && eManager.CountEntries != 0 && eManager.CountTables != 0)
+                {
+                    netManager.PushData("B1", "insert", eManager.Tablenames[0], eManager.Data[0]);
+                }
+                else
+                {
+                    printTXB("Keine Daten gefunden! Zuest Daten laden!");
+                }
+            }
+            else
+            {
+                printTXB("Kein netManager initalisiert! Zuerst \"Server abfragen\" verwenden!");
+            }
         }
 
         //===========================================================================
@@ -148,8 +201,9 @@ namespace ServerManager
         /// <param name="message"></param>
         private void printTXB(string message)
         {
-            txb_response.AppendText(message + Environment.NewLine);
-            txb_response.ScrollToEnd();
+            txb_response.Text = message + Environment.NewLine + txb_response.Text;
+            //txb_response.AppendText(message + Environment.NewLine);
+            //txb_response.ScrollToEnd();
         }
 
         /// <summary>
@@ -174,15 +228,27 @@ namespace ServerManager
             }
         }
 
-        private void SendToServer_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Übernimmt die Verarbeitung der Rückgabewerte der asynchron ausgeführten HTTP-Abfragen.
+        /// Es werden keine Fortschrittsmeldungen für den Benutzer verarbeitet.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="response"></param>
+        private void HttpUICallback(short method, string response)
         {
-            settings.User = txb_user.Text;
-            settings.Url = txb_url.Text;
+            switch (method)
+            {
+                case 1:
+                    //GetDBVersion
+                    tb_serverversion.Text = response;
+                    break;
 
-            httpManager netManager = new httpManager(settings.Url);
-            netManager.SetAuth(settings.User, settings.Url);
-            txb_hash.Text = netManager.Pass;
-            //printTXB(netManager.Send());
+                case 0:
+
+                    break;
+            }
+
+            printTXB("Abfrage erfolgreich durchgeführt!");
         }
     }
 }

@@ -60,8 +60,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Settings.cs" />
-    <Compile Include="util\appSettings.cs" />
-    <Compile Include="util\httpManager.cs" />
+    <Compile Include="util\AppSettings.cs" />
+    <Compile Include="util\Helper.cs" />
+    <Compile Include="util\HttpManager.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

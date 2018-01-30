@@ -21,7 +21,7 @@ using System.Xml;
 
 namespace ServerManager.util
 {
-    class appSettings
+    class AppSettings
     {
         private int version = 1;
 
@@ -31,7 +31,7 @@ namespace ServerManager.util
         public string Url { get => url; set => url = value; }
         public string User { get => user; set => user = value; }
 
-        public appSettings()
+        public AppSettings()
         {
 
         }
