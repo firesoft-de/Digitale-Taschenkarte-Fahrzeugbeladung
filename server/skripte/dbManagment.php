@@ -266,7 +266,7 @@
 			}
 			
 			$rawdata = json_decode($data,true);
-			
+						
 			if (!array_key_exists("INPUT",$rawdata)) {
 				echo "ERROR_DATA_FORMAT_INVALID";
 				die;
@@ -380,21 +380,40 @@
 					
 				case "tray":
 					$dbtable = "tray";
+					$tablecols[0] = "id";
+					$tablecols[1] = "groupId";
+					$tablecols[2] = "name";
+					$tablecols[3] = "description";
+					$tablecols[4] = "descriptionTwo";
+					$tablecols[5] = "positions";
+					$tablecols[6] = "version";
 					//TODO: Andere Spalten einbauen
 					break;
 					
 				case "positionimage":
 					$dbtable = "positionimage";
+					$tablecols[0] = "id";
+					$tablecols[1] = "path";
+					$tablecols[2] = "categoryId";
+					$tablecols[3] = "groupId";
+					$tablecols[4] = "version";
 					//TODO: Andere Spalten einbauen
 					break;
 
 				case "group":
 					$dbtable = "groupx";
+					$tablecols[0] = "id";
+					$tablecols[1] = "name";
+					$tablecols[2] = "trayname";
 					//TODO: Andere Spalten einbauen
 					break;
 					
 				case "user":
 					$dbtable = "userx";
+					$tablecols[0] = "id";
+					$tablecols[1] = "name";
+					$tablecols[2] = "groups";
+					$tablecols[3] = "pass";
 					//TODO: Andere Spalten einbauen
 					//TODO: 
 					break;				

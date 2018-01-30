@@ -2,6 +2,10 @@
 	
 	function translateGroupNameToId($array, $name) {
 				
+		if (is_numeric($name)) {
+			return $name;
+		}
+				
 		foreach ($array as $element) {
 			if ($element['name'] == $name) {
 				return $element['id'];
