@@ -99,10 +99,14 @@ namespace ServerManager
             Application application;
             Workbook book;
 
+            reporter.Report("Starte Excel!");
+
             //Excelanwendung öffnen
             application = new Application();
-            application.Visible = true;
+            application.Visible = false;
             book = application.Workbooks.Open(path);
+            
+            reporter.Report("Excel gestartet!");
 
             List<string> data = new List<string>();
 

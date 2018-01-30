@@ -13,6 +13,7 @@ GNU General Public License for more details.
 For the full license visit https://www.gnu.org/licenses/gpl-3.0. */
 
 using Microsoft.Win32;
+using ServerManager.data;
 using ServerManager.util;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,8 @@ namespace ServerManager
         ExcelManager eManager;
         AppSettings settings;
         HttpManager netManager;
+
+        List<UploadObject> uploadList;
         
         //===========================================================================
         //===========================Window Methoden=================================
@@ -53,6 +56,8 @@ namespace ServerManager
             settings.load();
             txb_url.Text = settings.Url;
             txb_user.Text = settings.User;
+
+            uploadList = new List<UploadObject>();
         }
 
         //Toolbar Overflowbutton ausblenden
@@ -144,7 +149,7 @@ namespace ServerManager
             settings.User = txb_user.Text;
             settings.Url = txb_url.Text;
 
-            HttpManager netManager = new HttpManager(settings.Url, excelCallback, HttpUICallback);
+            HttpManager netManager = new HttpManager(settings.Url, httpCallback, HttpUICallback);
             netManager.SetAuth(settings.User, settings.Url);
             txb_hash.Text = netManager.Pass;
         }
@@ -156,7 +161,7 @@ namespace ServerManager
                 settings.User = txb_user.Text;
                 settings.Url = txb_url.Text;
 
-                netManager = new HttpManager(settings.Url, settings.User, txb_pass.Text, excelCallback, HttpUICallback);
+                netManager = new HttpManager(settings.Url, settings.User, txb_pass.Text, httpCallback, HttpUICallback);
                 txb_hash.Text = netManager.Pass;
 
                 netManager.GetDBVersion();
@@ -178,7 +183,10 @@ namespace ServerManager
                 //Prüfen ob Tabellen ausgewählt wurden
                 if (eManager != null && eManager.CountEntries != 0 && eManager.CountTables != 0)
                 {
-                    netManager.PushData("B1", "insert", eManager.Tablenames[0], eManager.Data[0]);
+                    uploadList = new List<UploadObject>();
+                    UploadObject upload = new UploadObject(0, eManager.Tablenames[0], "insert", eManager.Data[0]);
+                    uploadList.Add(upload);
+                    netManager.PushData(upload);
                 }
                 else
                 {
@@ -215,6 +223,34 @@ namespace ServerManager
             printTXB(message);
         }
 
+        private void httpCallback(int objectId, string message)
+        {
+            if (objectId >= 0)
+            {
+                if (message.Contains("SUCCESS"))
+                {
+                    uploadList[objectId].RaiseSuccess();
+                }
+                else
+                {
+                    uploadList[objectId].RaiseFailed();
+                }
+                printTXB(message);
+            }
+            else if (objectId == -2)
+            {
+                //wird aufgerufen, wenn der Uploadthread seine Arbeit abgeschlossen hat
+                UploadObject upload = uploadList[objectId];
+                printTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " + 
+                    upload.FailedUploads.ToString());
+                printTXB(message);
+            }
+            else
+            {
+                printTXB(message);
+            }
+        }
+
         private void excelDataRefersh(int tableCount, int entryCount, List<string> tablenames)
         {
             tb_entries.Text = entryCount.ToString();
@@ -234,21 +270,25 @@ namespace ServerManager
         /// </summary>
         /// <param name="method"></param>
         /// <param name="response"></param>
-        private void HttpUICallback(short method, string response)
+        private void HttpUICallback(short method, string response, int objectId)
         {
             switch (method)
             {
                 case 1:
                     //GetDBVersion
+                    printTXB("Serverabfrage abgeschlossen!");
                     tb_serverversion.Text = response;
                     break;
 
                 case 0:
-
+                    printTXB("Upload abgeschlossen!");
+                    UploadObject upload = uploadList[objectId];
+                    printTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " +
+                        upload.FailedUploads.ToString());
                     break;
             }
 
-            printTXB("Abfrage erfolgreich durchgeführt!");
+            
         }
     }
 }

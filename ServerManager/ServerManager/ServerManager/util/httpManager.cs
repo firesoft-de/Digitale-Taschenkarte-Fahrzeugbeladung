@@ -22,6 +22,7 @@ using System.IO;
 using System.Xml;
 using ServerManager.util;
 using System.Threading.Tasks;
+using ServerManager.data;
 
 namespace ServerManager.util
 {
@@ -37,10 +38,10 @@ namespace ServerManager.util
 
         public string Pass { get => pass; }
 
-        ExcelManager.excelcallback caller;
-
-
-        public delegate void UICallback(short method, string response);
+        public delegate void httpCaller(int objectId, string response);
+        httpCaller caller;
+        
+        public delegate void UICallback(short method, string response, int objectId);
         UICallback uiCaller;
 
         /// <summary>
@@ -49,7 +50,7 @@ namespace ServerManager.util
         /// <param name="url">URL unter der der Server zu finden ist</param>
         /// <param name="caller">Callback Methode zur Ausgabe von Fortschrittsnachrichten</param>
         /// <param name="uiCallback">Callback Methode zum Übergeben von Rückgabewerten aus asynchronen HTTP-Abfragen</param>
-        public HttpManager(string url, ExcelManager.excelcallback caller, UICallback uiCallback)
+        public HttpManager(string url, httpCaller caller, UICallback uiCallback)
         {
 
             if (url.Substring(0, 7) != "http://")
@@ -74,7 +75,7 @@ namespace ServerManager.util
         /// <param name="pass">Benutzerpasswort für den Serverzugriff</param>
         /// <param name="caller">Callback Methode zur Ausgabe von Fortschrittsnachrichten</param>
         /// <param name="uiCallback">Callback Methode zum Übergeben von Rückgabewerten aus asynchronen HTTP-Abfragen</param>
-        public HttpManager(string url, string user, string pass, ExcelManager.excelcallback caller, UICallback uiCallback)
+        public HttpManager(string url, string user, string pass, httpCaller caller, UICallback uiCallback)
         {
 
             if (url.Substring(0, 7) != "http://")
@@ -113,7 +114,7 @@ namespace ServerManager.util
         /// <param name="serverURL">Die URL unter der der Server zu finden ist.</param>
         /// <param name="post">Wenn keine Postparameter verwendet werden sollen, kann als Wert "" oder null übergeben werden</param>
         /// <returns>Den Responsestream des Servers oder eine Fehlermeldung</returns>
-        private string Connect(string serverURL, string post, IProgress<string> reporter)
+        private string Connect(string serverURL, string post, IProgress<string> reporter, int uploadObjectID)
         {
             HttpWebRequest webRequest = (HttpWebRequest) WebRequest.Create(serverURL);
             HttpWebResponse response;
@@ -163,7 +164,7 @@ namespace ServerManager.util
 
                 if (line.Contains("ID "))
                 { //Aktiv, wenn eine Datenübertragung stattfindet.
-                    reporter.Report(line);
+                    reporter.Report(uploadObjectID.ToString() + "#" + line);
                 }
                 builder.Append(line);
             }
@@ -208,7 +209,7 @@ namespace ServerManager.util
         {
             string url = MergeURL(getdbversion);
 
-            ConnectAsync(1, url, null);
+            ConnectAsync(1, -1, url, null);
 
         }
 
@@ -217,7 +218,7 @@ namespace ServerManager.util
         /// </summary>
         /// <param name="data">Die zu übertragenden Datenbankeinträge im JSON Format</param>
         /// <returns>Abschlussmeldung</returns>
-        public void PushData(string group, string command, string table, string data)
+        public void PushData(UploadObject upload)
         {
             string query = dbManagment;
             string url = MergeURL(query);
@@ -225,21 +226,21 @@ namespace ServerManager.util
 
             post.Append("user=" + user + "&");
             post.Append("pass=" + Pass + "&");
-            post.Append("group=" + group + "&");
-            post.Append("command=" + command + "&");
-            post.Append("table=" + table + "&");
+            //post.Append("group=" + group + "&");
+            post.Append("command=" + upload.Command + "&");
+            post.Append("table=" + upload.Table + "&");
             post.Append("data=");
 
-            ConnectAsync(0,url,post.ToString() + data);
+            ConnectAsync(0,upload.ID,url,post.ToString() + upload.Data);
 
         }
 
-        private async void ConnectAsync(short method, string url, string post)
+        private async void ConnectAsync(short method, int uploadObjectID, string url, string post)
         {
             var progressreporter = new Progress<string>(ReportProgress);
 
             Task<string> connectTask;
-            connectTask = new Task<string>(() => { return Connect(url, post, progressreporter); });
+            connectTask = new Task<string>(() => { return Connect(url, post, progressreporter, uploadObjectID); });
             connectTask.Start();
 
             string response = await connectTask;
@@ -247,11 +248,11 @@ namespace ServerManager.util
 
             if (scannedResponse.Contains("Konnte keine gültige Zuordnung finden!") || scannedResponse == "NO_ERROR")
             {
-                uiCaller(method, response);
+                uiCaller(method, response, uploadObjectID);
             }
             else
             {
-                caller(scannedResponse);
+                caller(-1,scannedResponse);
             }
         }
 
@@ -388,7 +389,8 @@ namespace ServerManager.util
         /// </summary>
         private void ReportProgress(string message)
         {
-            caller(message);
+                string[] array = message.Split('#');
+                caller(Int16.Parse(array[0]),array[1]);
         }
     }
 }

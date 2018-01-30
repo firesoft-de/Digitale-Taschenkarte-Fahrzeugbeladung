@@ -25,6 +25,7 @@
 	  <message name="ERROR_NO_PASS">Es wurde kein Passwort übergeben.</message>
 	  <message name="ERROR_NO_GROUP">Es wurde keine Gruppe übergeben.</message>
 	  <message name="MISSING_GROUP_PERMISSION">Sie sind nicht berechtigt dem Eintrag diese Gruppe zuzuweisen.</message>
+	  <message name="MISSING_TABLE_PERMISSION">Sie sind nicht berechtigt diese Tabelle zu berarbeiten.</message>
 	  <message name="INTERNAL_ERROR_WEB_NO_CONNECTION">Die Anwendung konnte keine Verbindung mit dem Server unter der eingegebenen URL herstellen. WebExceptionStatusCode: </message>
 	  <message name="INTERNAL_ERROR_WEB_WEBREQUEST">Ein unbekannter Fehler bei der Verbindung mit dem Server ist aufgetreten. WebExceptionStatusCode: </message>
 	  <message name="INTERNAL_ERROR_WEB_HTML_DETECTED">Ein HTML-Dokument wurde detektiert. Wahrscheinlich wurde eine falsche URL eingegeben.</message>	  

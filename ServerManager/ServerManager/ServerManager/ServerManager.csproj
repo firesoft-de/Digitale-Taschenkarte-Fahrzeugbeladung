@@ -59,6 +59,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="data\UploadObject.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="util\AppSettings.cs" />
     <Compile Include="util\Helper.cs" />

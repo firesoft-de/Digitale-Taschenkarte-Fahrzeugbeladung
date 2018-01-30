@@ -39,12 +39,14 @@
                 <Button Content="Exceldatei laden" Background="LightGray" Margin="15,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center"  ToolBar.OverflowMode="Never" Padding="5" Click="BT_Load_Excel" />
                 <Button Content="Server abfragen" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Click_CheckServer"/>
                 <Button Content="Upload starten" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Start_Upload"/>
-                <!--<Button Content="Test Settings" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="TestSetting_Click"/>-->
-                <Menu  ToolBar.OverflowMode="Never">
-                    <MenuItem Header="Testfunktionen" Background="LightGray" Margin="10,0,0,0" Height="30" VerticalAlignment="Center">
+                <!--<Menu  ToolBar.OverflowMode="Never" Height="30" Margin="10,0,0,0">
+                    <MenuItem  Background="LightGray" Height="30" Padding="5" VerticalAlignment="Center" StaysOpenOnClick="True">
+                        <MenuItem.Header>
+                            <TextBlock>Testfunktionen</TextBlock>
+                        </MenuItem.Header>
                         <MenuItem Header="Passwort hashen" />
                     </MenuItem>
-                </Menu>
+                </Menu>-->
             </ToolBar>
         </ToolBarTray>
         <GroupBox Header="Datenbankinformationen" Margin="5" Padding="5" Grid.Row="2" Grid.ColumnSpan="2">
