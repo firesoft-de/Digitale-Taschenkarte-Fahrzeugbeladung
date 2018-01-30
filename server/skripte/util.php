@@ -103,12 +103,9 @@
 	
 		
 	function translateGroup($group) {
-		
-		global $pdo;
-		
-		$group = explode("_",$group);
+				
+		//$group = explode("_",$group);
 		$group_array = getGroupArray();
-		$query = "";
 		
 		$idarray = array();
 		

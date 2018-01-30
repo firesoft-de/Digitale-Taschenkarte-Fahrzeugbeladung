@@ -99,13 +99,13 @@
 				die;
 			}		
 
-			if (isSet($_POST['group'])) {
-				$group = $_POST['group'];
-			}
-			else {
-				echo 'ERROR_NO_GROUP';
-				die;
-			}
+			// if (isSet($_POST['group'])) {
+				// $group = $_POST['group'];
+			// }
+			// else {
+				// echo 'ERROR_NO_GROUP';
+				// die;
+			// }
 			
 			// Query erstellen
 			$queryString = "SELECT id,groups FROM `userx` WHERE name LIKE :user AND pass LIKE :pass";	
@@ -135,24 +135,29 @@
 			}
 						
 			// Überprüfen ob der Nutzer die Gruppe bearbeiten darf
+			if ($res["groups"] == "all") {
+				//Nutzer darf alle Gruppen bearbeiten
+				$group = "all";
+				return $id;
+			}
+			
 			$group_array = explode("_",$res["groups"]);
+			// $groupInputArray = explode("_",$group);
 			
-			$groupInputArray = explode("_",$group);
-			
-			foreach($groupInputArray as $element) {
+			// foreach($groupInputArray as $element) {
 				
-				if (in_array($element, $group_array)) {
-					//Alles OK
-				}
-				else {
-					echo("ERROR_MISSING_GROUP_PERMISSION");
-					loginteral("Fehlende Berechtigung Account: " . $user);
-					die;
-				}	
-			}	
-			
-			$group = translateGroup($group);
-			
+				// if (in_array($element, $group_array)) {
+					// //Alles OK
+				// }
+				// else {
+					// echo("ERROR_MISSING_GROUP_PERMISSION");
+					// loginteral("Fehlende Berechtigung Account: " . $user);
+					// die;
+				// }	
+			// }	
+						
+			$group = translateGroup($group_array);
+						
 			return $id;
 		}
 		
@@ -330,6 +335,10 @@
 			// var_dump($group);
 			// echo "\r\n";
 			
+			if ($group == "all") {
+				return true;
+			}
+			
 			foreach($group as $element) {
 				if ($element == $res["groupId"]) {
 					return true;
@@ -344,6 +353,10 @@
 		function checkGroupPermissionOnItem($groupId) {		
 			global $group;
 			
+			if ($group == "all") {
+				return true;
+			}
+			
 			if (!is_numeric($groupId)) {
 				//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
 				$group_array = getGroupArray();
@@ -355,6 +368,39 @@
 			else {
 				return false;
 			}
+		}
+		
+		function checkTablePermission($table) {
+			global $pdo;
+			global $userid;
+			
+			//Query bauen um berechtigte Tabellen abzufragen
+			$query = "SELECT `tables` FROM `userx` WHERE `id` LIKE " . $userid ;					
+						
+			$stmt=$pdo->prepare($query);			
+			$stmt->closeCursor();	
+			$stmt->execute();	
+			
+			$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			
+			if ($res == null || $res == "" || count($res) == 0 || $res["tables"] == "") {
+				return false;
+			}
+			
+			if ($res["tables"] == "all") {
+				return true;
+			}
+			
+			//Berechtigte Tabellen splitten und auswerten
+			$allowed_tables = array();
+			$allowed_tables = explode("_", $res["tables"]);
+						
+			if (in_array($table, $allowed_tables)) {
+				return true;
+			}
+			else {
+				return false;
+			}			
 		}
 		
 				
@@ -414,8 +460,7 @@
 					$tablecols[1] = "name";
 					$tablecols[2] = "groups";
 					$tablecols[3] = "pass";
-					//TODO: Andere Spalten einbauen
-					//TODO: 
+					//TODO: Überprüfen ob Nutzer Berechtigung zum Ändern der Benutzer besitzt
 					break;				
 					
 				default:
@@ -423,6 +468,12 @@
 					die;
 				
 			}
+			
+			if (!checkTablePermission($dbtable)) {
+				echo("ERROR_MISSING_TABLE_PERMISSION");
+				die;
+			}
+			
 			return $dbtable;
 		}	
 
