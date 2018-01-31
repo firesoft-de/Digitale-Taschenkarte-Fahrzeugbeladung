@@ -18,19 +18,8 @@ using ServerManager.Loader;
 using ServerManager.util;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ServerManager
 {
@@ -98,7 +87,7 @@ namespace ServerManager
             
             if (result == true)
             {
-                loader = new LoadManager(LoadManager.DataType.Excel, fileDialog.FileName, excelCallback);
+                loader = new LoadManager(LoadManager.DataType.Excel, fileDialog.FileName, ExcelCallback);
                 loader.FinishedLoadingEvent += new EventHandler(LoadEventHandler);
                 loader.LoadData();
             }
@@ -125,7 +114,7 @@ namespace ServerManager
             settings.User = txb_user.Text;
             settings.Url = txb_url.Text;
 
-            HttpManager netManager = new HttpManager(settings.Url, httpCallback, HttpUICallback);
+            HttpManager netManager = new HttpManager(settings.Url, HttpCallback, HttpUICallback);
             netManager.SetAuth(settings.User, settings.Url);
             txb_hash.Text = netManager.Pass;
         }
@@ -137,14 +126,14 @@ namespace ServerManager
                 settings.User = txb_user.Text;
                 settings.Url = txb_url.Text;
 
-                netManager = new HttpManager(settings.Url, settings.User, txb_pass.Text, httpCallback, HttpUICallback);
+                netManager = new HttpManager(settings.Url, settings.User, txb_pass.Text, HttpCallback, HttpUICallback);
                 txb_hash.Text = netManager.Pass;
 
                 netManager.GetDBVersion();
             }
             else
             {
-                printTXB("Bitte geben Sie Server-Url, Benutzername und Passwort ein!");
+                PrintTXB("Bitte geben Sie Server-Url, Benutzername und Passwort ein!");
             }
         }
 
@@ -157,13 +146,13 @@ namespace ServerManager
 
                 netManager.SetAuth(settings.User, txb_pass.Text);
 
-                //Prüfen ob Tabellen ausgewählt wurden
+                //Prüfen ob per Loader Daten geladen wurden
                 if (loader != null && loader.Entries != 0 && loader.Tables != 0)
                 {
                     string command = cbBx_Command.Text;
                     List<string> selectedTables = new List<string>();
-
-
+                    
+                    //Prüfen ob Tabellen ausgewählt wurden
                     foreach (CheckBox ckBx in wrpPnl_tables.Children)
                     {
                         if (ckBx.IsChecked == true)
@@ -174,28 +163,57 @@ namespace ServerManager
 
                     if (selectedTables.Count == 0)
                     {
-                        printTXB("Bitte wählen Sie mindestens eine Tabelle aus.");
+                        PrintTXB("Bitte wählen Sie mindestens eine Tabelle aus.");
                         return;
                     }
 
+                    //Ausgewählte Tabellen abrufen
                     List<UploadObject> objects = loader.GetObjectsByName(selectedTables);
 
                     foreach (UploadObject item in objects)
                     {
+                        //Befehl setzen und abschicken
                         item.Command = command;
                         netManager.PushData(item);
                     }
 
+                    //Version erhöhen
+                    int version;
+
+                    if (ckBx_IncreaseServerVersion.IsChecked == true)
+                    {
+                        version = Int16.Parse(tb_serverversion.Text) + 1;
+                    }
+                    else
+                    {
+                        version = Int16.Parse(txb_version.Text);
+                    }
+                    netManager.SetDBVersion(version);
+
+                    netManager.GetDBVersion();
+
                 }
                 else
                 {
-                    printTXB("Keine Daten gefunden! Zuest Daten laden!");
+                    PrintTXB("Keine Daten gefunden! Zuest Daten laden!");
                 }
             }
             else
             {
-                printTXB("Kein netManager initalisiert! Zuerst \"Server abfragen\" verwenden!");
+                PrintTXB("Kein netManager initalisiert! Zuerst \"Server abfragen\" verwenden!");
             }
+        }
+
+        private void CkBx_IncreaseServerVersion_Checked(object sender, RoutedEventArgs e)
+        {
+            txb_version.IsEnabled = true;
+            txb_version.IsReadOnly = true;
+        }
+
+        private void CkBx_IncreaseServerVersion_Unchecked(object sender, RoutedEventArgs e)
+        {
+            txb_version.IsEnabled = false;
+            txb_version.IsReadOnly = false;
         }
 
         //===========================================================================
@@ -206,7 +224,7 @@ namespace ServerManager
         /// Zeigt eine Nachricht im Ausgabefenster an
         /// </summary>
         /// <param name="message"></param>
-        private void printTXB(string message)
+        private void PrintTXB(string message)
         {
             txb_response.Text = message + Environment.NewLine + txb_response.Text;
             //txb_response.AppendText(message + Environment.NewLine);
@@ -217,12 +235,12 @@ namespace ServerManager
         /// Dient als Rückrufmethode für den excelManager
         /// </summary>
         /// <param name="message"></param>
-        private void excelCallback(string message)
+        private void ExcelCallback(string message)
         {
-            printTXB(message);
+            PrintTXB(message);
         }
 
-        private void httpCallback(int objectId, string message)
+        private void HttpCallback(int objectId, string message)
         {
             if (objectId >= 0)
             {
@@ -234,19 +252,19 @@ namespace ServerManager
                 {
                     loader.Data[objectId].RaiseFailed();
                 }
-                printTXB(message);
+                PrintTXB(message);
             }
             else if (objectId == -2)
             {
                 //wird aufgerufen, wenn der Uploadthread seine Arbeit abgeschlossen hat
                 UploadObject upload = loader.Data[objectId];
-                printTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " + 
+                PrintTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " + 
                     upload.FailedUploads.ToString());
-                printTXB(message);
+                PrintTXB(message);
             }
             else
             {
-                printTXB(message);
+                PrintTXB(message);
             }
         }
 
@@ -276,14 +294,14 @@ namespace ServerManager
             {
                 case 1:
                     //GetDBVersion
-                    printTXB("Serverabfrage abgeschlossen!");
+                    PrintTXB("Serverabfrage abgeschlossen!");
                     tb_serverversion.Text = response;
                     break;
 
                 case 0:
-                    printTXB("Upload abgeschlossen!");
+                    PrintTXB("Upload abgeschlossen!");
                     UploadObject upload = loader.Data[objectId];
-                    printTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " +
+                    PrintTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " +
                         upload.FailedUploads.ToString());
                     break;
             }

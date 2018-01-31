@@ -214,6 +214,25 @@ namespace ServerManager.util
         }
 
         /// <summary>
+        /// Setzt eine neue Version auf dem Server
+        /// </summary>
+        /// <param name="newversion">Die neue Version</param>
+        public void SetDBVersion(int newversion)
+        {
+            string query = dbManagment;
+            string url = MergeURL(query);
+            StringBuilder post = new StringBuilder();
+
+            post.Append("user=" + user + "&");
+            post.Append("pass=" + Pass + "&");
+            //post.Append("group=" + group + "&");
+            post.Append("command=version&");
+            post.Append("newversion=" + newversion);
+
+            ConnectAsync(0, -1, url, post.ToString());
+        }
+
+        /// <summary>
         /// Übermittelt mittels POST Datenbankeinträge an den Server
         /// </summary>
         /// <param name="data">Die zu übertragenden Datenbankeinträge im JSON Format</param>

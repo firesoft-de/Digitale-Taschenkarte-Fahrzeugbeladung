@@ -59,6 +59,11 @@
 		//$basequery = buildQuery();
 		loginteral("Auszuführender Befehl: " . $command);
 		
+		//Der setversion Befehl wird abgesetzt ausgeführt
+		if ($command == "version") {
+			setversion();
+		}
+		
 		//Daten abrufen
 		$dataarray = receiveData();
 		
@@ -98,14 +103,6 @@
 				echo 'ERROR_NO_PASS';
 				die;
 			}		
-
-			// if (isSet($_POST['group'])) {
-				// $group = $_POST['group'];
-			// }
-			// else {
-				// echo 'ERROR_NO_GROUP';
-				// die;
-			// }
 			
 			// Query erstellen
 			$queryString = "SELECT id,groups FROM `userx` WHERE name LIKE :user AND pass LIKE :pass";	
@@ -142,19 +139,6 @@
 			}
 			
 			$group_array = explode("_",$res["groups"]);
-			// $groupInputArray = explode("_",$group);
-			
-			// foreach($groupInputArray as $element) {
-				
-				// if (in_array($element, $group_array)) {
-					// //Alles OK
-				// }
-				// else {
-					// echo("ERROR_MISSING_GROUP_PERMISSION");
-					// loginteral("Fehlende Berechtigung Account: " . $user);
-					// die;
-				// }	
-			// }	
 						
 			$group = translateGroup($group_array);
 						
@@ -174,7 +158,7 @@
 				
 				$current_id = $data[$x]['id'];
 				
-				//Prüfen ob nach der Änderung der Eintrag noch in einer authorisierten Gruppe liegt
+				//Prüfen ob nach der Änderung der Eintrag noch in einer autorisierten Gruppe liegt
 				if (!checkGroupPermissionOnItem($data[$x]['groupId'])) {
 					$res = -1;
 				}
@@ -183,9 +167,7 @@
 						
 						if (!checkIfEntryExists($current_id, $pdo, $table)) {
 							//Wenn der Eintrag noch nicht exisitert, muss er mittels insert eingespielt werden
-							
-							//TODO: Überprüfen, ob der Nutzer neue Einträge anlegen darf.
-													
+																				
 							$querystring = "INSERT INTO " . '`' . $table . '`' . " (";
 							$valuestring = "";
 							
@@ -296,15 +278,17 @@
 				die;
 			}
 			
-			if (isSet($_POST['table'])) {
-				$table = $_POST['table'];
-			}
-			else {
-				echo 'ERROR_NO_TABLE';
-				die;
-			}							
+			if ($command != "version") {
+				if (isSet($_POST['table'])) {
+					$table = $_POST['table'];
+					$table = translateTable($table);
+				}
+				else {
+					echo 'ERROR_NO_TABLE';
+					die;
+				}		
+			}			
 						
-			$table = translateTable($table);
 		}
 		
 		//Berechtigung zum Ändern des Eintrags prüfen
@@ -314,9 +298,11 @@
 			global $pdo;
 			
 			//Query bauen
-			$query = "SELECT `groupId` FROM `" . $table . "` WHERE `id` LIKE " . $entryid ;					
+			$query = "SELECT `groupId` FROM `" . $table . "` WHERE `id` LIKE :entryid";					
 						
-			$stmt=$pdo->prepare($query);			
+			$stmt=$pdo->prepare($query);		
+			$stmt->bindParam(':entryid', $entryid, PDO::PARAM_INT);
+			
 			$stmt->closeCursor();	
 			$stmt->execute();	
 			
@@ -375,9 +361,11 @@
 			global $userid;
 			
 			//Query bauen um berechtigte Tabellen abzufragen
-			$query = "SELECT `tables` FROM `userx` WHERE `id` LIKE " . $userid ;					
+			$query = "SELECT `tables` FROM `userx` WHERE `id` LIKE :userid";			
 						
 			$stmt=$pdo->prepare($query);			
+			$stmt->bindParam(':userid', $userid, PDO::PARAM_INT);	
+			
 			$stmt->closeCursor();	
 			$stmt->execute();	
 			
@@ -503,10 +491,12 @@
 				fclose($dbFile);		
 				echo("CONFIRM_VERSION_UPDATE");
 				loginteral("Neue Version eingetragen: " . $newversion);	
+				die;
 			}	
 			else if ($dbVersion == $newversion) {
 				echo("WARNING_SAME_VERSION");
 				loginteral("Keine Versionsänderung möglich.");
+				die;
 			}
 			else {
 				if (isSet($_POST['overrideversion'])) {
@@ -517,6 +507,7 @@
 						fclose($dbFile);		
 						echo("CONFIRM_VERSION_UPDATE_WITH_OVERRIDE");
 						loginteral("Version zwangsweise überschrieben. Neue Version: " . $newversion);
+						die;
 					}
 				}
 				else {
@@ -524,8 +515,7 @@
 					loginteral("Versionsupdate abgewiesen");
 					die;
 				}			
-			}
-					
+			}	
 		}
 	
 		function loginteral($message) {
