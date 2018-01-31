@@ -14,6 +14,7 @@ For the full license visit https://www.gnu.org/licenses/gpl-3.0. */
 
 using Microsoft.Win32;
 using ServerManager.data;
+using ServerManager.Loader;
 using ServerManager.util;
 using System;
 using System.Collections.Generic;
@@ -38,12 +39,11 @@ namespace ServerManager
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        ExcelManager eManager;
+        
         AppSettings settings;
         HttpManager netManager;
-
-        List<UploadObject> uploadList;
+        
+        LoadManager loader;
         
         //===========================================================================
         //===========================Window Methoden=================================
@@ -56,8 +56,7 @@ namespace ServerManager
             settings.load();
             txb_url.Text = settings.Url;
             txb_user.Text = settings.User;
-
-            uploadList = new List<UploadObject>();
+            cbBx_Command.SelectedIndex = 0;
         }
 
         //Toolbar Overflowbutton ausblenden
@@ -97,40 +96,17 @@ namespace ServerManager
             fileDialog.Filter="Excel Datei|*.xlsx";
             Nullable<bool> result = fileDialog.ShowDialog();
             
-            if (result == true) {
-                eManager = new ExcelManager(fileDialog.FileName,excelCallback, excelDataRefersh);
-                //eManager.ReportProgressEvent += new EventHandler<ExcelEventArgs>(excelTaskCallback);
-                eManager.Open();
+            if (result == true)
+            {
+                loader = new LoadManager(LoadManager.DataType.Excel, fileDialog.FileName, excelCallback);
+                loader.FinishedLoadingEvent += new EventHandler(LoadEventHandler);
+                loader.LoadData();
             }
             else
             {
                 //Fehlermeldung implementieren            
             }
         }
-
-        //private void Button_Click(object sender, RoutedEventArgs e)
-        //{
-        //    settings.User = txb_user.Text;
-        //    settings.Url = txb_url.Text;
-        //    settings.save();
-
-        //    HttpManager netManager = new HttpManager(settings.Url, excelCallback, HttpUICallback);
-        //    netManager.SetAuth(settings.User, settings.Url);
-        //    txb_hash.Text = netManager.Pass;
-
-        //    printTXB(netManager.testUserAndPass());
-        //}
-
-        //private void TestServer_Click(object sender, RoutedEventArgs e)
-        //{
-        //    settings.User = txb_user.Text;
-        //    settings.Url = txb_url.Text;
-
-        //    HttpManager netManager = new HttpManager(settings.Url, excelCallback, HttpUICallback);
-        //    netManager.SetAuth(settings.User, settings.Url);
-        //    txb_hash.Text = netManager.Pass;
-        //    tb_serverversion.Text = netManager.testConnection();
-        //}
 
         private void TestSetting_Click(object sender, RoutedEventArgs e)
         {
@@ -180,13 +156,36 @@ namespace ServerManager
                 settings.User = txb_user.Text;
 
                 netManager.SetAuth(settings.User, txb_pass.Text);
+
                 //Prüfen ob Tabellen ausgewählt wurden
-                if (eManager != null && eManager.CountEntries != 0 && eManager.CountTables != 0)
+                if (loader != null && loader.Entries != 0 && loader.Tables != 0)
                 {
-                    uploadList = new List<UploadObject>();
-                    UploadObject upload = new UploadObject(0, eManager.Tablenames[0], "insert", eManager.Data[0]);
-                    uploadList.Add(upload);
-                    netManager.PushData(upload);
+                    string command = cbBx_Command.Text;
+                    List<string> selectedTables = new List<string>();
+
+
+                    foreach (CheckBox ckBx in wrpPnl_tables.Children)
+                    {
+                        if (ckBx.IsChecked == true)
+                        {
+                            selectedTables.Add(ckBx.Content.ToString());
+                        }
+                    }
+
+                    if (selectedTables.Count == 0)
+                    {
+                        printTXB("Bitte wählen Sie mindestens eine Tabelle aus.");
+                        return;
+                    }
+
+                    List<UploadObject> objects = loader.GetObjectsByName(selectedTables);
+
+                    foreach (UploadObject item in objects)
+                    {
+                        item.Command = command;
+                        netManager.PushData(item);
+                    }
+
                 }
                 else
                 {
@@ -229,18 +228,18 @@ namespace ServerManager
             {
                 if (message.Contains("SUCCESS"))
                 {
-                    uploadList[objectId].RaiseSuccess();
+                    loader.Data[objectId].RaiseSuccess();
                 }
                 else
                 {
-                    uploadList[objectId].RaiseFailed();
+                    loader.Data[objectId].RaiseFailed();
                 }
                 printTXB(message);
             }
             else if (objectId == -2)
             {
                 //wird aufgerufen, wenn der Uploadthread seine Arbeit abgeschlossen hat
-                UploadObject upload = uploadList[objectId];
+                UploadObject upload = loader.Data[objectId];
                 printTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " + 
                     upload.FailedUploads.ToString());
                 printTXB(message);
@@ -251,15 +250,16 @@ namespace ServerManager
             }
         }
 
-        private void excelDataRefersh(int tableCount, int entryCount, List<string> tablenames)
+        private void LoadEventHandler(object sender,EventArgs e)
         {
-            tb_entries.Text = entryCount.ToString();
-            tb_tables.Text = tableCount.ToString();
+            tb_entries.Text = loader.Entries.ToString();
+            tb_tables.Text = loader.Tables.ToString();
 
-            foreach (string item in tablenames)
+            foreach (string item in loader.Tablenames)
             {
                 CheckBox checkBox = new CheckBox();
                 checkBox.Content = item.ToString();
+                checkBox.Margin = new Thickness(5, 0, 0, 0);
                 wrpPnl_tables.Children.Add(checkBox);
             }
         }
@@ -282,13 +282,11 @@ namespace ServerManager
 
                 case 0:
                     printTXB("Upload abgeschlossen!");
-                    UploadObject upload = uploadList[objectId];
+                    UploadObject upload = loader.Data[objectId];
                     printTXB("Erfolgreiche Uploads: " + upload.SuccessfullUploads.ToString() + " / Gescheiterte Uploads: " +
                         upload.FailedUploads.ToString());
                     break;
             }
-
-            
         }
     }
 }

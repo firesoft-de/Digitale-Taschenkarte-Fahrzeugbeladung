@@ -82,6 +82,7 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Server URL</TextBlock>
                 <TextBox x:Name="txb_url" Grid.Column="1" HorizontalAlignment="Stretch" Grid.Row="0" Margin="5"/>
@@ -91,6 +92,10 @@
                 <TextBox x:Name="txb_pass" Grid.Column="1" Grid.Row="2" Margin="5"></TextBox>
                 <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center">Passwort-Hash</TextBlock>
                 <TextBox x:Name="txb_hash" Grid.Column="1" Grid.Row="3" Margin="5" IsReadOnly="True" />
+                <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center">Serverbefehl</TextBlock>
+                <ComboBox x:Name="cbBx_Command" Grid.Column="1" Grid.Row="4" Margin="5" >
+                    <ComboBoxItem Content="insert"/>
+                </ComboBox>
             </Grid>
         </GroupBox>
 
