@@ -28,8 +28,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
@@ -107,7 +105,7 @@ public class AboutFragment extends Fragment {
 
         viewModel.deleteAll();
         MainActivity activity = (MainActivity) getActivity();
-        activity.gManager.delete();
+        activity.gManager.clear();
         activity.pManager.reset();
         activity.dbState = Util.DbState.CLEAN;
 

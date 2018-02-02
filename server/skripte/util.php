@@ -1,7 +1,11 @@
 <?php
 	
 	function translateGroupNameToId($array, $name) {
-		
+				
+		if (is_numeric($name)) {
+			return $name;
+		}
+				
 		foreach ($array as $element) {
 			if ($element['name'] == $name) {
 				return $element['id'];
@@ -39,7 +43,7 @@
 			$query = "groupId = " . $id . " ";
 			
 			for ($x = 1; $x < count($name_array); $x++) {
-				
+		
 				$id = translateGroupNameToId($group_array,$name_array[$x]);
 		
 				if ($id != -1) {
@@ -99,12 +103,9 @@
 	
 		
 	function translateGroup($group) {
-		
-		global $pdo;
-		
-		$group = explode("_",$group);
+				
+		//$group = explode("_",$group);
 		$group_array = getGroupArray();
-		$query = "";
 		
 		$idarray = array();
 		
@@ -113,6 +114,122 @@
 		}
 				
 		return $idarray;		
-	}		
+	}
+	
+	function log_db($message) {
+		$dbFile = fopen("config/log_db.txt",'a');
+		
+		fwrite($dbFile,"Timestamp: ");
+		fwrite($dbFile,date("Y-m-d H:i:s"));
+		fwrite($dbFile,"; Message: ");
+		fwrite($dbFile,$message);
+		fwrite($dbFile,"\r\n");
+		
+		fclose($dbFile);
+	}
+	
+	function getDBVersion() {
+		$dbFile = fopen("db_Version.txt",'r');
+		$dbversion = fgets($dbFile);
+		fclose($dbFile);
+		return $dbversion;
+	}
+	
+	function getDBAccess() {
+		
+		global $db_server;
+		global $db_name;
+		global $db_user;
+		global $db_password;
+		
+		//Datenbankzugangsdaten
+		$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
+		
+		$db_server = fgets($dbFile);	
+		$db_name = fgets($dbFile);	
+		$db_user = fgets($dbFile);
+		$db_password = fgets($dbFile);
+		
+		fclose($dbFile);
+		 
+		$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
+		$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
+		$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
+		$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
+	}
+	
+	function createDatabaseHandler() {
+		//Datenbankzugangsdaten
+		$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
+		
+		$db_server = fgets($dbFile);	
+		$db_name = fgets($dbFile);	
+		$db_user = fgets($dbFile);
+		$db_password = fgets($dbFile);
+		
+		fclose($dbFile);
+		 
+		$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
+		$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
+		$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
+		$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
+		
+		//Zugangsobjekt erzeugen
+		$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
+		return $pdo;
+	}
 
+	function debugJSON() {
+		switch (json_last_error()) {
+			case JSON_ERROR_NONE:
+				echo ' - No errors';
+				break;
+			case JSON_ERROR_DEPTH:
+				echo ' - Maximum stack depth exceeded';
+				break;
+			case JSON_ERROR_STATE_MISMATCH:
+				echo ' - Underflow or the modes mismatch';
+				break;
+			case JSON_ERROR_CTRL_CHAR:
+				echo ' - Unexpected control character found';
+				break;
+			case JSON_ERROR_SYNTAX:
+				echo ' - Syntax error, malformed JSON';
+				break;
+			case JSON_ERROR_UTF8:
+				echo ' - Malformed UTF-8 characters, possibly incorrectly encoded';
+				break;
+			default:
+				echo ' - Unknown error';
+				break;
+		}		
+	}
+	
+	function checkIfEntryExists($id, $pdo, $table) {
+		
+		$query = "SELECT `id` FROM `" . $table . "` WHERE `id` LIKE " . $id ;					
+						
+		$stmt=$pdo->prepare($query);			
+		$stmt->closeCursor();	
+		$stmt->execute();	
+		
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		//DEBUG
+		// echo "Checkuser for ID: " . $id;
+		// echo "\r\n";
+		// var_dump($res);
+		// echo "\r\n";
+		
+		if ($res == false) {
+			return false;
+		}
+		
+		if (count($res) > 0) {
+			return true;
+		}
+		else {
+			return false;
+		}		
+	}
 ?>

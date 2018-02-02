@@ -38,11 +38,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
@@ -105,13 +107,18 @@ public class DetailFragment extends Fragment {
 
         //Elevation der Cards setzen
         Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
-//        drawable.setColorFilter(getResources().getColor(R.color.colorPrimary), PorterDuff.Mode.MULTIPLY);
 
         CardView card = view.findViewById(R.id.card1);
         card.setBackground(drawable);
 
         card = view.findViewById(R.id.card2);
         card.setBackground(drawable);
+
+        //Farbe des Positionstextes an die Einstellung anpassen
+        TextView positiontext = view.findViewById(R.id.detailPosition);
+        PreferencesManager preferencesManager = ((MainActivity) getActivity()).pManager;
+
+        positiontext.setTextColor(preferencesManager.getPositionTextColor());
 
         return view;
     }
@@ -255,6 +262,8 @@ public class DetailFragment extends Fragment {
             //Prüfen ob Koordinaten hinterlegt sind und damit eine Position eingezeichnet werden kann und prüfen ob im Item eine Position hinterlegt ist
             if (trayItem.getPositionCoordinates() != null && equipmentItem.getPositionIndex() > -1) {
 
+                PreferencesManager preferencesManager = ((MainActivity) getActivity()).pManager;
+
                 //Koordinaten abrufen
                 int left = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4);
                 int top = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4 + 1);
@@ -273,7 +282,8 @@ public class DetailFragment extends Fragment {
                     Paint painter = new Paint();
                     painter.setStyle(Paint.Style.STROKE);
                     painter.setStrokeWidth(5);
-                    painter.setColor(getResources().getColor(R.color.position_image_highlight));
+//                    painter.setColor(getResources().getColor(R.color.position_image_highlight));
+                    painter.setColor(preferencesManager.getPositionMarkColor());
 
                     canvas.drawRect(rectangle, painter);
                 }

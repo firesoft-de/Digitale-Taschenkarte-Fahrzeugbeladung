@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         fManager = this.getSupportFragmentManager();
         lManager = this.getSupportLoaderManager();
         pManager = new PreferencesManager(this);
-        gManager = new GroupManager(this);
+        gManager = new GroupManager();
 
         //PREFS laden
         pManager.load();
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         else if (pManager.getDbVersion() == -1) {
             dbState = Util.DbState.CLEAN;
             pManager.setDbVersion(0);
-            if (Util_Http.checkNetwork(this,this)) {
+            if (Util_Http.checkNetwork(this)) {
                 getNetDBState(null,true);
             }
             else {
@@ -133,11 +133,11 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
         }
         else {
-            if (Util_Http.checkNetwork(this,this)) {
+            if (Util_Http.checkNetwork(this)) {
                 getNetDBState(null, true);
             }
             else {
-                //Keine Netzwerkverbindung -> Nachricht und Ende
+                //Keine Netzwerkgenymverbindung -> Nachricht und Ende
                 Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_noConnection, Snackbar.LENGTH_LONG)
                         .show();
             }
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         }
 
         //TODO: Einstellungsdialog wieder einschalten
-        menu.findItem(R.id.OptionMenuSettings).setVisible(false);
+//        menu.findItem(R.id.OptionMenuSettings).setVisible(false);
 
         //Zählervariale
         int x = 0;

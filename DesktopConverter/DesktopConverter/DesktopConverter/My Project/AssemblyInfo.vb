@@ -9,10 +9,10 @@ Imports System.Runtime.InteropServices
 ' Werte der Assemblyattribute überprüfen
 
 <Assembly: AssemblyTitle("DesktopConverter")>
-<Assembly: AssemblyDescription("")>
+<Assembly: AssemblyDescription("Der DesktopConverter dient dem umwandeln von Exceldateien in ein *.csv Format")>
 <Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("DesktopConverter")>
-<Assembly: AssemblyCopyright("Copyright ©  2018")>
+<Assembly: AssemblyProduct("Digitale Taschenkarte Fahrzeugbeladung")>
+<Assembly: AssemblyCopyright("Copyright David Schlossarczyk © 2018")>
 <Assembly: AssemblyTrademark("")>
 
 <Assembly: ComVisible(False)>

@@ -25,16 +25,13 @@
 	// - table
 	// - data
 	// - newversion
+	// - overrideversion
 	
 	
 	//=====================================================================
 	//============================Variablen================================
 	//=====================================================================	
 	
-		// $db_server;	
-		// $db_name;	
-		// $db_user;
-		// $db_password;
 		$dbtable = '';
 		
 		$pdo;
@@ -43,7 +40,7 @@
 		$group;
 		$table;
 		$tablecols;
-		
+				
 		include 'util.php';
 	
 	//=====================================================================
@@ -59,14 +56,19 @@
 		
 		//Befehl abrufen
 		receiveCommand();
-		$basequery = buildQuery();
-		loginteral("Auszuführender Befehl: " . $basequery);
+		//$basequery = buildQuery();
+		loginteral("Auszuführender Befehl: " . $command);
+		
+		//Der setversion Befehl wird abgesetzt ausgeführt
+		if ($command == "version") {
+			setversion();
+		}
 		
 		//Daten abrufen
 		$dataarray = receiveData();
 		
 		//Daten verarbeiten
-		work($basequery,$dataarray);
+		work($dataarray);
 				
 		echo("CONFIRM_WORK_DONE");
 		loginteral("CONFIRM_WORK_DONE");	
@@ -75,32 +77,6 @@
 	//=====================================================================
 	//===========================Funktionen================================
 	//=====================================================================
-	
-		function createDatabaseHandler() {
-			//Datenbankzugangsdaten
-			$dbFile = fopen(__DIR__ .  "/config/access.txt",'r');
-			
-			// global $db_server;
-			// global $db_name;
-			// global $db_user;
-			// global $db_password;
-			
-			$db_server = fgets($dbFile);	
-			$db_name = fgets($dbFile);	
-			$db_user = fgets($dbFile);
-			$db_password = fgets($dbFile);
-			
-			fclose($dbFile);
-			 
-			$db_server = trim(preg_replace('/\s+/', ' ', $db_server));
-			$db_name = trim(preg_replace('/\s+/', ' ', $db_name));
-			$db_user = trim(preg_replace('/\s+/', ' ', $db_user));
-			$db_password = trim(preg_replace('/\s+/', ' ', $db_password));
-			
-			//Zugangsobjekt erzeugen
-			$pdo = new PDO('mysql:host=' . $db_server.';dbname=' . $db_name, $db_user , $db_password);
-			return $pdo;
-		}
 		
 		//Nutzer Autorisierung in der Datenbank checken
 		function  checkUser() {
@@ -116,7 +92,7 @@
 				$user = $_POST['user'];
 			}
 			else {
-				echo 'NO_USER';
+				echo 'ERROR_NO_USER';
 				die;
 			}
 			
@@ -124,17 +100,9 @@
 				$pass = $_POST['pass'];
 			}
 			else {
-				echo 'NO_PASS';
+				echo 'ERROR_NO_PASS';
 				die;
 			}		
-
-			if (isSet($_POST['group'])) {
-				$group = $_POST['group'];
-			}
-			else {
-				echo 'NO_GROUP';
-				die;
-			}
 			
 			// Query erstellen
 			$queryString = "SELECT id,groups FROM `userx` WHERE name LIKE :user AND pass LIKE :pass";	
@@ -151,103 +119,125 @@
 								
 			// Überprüfen ob der Nutzer gültig ist
 			if ($res["id"] == -1) {
-				echo('INVALID_AUTH');
+				echo('ERROR_INVALID_AUTH');
 				loginteral("Gescheiterter Loginversuch für Account: " . $user);
 				die;
 			}	
 			$id = $res["id"];			
 
 			if ($res == false) {
-				echo('INVALID_AUTH');
+				echo('ERROR_INVALID_AUTH');
 				loginteral("Gescheiterter Loginversuch für Account: " . $user);
 				die;
 			}
 						
 			// Überprüfen ob der Nutzer die Gruppe bearbeiten darf
+			if ($res["groups"] == "all") {
+				//Nutzer darf alle Gruppen bearbeiten
+				$group = "all";
+				return $id;
+			}
+			
 			$group_array = explode("_",$res["groups"]);
-			
-			$group = translateGroup($group);
-			
-			foreach($group as $element) {
-				
-				if (in_array($element, $group_array)) {
-					//Alles OK
-				}
-				else {
-					echo("MISSING_GROUP_PERMISSION");
-					loginteral("Fehlende Berechtigung Account: " . $user);
-					die;
-				}	
-			}	
+						
+			$group = translateGroup($group_array);
+						
 			return $id;
 		}
 		
-		function work($query, $data) {
+		function work($data) {
 			global $group;
 			global $table;
 			global $pdo;
 			global $tablecols;	
 			global $command;
 			
+			$res = 0;
+			
 			for ($x = 0; $x < count($data); $x++) {
 				
-				//Überprüfen ob der angefragte Datenbankeintrag geändert werden darf
-				checkGroupPermission($data[$x]['id']);
+				$current_id = $data[$x]['id'];
 				
-				if ($command == "insert") {
-					
-					$querystring = $query . "(";
-					foreach ($tablecols as $element) {
-						//var_dump($element);
-						$querystring = $querystring . "`" . $element . "`,";
-					}
-					
-					$querystring = rtrim($querystring,",");
-					
-					$querystring = $querystring . ") VALUES (";
-					
-					foreach($data[$x] as $subelement) {
-						$querystring = $querystring . "`" . $subelement . "`,";
-					}
+				//Prüfen ob nach der Änderung der Eintrag noch in einer autorisierten Gruppe liegt
+				if (!checkGroupPermissionOnItem($data[$x]['groupId'])) {
+					$res = -1;
+				}
+				else {
+					if ($command == "insert") {
+						
+						if (!checkIfEntryExists($current_id, $pdo, $table)) {
+							//Wenn der Eintrag noch nicht exisitert, muss er mittels insert eingespielt werden
+																				
+							$querystring = "INSERT INTO " . '`' . $table . '`' . " (";
+							$valuestring = "";
 							
-					$querystring = rtrim($querystring,",");		
-					$querystring = $querystring . ")";	
-					
-					// Query erstellen
-					//var_dump($querystring);
-					
-				}
-				else if ($command == "update") {
-					
-					$querystring = $query . "SET ";
-					
-					for ($i= 1; $i < count($tablecols); $i++) {
-						$element = $data[$x];
-						$querystring = $querystring . "" . $tablecols[$i] . " = '" . $element[$tablecols[$i]] . "', ";
+							for ($i= 0; $i < count($tablecols); $i++) {
+								$element = $data[$x];
+								$currentcol = $tablecols[$i];
+
+								if ($currentcol == "groupId" && !is_numeric($element[$currentcol])) {
+									//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
+									$group_array = getGroupArray();
+									$element[$currentcol] = translateGroupNameToId($group_array, $element[$currentcol]);
+								}
+								
+								$querystring = $querystring . "" . $currentcol . ", ";
+								$valuestring = $valuestring . "'" . $element[$currentcol] . "',";
+							}
+																		
+							$querystring = rtrim($querystring,", ");
+							$valuestring = rtrim($valuestring,",");
+							
+							$querystring = $querystring . ") VALUES (" . $valuestring . ")";										
+							
+						}
+						else {
+							checkGroupPermission($current_id);
+							
+							//Wenn der Eintrag bereits exisitert, muss er mittels update eingespielt werden
+							$querystring = "UPDATE " . '`' . $table . '`' . " SET ";
+								
+							for ($i= 1; $i < count($tablecols); $i++) {
+								$element = $data[$x];
+								$currentcol = $tablecols[$i];
+
+								if ($currentcol == "groupId" && !is_numeric($element[$currentcol])) {
+									//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
+									$group_array = getGroupArray();
+									$element[$currentcol] = translateGroupNameToId($group_array, $element[$currentcol]);
+								}
+								
+								$querystring = $querystring . "" . $currentcol . " = '" . $element[$currentcol] . "', ";
+							}
+							
+							$querystring = rtrim($querystring,", ");	
+							$querystring = $querystring . " WHERE " . $tablecols[0] . " = '" . $data[$x][$tablecols[0]] . "'";							
+						}					
 					}
-					
-					$querystring = rtrim($querystring,", ");	
-					$querystring = $querystring . " WHERE " . $tablecols[0] . " = '" . $data[$x][$tablecols[0]] . "'";	
-					
-					//DEBUG
-					// var_dump($querystring);
-					
 				}
 				
-				// Datenbankabfrage durchführen
-				$stmt=$pdo->prepare($querystring);				
-				$stmt->closeCursor();	
-				$stmt->execute();	
+				// var_dump($querystring);
 				
-				$res = $stmt->rowCount();
-				// var_dump($res);
-				
+				if ($res >= 0) {
+					// Datenbankabfrage durchführen
+					$stmt=$pdo->prepare($querystring);				
+					$stmt->closeCursor();	
+					$stmt->execute();	
+					
+					$res = $stmt->rowCount();
+					// var_dump($res);
+				}
+								
 				if ($res == 0) {
 					echo("ID " . $data[$x][$tablecols[0]] . " - SQL_ERROR \r\n");
 				}
+				else if ($res == -1) {
+					echo("ID " . $data[$x][$tablecols[0]] . " - MISSING_GROUP_PERMISSION \r\n");
+				}
 				else {
 					echo("ID " . $data[$x][$tablecols[0]] . " - SUCCESS \r\n");
-				}				
+				}			
+				
 			}			
 		}
 		
@@ -258,11 +248,17 @@
 				$data = $_POST['data'];
 			}
 			else {
-				echo 'NO_DATA';
+				echo 'ERROR_NO_DATA';
 				die;
 			}
 			
 			$rawdata = json_decode($data,true);
+						
+			if (!array_key_exists("INPUT",$rawdata)) {
+				echo "ERROR_DATA_FORMAT_INVALID";
+				die;
+			}
+			
 			$rawdata = $rawdata["INPUT"];
 						
 			return $rawdata;
@@ -278,53 +274,21 @@
 				$command = $_POST['command'];
 			}
 			else {
-				echo 'NO_COMMAND';
+				echo 'ERROR_NO_COMMAND';
 				die;
 			}
 			
-			if (isSet($_POST['table'])) {
-				$table = $_POST['table'];
-			}
-			else {
-				echo 'NO_TABLE';
-				die;
-			}							
-		}
-		
-		//Befehl in Query umwandeln
-		function buildQuery() {
-			global $command;
-			global $group;
-			global $table;
-			
-			switch ($command) {				
-				case 'insert':
-					$query = "INSERT INTO ";
-					break;
-					
-				case 'delete':
-				
-					break;
-					
-				case 'update':
-					$query = "UPDATE ";
-					break;	
-				
-				case 'version':
-					setversion();
+			if ($command != "version") {
+				if (isSet($_POST['table'])) {
+					$table = $_POST['table'];
+					$table = translateTable($table);
+				}
+				else {
+					echo 'ERROR_NO_TABLE';
 					die;
-				
-				default:
-					echo('UNKNOWN_COMMAND');
-					die;
-			}
-				
-			// Tabelle in Query einbauen
-			$table = translateTable($table);
-				
-			$query = $query . '`' . $table . '` ';
-
-			return $query;
+				}		
+			}			
+						
 		}
 		
 		//Berechtigung zum Ändern des Eintrags prüfen
@@ -334,17 +298,32 @@
 			global $pdo;
 			
 			//Query bauen
-			$query = "SELECT `groupId` FROM `" . $table . "` WHERE `id` LIKE " . $entryid ;					
+			$query = "SELECT `groupId` FROM `" . $table . "` WHERE `id` LIKE :entryid";					
 						
-			$stmt=$pdo->prepare($query);			
+			$stmt=$pdo->prepare($query);		
+			$stmt->bindParam(':entryid', $entryid, PDO::PARAM_INT);
+			
 			$stmt->closeCursor();	
 			$stmt->execute();	
 			
 			$res = $stmt->fetch(PDO::FETCH_ASSOC);
 			
 			//DEBUG
+			// echo "query:";
+			// var_dump($query);
+			// echo "\r\n";
+			
+			// echo "res:";
 			// var_dump($res);
+			// echo "\r\n";
+			
+			// echo "group:";
 			// var_dump($group);
+			// echo "\r\n";
+			
+			if ($group == "all") {
+				return true;
+			}
 			
 			foreach($group as $element) {
 				if ($element == $res["groupId"]) {
@@ -352,8 +331,64 @@
 				}
 			}
 			
-			echo("MISSING_GROUP_PERMISSION");
+			echo("ERROR_MISSING_GROUP_PERMISSION");
 			die;
+		}
+		
+		//Überprüft anhand der groupId eines einzutragenden Datensatzes ob die Zielgruppe durch den Benutzer geändert werden darf.
+		function checkGroupPermissionOnItem($groupId) {		
+			global $group;
+			
+			if ($group == "all") {
+				return true;
+			}
+			
+			if (!is_numeric($groupId)) {
+				//Vorliegende alphabetische Gruppenid in eine numerische Gruppenid umwandeln
+				$group_array = getGroupArray();
+				$groupId = translateGroupNameToId($group_array, $groupId);
+			}
+			if (in_array($groupId,$group)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		function checkTablePermission($table) {
+			global $pdo;
+			global $userid;
+			
+			//Query bauen um berechtigte Tabellen abzufragen
+			$query = "SELECT `tables` FROM `userx` WHERE `id` LIKE :userid";			
+						
+			$stmt=$pdo->prepare($query);			
+			$stmt->bindParam(':userid', $userid, PDO::PARAM_INT);	
+			
+			$stmt->closeCursor();	
+			$stmt->execute();	
+			
+			$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			
+			if ($res == null || $res == "" || count($res) == 0 || $res["tables"] == "") {
+				return false;
+			}
+			
+			if ($res["tables"] == "all") {
+				return true;
+			}
+			
+			//Berechtigte Tabellen splitten und auswerten
+			$allowed_tables = array();
+			$allowed_tables = explode("_", $res["tables"]);
+						
+			if (in_array($table, $allowed_tables)) {
+				return true;
+			}
+			else {
+				return false;
+			}			
 		}
 		
 				
@@ -379,26 +414,54 @@
 					
 				case "tray":
 					$dbtable = "tray";
+					$tablecols[0] = "id";
+					$tablecols[1] = "groupId";
+					$tablecols[2] = "name";
+					$tablecols[3] = "description";
+					$tablecols[4] = "descriptionTwo";
+					$tablecols[5] = "positions";
+					$tablecols[6] = "version";
 					//TODO: Andere Spalten einbauen
 					break;
 					
 				case "positionimage":
 					$dbtable = "positionimage";
+					$tablecols[0] = "id";
+					$tablecols[1] = "path";
+					$tablecols[2] = "categoryId";
+					$tablecols[3] = "groupId";
+					$tablecols[4] = "version";
+					//TODO: Andere Spalten einbauen
 					break;
 
 				case "group":
 					$dbtable = "groupx";
+					$tablecols[0] = "id";
+					$tablecols[1] = "name";
+					$tablecols[2] = "trayname";
+					//TODO: Andere Spalten einbauen
 					break;
 					
 				case "user":
 					$dbtable = "userx";
+					$tablecols[0] = "id";
+					$tablecols[1] = "name";
+					$tablecols[2] = "groups";
+					$tablecols[3] = "pass";
+					//TODO: Überprüfen ob Nutzer Berechtigung zum Ändern der Benutzer besitzt
 					break;				
 					
 				default:
-					echo("INVALID_TABLE");
+					echo("ERROR_INVALID_TABLE");
 					die;
 				
 			}
+			
+			if (!checkTablePermission($dbtable)) {
+				echo("ERROR_MISSING_TABLE_PERMISSION");
+				die;
+			}
+			
 			return $dbtable;
 		}	
 
@@ -408,7 +471,7 @@
 				$newversion = $_POST['newversion'];
 			}
 			else {
-				echo 'NO_VERSION';
+				echo 'ERROR_NO_VERSION';
 				die;
 			}
 			
@@ -428,10 +491,12 @@
 				fclose($dbFile);		
 				echo("CONFIRM_VERSION_UPDATE");
 				loginteral("Neue Version eingetragen: " . $newversion);	
+				die;
 			}	
 			else if ($dbVersion == $newversion) {
 				echo("WARNING_SAME_VERSION");
 				loginteral("Keine Versionsänderung möglich.");
+				die;
 			}
 			else {
 				if (isSet($_POST['overrideversion'])) {
@@ -442,6 +507,7 @@
 						fclose($dbFile);		
 						echo("CONFIRM_VERSION_UPDATE_WITH_OVERRIDE");
 						loginteral("Version zwangsweise überschrieben. Neue Version: " . $newversion);
+						die;
 					}
 				}
 				else {
@@ -449,8 +515,7 @@
 					loginteral("Versionsupdate abgewiesen");
 					die;
 				}			
-			}
-					
+			}	
 		}
 	
 		function loginteral($message) {

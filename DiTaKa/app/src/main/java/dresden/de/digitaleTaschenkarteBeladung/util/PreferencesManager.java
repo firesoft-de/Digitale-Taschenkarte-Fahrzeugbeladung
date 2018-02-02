@@ -17,6 +17,9 @@ package dresden.de.digitaleTaschenkarteBeladung.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.support.v4.content.res.ResourcesCompat;
+import android.widget.ResourceCursorAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +30,7 @@ import java.util.Arrays;
 
 import dresden.de.digitaleTaschenkarteBeladung.BuildConfig;
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
+import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 
 /**
@@ -42,14 +46,18 @@ public class PreferencesManager {
     //Diese Variable gibt an ob ein veralteter PREF Satz gefunden wurde. Beim Speichern müssen dann entsprechende Maßnahmen ergriffen werden
     private boolean outdatedPref;
 
+    private int positionMarkColor;
+    private int positionTextColor;
 
-    static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
+    private static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
     private static final String PREFS_URL="url";
     private static final String PREFS_DBVERSION="dbversion";
     private static final String PREFS_SORT="sort";
     private static final String PREFS_VERSION="version";
     private static final String PREFS_GROUPS="groups";
-    public static final String PREFS_ACTIVE_GROUP="activegroup";
+    private static final String PREFS_ACTIVE_GROUP="activegroup";
+    private static final String PREFS_COLOR_POSITION_MARK="color_position_mark";
+    private static final String PREFS_COLOR_POSITION_TEXT="color_position_text";
 
 
     public PreferencesManager(Activity parent) {
@@ -75,6 +83,10 @@ public class PreferencesManager {
                 //Version 0.5
                 loadv12();
                 break;
+            case 13:
+                //Version 0.5.1
+                loadv13();
+                break;
         }
 
 
@@ -95,16 +107,18 @@ public class PreferencesManager {
         editor.putInt(PREFS_VERSION, BuildConfig.VERSION_CODE);
 
         //Sortierung
-        switch (parent.liveSort.getValue()) {
-            case PRESET:
-                editor.putInt(PREFS_SORT,0);
-                break;
-            case AZ:
-                editor.putInt(PREFS_SORT,1);
-                break;
-            case ZA:
-                editor.putInt(PREFS_SORT,2);
-                break;
+        if (parent.liveSort.getValue() != null) {
+            switch (parent.liveSort.getValue()) {
+                case PRESET:
+                    editor.putInt(PREFS_SORT, 0);
+                    break;
+                case AZ:
+                    editor.putInt(PREFS_SORT, 1);
+                    break;
+                case ZA:
+                    editor.putInt(PREFS_SORT, 2);
+                    break;
+            }
         }
 
 
@@ -132,6 +146,9 @@ public class PreferencesManager {
 
         }
 
+        //Aktive Gruppe laden
+        editor.putString(PREFS_ACTIVE_GROUP,gManager.getActiveGroup().getName());
+
         editor.apply();
     }
 
@@ -146,6 +163,8 @@ public class PreferencesManager {
         url = "NO_URL_FOUND";
         parent.liveNetDBVersion.setValue(0);
         parent.dbState = Util.DbState.CLEAN;
+        positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
+        positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
     }
 
     //=================================================================
@@ -217,7 +236,7 @@ public class PreferencesManager {
         gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP,""));
     }
 
-    public void loadv12() {
+    private void loadv12() {
 
         SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
@@ -261,6 +280,41 @@ public class PreferencesManager {
             }
         }
 
+
+        //Aktive Gruppe laden
+        gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP,""));
+
     }
 
+    private void loadv13() {
+        loadv12();
+
+        SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int color = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+
+        positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK,
+                color);
+
+        color =  ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
+
+        positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT,
+                color);
+
+    }
+
+    public int getPositionTextColor() {
+        return positionTextColor;
+    }
+
+    public void setPositionTextColor(int positionText) {
+        this.positionTextColor = positionText;
+    }
+
+    public int getPositionMarkColor() {
+        return positionMarkColor;
+    }
+
+    public void setPositionMarkColor(int positionMark) {
+        this.positionMarkColor = positionMark;
+    }
 }
