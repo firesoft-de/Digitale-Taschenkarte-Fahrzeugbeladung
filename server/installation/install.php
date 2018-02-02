@@ -38,8 +38,8 @@
 	//Tabelle equipment anlegen
 	$queryString = "CREATE TABLE `equipment` (`id` int(11) NOT NULL, `categoryId` int(11) NOT NULL, `positionID` int(11) NOT NULL,
 					`groupId` int(11) NOT NULL DEFAULT '0', `name` text NOT NULL, `setName` text NOT NULL, `description` text NOT NULL,
-					`position` text NOT NULL, `notes` text NOT NULL, `keywords` text NOT NULL, `version` int(11) NOT NULL, PRIMARY KEY (`id`),
-					UNIQUE KEY `id` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+					`position` text NOT NULL, `notes` text NOT NULL, `keywords` text NOT NULL, `version` int(11) NOT NULL,
+					PRIMARY KEY (`id`), UNIQUE KEY `id` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
 
 	//Datenbankabfrage vorbereiten
 	$stmt=$pdo->prepare($queryString);
@@ -55,7 +55,7 @@
 	echo('- Erstelle Datenbanktabelle tray <br/>');
 
 	//Tabelle tray anlegen
-	$queryString = "CREATE TABLE `tray` (`id` int(11) NOT NULL, `groupId` int(11) NOT NULL, `name` text NOT NULL, `description` text NOT NULL,
+	$queryString = "CREATE TABLE `tray` ( `id` int(11) NOT NULL, `groupId` int(11) NOT NULL, `name` text NOT NULL, `description` text NOT NULL,
 					`descriptionTwo` text NOT NULL, `positions` text NOT NULL, `version` int(11) NOT NULL, PRIMARY KEY (`id`),
 					UNIQUE KEY `id` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
 
@@ -72,9 +72,9 @@
 	echo('- Erstelle Datenbanktabelle positionimage <br/>');
 
 	//Tabelle positionimage anlegen
-	$queryString = "CREATE TABLE `positionimage` (`id` int(11) NOT NULL, `path` text NOT NULL, `categoryId` int(11) NOT NULL, `groupId` int(11) NOT NULL, 
+	$queryString = "CREATE TABLE `positionimage` ( `id` int(11) NOT NULL, `path` text NOT NULL, `categoryId` int(11) NOT NULL, `groupId` int(11) NOT NULL,
 					`version` int(11) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `id` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
-
+					
 	//Datenbankabfrage vorbereiten
 	$stmt=$pdo->prepare($queryString);
 
@@ -88,9 +88,9 @@
 	echo('- Erstelle Datenbanktabelle groupx <br/>');
 
 	//Tabelle groupx anlegen
-	$queryString = "CREATE TABLE `groupx` (`id` int(11) NOT NULL, `name` text COLLATE latin1_german1_ci NOT NULL, `version` int(11) NOT NULL,
-					PRIMARY KEY (`id`), UNIQUE KEY `id` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_german1_ci";
-
+	$queryString = "CREATE TABLE `groupx` ( `id` int(11) NOT NULL, `name` text COLLATE latin1_german1_ci NOT NULL, `trayname` text COLLATE latin1_german1_ci NOT NULL,
+					`version` int(11) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `id` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_german1_ci";
+					
 	//Datenbankabfrage vorbereiten
 	$stmt=$pdo->prepare($queryString);
 
@@ -100,6 +100,21 @@
 	//SQL Abfrage ausführen
 	$stmt->execute();
 	
+	
+	echo('- Erstelle Datenbanktabelle userx <br/>');
+
+	//Tabelle groupx anlegen
+	$queryString = "CREATE TABLE `userx` ( `id` int(11) NOT NULL, `name` text NOT NULL, `groups` text NOT NULL, `tables` text NOT NULL,
+					`pass` text NOT NULL, UNIQUE KEY `id` (`id`), UNIQUE KEY `id_2` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+					
+	//Datenbankabfrage vorbereiten
+	$stmt=$pdo->prepare($queryString);
+
+	//Statment schließen
+	$stmt->closeCursor();
+
+	//SQL Abfrage ausführen
+	$stmt->execute();
 
 	echo('<br/> <br/> <b>Installation abgeschlossen</b>');
 	echo('</body> </html>');
