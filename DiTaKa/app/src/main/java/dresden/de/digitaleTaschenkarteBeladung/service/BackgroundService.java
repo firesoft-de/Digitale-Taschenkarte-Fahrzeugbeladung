@@ -53,7 +53,6 @@ public class BackgroundService extends Service {
 
         final PreferencesManager pManager = new PreferencesManager(this);
         pManager.load();
-//        Log.i("Service","Service wurde ausgeführt");
 
         VersionLoader vLoader = new VersionLoader(getApplicationContext(),pManager.getUrl());
 
@@ -63,7 +62,6 @@ public class BackgroundService extends Service {
                 VersionLoader versionLoader = (VersionLoader) loader;
 
                 if (versionLoader.getVersion() > pManager.getDbVersion()) {
-                    //        Toast.makeText(getApplicationContext(),"Hintergrundservice ausgeführt",Toast.LENGTH_SHORT).show();
                     buildNotification();
 
                     //Hintergrundprozess wieder beenden
