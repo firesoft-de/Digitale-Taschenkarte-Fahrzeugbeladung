@@ -481,11 +481,8 @@ public class Util_Http {
             e.printStackTrace();
         }
 
-
         if (connection != null) {
-
             try {
-
                 //Verbindungseinstellungen
                 connection.setConnectTimeout(10000);
                 connection.setReadTimeout(10000);
@@ -501,7 +498,6 @@ public class Util_Http {
                     //Übergabe des InputStreams zur Verarbeitung
                     response = connection.getInputStream();
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());

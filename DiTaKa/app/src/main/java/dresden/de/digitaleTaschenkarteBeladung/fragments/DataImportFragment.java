@@ -58,6 +58,7 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.ARGS_CALLFROMINTENT;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
 
@@ -86,6 +87,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     //Gibt an ob die Gruppen schon abgefragt wurden, also als nächstes der richtige Download stattfinden soll
     private boolean groupSelectionCompleted = false;
+
+    //Wird beim Start true gesetzt um zu verhindern, dass über die EditText Focus Change Methode das Textfeld geleert wird
+    private boolean launch;
 
     public ArrayList<String> newGroups;
 
@@ -134,6 +138,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //URL und Datenbankversion aus den mitgelieferten Argumenten abrufen
         url = this.getArguments().getString(Util.ARGS_URL);
         dbversion = this.getArguments().getInt(Util.ARGS_VERSION);
+        launch = this.getArguments().getBoolean(ARGS_CALLFROMINTENT);
 
 
         //Progressbar einrichten
@@ -145,7 +150,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         //Textfeld einrichten
         final EditText editText = result.findViewById(R.id.text_url);
-        if (url != "NO_URL_FOUND") {
+        editText.clearFocus();
+        if (!url.equals("NO_URL_FOUND")) {
             editText.setText(url);
             updateDBVersion(dbversion,result);
             editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -408,18 +414,27 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         EditText editText = getActivity().findViewById(R.id.text_url);
         CardView card = getActivity().findViewById(R.id.cardGroup);
 
-        if (focus) {
-            editText.setText("");
-            transformFAB(0);
-            groupSelectionCompleted = false;
-            ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
-            viewGroup.removeAllViews();
-
-            card.setVisibility(View.GONE);
+        if (launch) {
+            View next = getActivity().findViewById(R.id.flActBt);
+            if (next != null) {
+                next.requestFocus();
+            }
+            toggleURLError(false);
+            launch = false;
         }
         else {
-            if (editText.getText().equals("")) {
-                editText.setText(url);
+            if (focus) {
+                editText.setText("");
+                transformFAB(0);
+                groupSelectionCompleted = false;
+                ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
+                viewGroup.removeAllViews();
+
+                card.setVisibility(View.GONE);
+            } else {
+                if (editText.getText().equals("")) {
+                    editText.setText(url);
+                }
             }
         }
 
@@ -711,14 +726,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     private ArrayList<String> checkSelectedGroups() {
 
-        MainActivity activity = (MainActivity) getActivity();
         ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
         ArrayList<String> activeGroups = new ArrayList<>();
 
         for (int x = 1; x < viewGroup.getChildCount(); x++) {
 
-            View view = viewGroup.getChildAt(x);
+             View view = viewGroup.getChildAt(x);
              ViewGroupSelector vgs = new ViewGroupSelector(view,getContext());
              if (vgs.getCheckState()) {
                  activeGroups.add(vgs.getGroupName());

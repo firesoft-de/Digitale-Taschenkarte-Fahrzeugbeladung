@@ -15,6 +15,8 @@
 package dresden.de.digitaleTaschenkarteBeladung;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
@@ -36,6 +38,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 
+import java.util.Calendar;
+
 import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
@@ -45,12 +49,16 @@ import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
+import dresden.de.digitaleTaschenkarteBeladung.service.BackgroundService;
+import dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver;
 import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.loader.VersionLoader;
 
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.ARGS_CALLFROMINTENT;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_DATA;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_ITEM;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_TRAY;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
@@ -72,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     private FragmentManager fManager;
     private LoaderManager lManager;
 
-
     public Util.DbState dbState;
 
     public GroupManager gManager;
@@ -85,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     private boolean NetDBVersionCallForUser;
     public boolean FirstDownloadCompleted;
+    private boolean CallFromNotification;
 
     //=======================================================
     //===================OVERRIDEMETHODEN====================
@@ -144,9 +152,24 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         }
         FirstDownloadCompleted = false;
 
-        //Erstes Fragment einfügen
-        Fragment trayFragment = new TrayFragment();
-        switchFragment(R.id.MainFrame,trayFragment, FRAGMENT_LIST_TRAY);
+        //Service einrichten
+        BootReceiver.startBackgroundService(this);
+
+        Intent inputIntent = getIntent();
+
+
+        Fragment firstFragment = new TrayFragment();
+        CallFromNotification = false;
+        switchFragment(R.id.MainFrame,firstFragment, FRAGMENT_LIST_TRAY);
+
+        if (inputIntent != null && inputIntent.getAction().equals("DB_UPDATE")) {
+            //Datenbankupdate Fragment anzeigen
+
+            firstFragment = new DataImportFragment();
+            CallFromNotification = true;
+            switchFragment(R.id.MainFrame,firstFragment, FRAGMENT_DATA);
+        }
+
     }
 
     //Festlegen was passiert wenn der BackButton gedrückt wird
@@ -528,6 +551,8 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         Bundle args = new Bundle();
                         args.putString(Util.ARGS_URL, pManager.getUrl());
                         args.putInt(Util.ARGS_VERSION, pManager.getDbVersion());
+                        args.putBoolean(ARGS_CALLFROMINTENT,CallFromNotification);
+
                         fragment.setArguments(args);
                     }
                     else {

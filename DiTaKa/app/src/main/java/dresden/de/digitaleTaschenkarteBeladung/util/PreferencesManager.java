@@ -17,9 +17,10 @@ package dresden.de.digitaleTaschenkarteBeladung.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.support.v4.content.res.ResourcesCompat;
-import android.widget.ResourceCursorAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +39,8 @@ import dresden.de.digitaleTaschenkarteBeladung.data.Group;
  */
 public class PreferencesManager {
     private MainActivity parent;
+    private Context context;
+    private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
 
     private int dbVersion;
@@ -45,6 +48,7 @@ public class PreferencesManager {
 
     //Diese Variable gibt an ob ein veralteter PREF Satz gefunden wurde. Beim Speichern müssen dann entsprechende Maßnahmen ergriffen werden
     private boolean outdatedPref;
+    private boolean contextOnlyMode;
 
     private int positionMarkColor;
     private int positionTextColor;
@@ -63,6 +67,16 @@ public class PreferencesManager {
     public PreferencesManager(Activity parent) {
         this.parent = (MainActivity) parent;
         outdatedPref = false;
+        contextOnlyMode = false;
+    }
+
+    public PreferencesManager(Context context) {
+        this.parent = null;
+        this.context = context;
+        outdatedPref = false;
+
+        //Da über den Context kein Zugriff auf gManager etc. stattfinden kann, wird die entsprechende Flag gesetzt
+        contextOnlyMode = true;
     }
 
     //=================================================================
@@ -70,10 +84,30 @@ public class PreferencesManager {
     //=================================================================
 
     public void load() {
+        int appversion = 11;
 
-        dbVersion = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt(PREFS_VERSION,11);
+        if (parent == null) {
+           preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        switch (dbVersion) {
+            try {
+                PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                appversion = pInfo.versionCode;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+            try {
+                PackageInfo pInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
+                appversion = pInfo.versionCode;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        switch (appversion) {
             case 11:
                 //Version 0.4.3
                 loadv11();
@@ -87,6 +121,10 @@ public class PreferencesManager {
                 //Version 0.5.1
                 loadv13();
                 break;
+            case 14:
+                //Version 0.5.1
+                loadv13();
+                break;
         }
 
 
@@ -94,7 +132,11 @@ public class PreferencesManager {
 
     public void save() {
 
-        editor = parent.getSharedPreferences(PREFS_NAME,Context.MODE_PRIVATE).edit();
+        if (contextOnlyMode) {
+            return;
+        }
+
+        editor = preferences.edit();
 
         if (outdatedPref) {
             //Alte Prefs komplett löschen
@@ -120,8 +162,6 @@ public class PreferencesManager {
                     break;
             }
         }
-
-
 
         //Gruppe
         GroupManager gManager = parent.gManager;
@@ -161,10 +201,13 @@ public class PreferencesManager {
         delete();
         dbVersion = -1;
         url = "NO_URL_FOUND";
-        parent.liveNetDBVersion.setValue(0);
-        parent.dbState = Util.DbState.CLEAN;
-        positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
-        positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+
+        if (!contextOnlyMode) {
+            parent.liveNetDBVersion.setValue(0);
+            parent.dbState = Util.DbState.CLEAN;
+            positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
+            positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+        }
     }
 
     //=================================================================
@@ -194,25 +237,27 @@ public class PreferencesManager {
 
     private void loadv11() {
 
-        SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-
         //Allgemeine Einstellungen
-        dbVersion = preferences.getInt(PREFS_DBVERSION,-1);
-        url = preferences.getString(PREFS_URL,"NO_URL_FOUND");
+        dbVersion = preferences.getInt(PREFS_DBVERSION, -1);
+        url = preferences.getString(PREFS_URL, "NO_URL_FOUND");
+
+        //Nachfolgende Befehl benötigen eine Parent-Activity vom Typ MainActivity
+        //Sie können daher nur mit dem Context nicht ausgeführt werden
+        if (!contextOnlyMode) {
 
         //Sortierung
-        int pref = preferences.getInt(PREFS_SORT, 0);
-        switch (pref) {
-            default:
-                parent.liveSort.setValue(Util.Sort.PRESET);
-                break;
-            case 1:
-                parent.liveSort.setValue(Util.Sort.AZ);
-                break;
-            case 2:
-                parent.liveSort.setValue(Util.Sort.ZA);
-                break;
-        }
+            int pref = preferences.getInt(PREFS_SORT, 0);
+            switch (pref) {
+                default:
+                    parent.liveSort.setValue(Util.Sort.PRESET);
+                    break;
+                case 1:
+                    parent.liveSort.setValue(Util.Sort.AZ);
+                    break;
+                case 2:
+                    parent.liveSort.setValue(Util.Sort.ZA);
+                    break;
+            }
 
         //Gruppen laden
         GroupManager gManager = parent.gManager;
@@ -234,72 +279,75 @@ public class PreferencesManager {
 
         //Aktive Gruppe laden
         gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP,""));
+
+        }
     }
 
     private void loadv12() {
-
-        SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
         //Allgemeine Einstellungen
         dbVersion = preferences.getInt(PREFS_DBVERSION,-1);
         url = preferences.getString(PREFS_URL,"NO_URL_FOUND");
 
-        //Sortierung
-        int pref = preferences.getInt(PREFS_SORT, 0);
-        switch (pref) {
-            default:
-                parent.liveSort.setValue(Util.Sort.PRESET);
-                break;
-            case 1:
-                parent.liveSort.setValue(Util.Sort.AZ);
-                break;
-            case 2:
-                parent.liveSort.setValue(Util.Sort.ZA);
-                break;
-        }
+        //Nachfolgende Befehl benötigen eine Parent-Activity vom Typ MainActivity
+        //Sie können daher nur mit dem Context nicht ausgeführt werden
+        if (!contextOnlyMode) {
 
-        //Gruppen laden
-        GroupManager gManager = parent.gManager;
-        String json = preferences.getString(PREFS_GROUPS,"");
+            //Sortierung
+            int pref = preferences.getInt(PREFS_SORT, 0);
+            switch (pref) {
+                default:
+                    parent.liveSort.setValue(Util.Sort.PRESET);
+                    break;
+                case 1:
+                    parent.liveSort.setValue(Util.Sort.AZ);
+                    break;
+                case 2:
+                    parent.liveSort.setValue(Util.Sort.ZA);
+                    break;
+            }
 
-        JSONArray array = new JSONArray();
-        try {
-            JSONObject object = new JSONObject(json);
-            array = object.getJSONArray("GROUPS");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            //Gruppen laden
+            GroupManager gManager = parent.gManager;
+            String json = preferences.getString(PREFS_GROUPS, "");
 
-        for (int i = 0; i < array.length(); i++)
-        {
+            JSONArray array = new JSONArray();
             try {
-                Group group = new Group((JSONObject) array.get(i));
-                gManager.add(group);
+                JSONObject object = new JSONObject(json);
+                array = object.getJSONArray("GROUPS");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            for (int i = 0; i < array.length(); i++) {
+                try {
+                    Group group = new Group((JSONObject) array.get(i));
+                    gManager.add(group);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            //Aktive Gruppe laden
+            gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP, ""));
         }
-
-
-        //Aktive Gruppe laden
-        gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP,""));
-
     }
 
     private void loadv13() {
         loadv12();
 
-        SharedPreferences preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int color = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+        //Nachfolgende Befehl benötigen eine Parent-Activity vom Typ MainActivity
+        //Sie können daher nur mit dem Context nicht ausgeführt werden
+        if (!contextOnlyMode) {
 
-        positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK,
-                color);
+            int color = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight, null);
 
-        color =  ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
+            positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK, color);
 
-        positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT,
-                color);
+            color = ResourcesCompat.getColor(parent.getResources(), R.color.text, null);
 
+            positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT, color);
+        }
     }
 
     public int getPositionTextColor() {

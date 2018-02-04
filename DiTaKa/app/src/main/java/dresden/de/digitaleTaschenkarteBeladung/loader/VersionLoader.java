@@ -25,6 +25,7 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
     private static final String LOG_TAG = "VersionLoader_LOG";
 
     private String url;
+    private int version;
 
     public VersionLoader(Context context, String url) {
         super(context);
@@ -33,8 +34,8 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
 
     @Override
     public Integer loadInBackground() {
-
-        return Util_Http.requestVersion(url);
+        version = Util_Http.requestVersion(url);
+        return version;
     }
 
     @Override
@@ -43,5 +44,11 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
     }
 
 
+    public int getVersion() {
+        return version;
+    }
 
+    public void setVersion(int version) {
+        this.version = version;
+    }
 }
