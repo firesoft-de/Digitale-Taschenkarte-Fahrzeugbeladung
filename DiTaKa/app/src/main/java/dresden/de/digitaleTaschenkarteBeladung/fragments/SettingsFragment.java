@@ -15,23 +15,19 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
-import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
@@ -75,15 +71,35 @@ public class SettingsFragment extends Fragment{
             }
         });
 
+        //UI in den Standardzustand bringen
+
+        TextView errorTV = view.findViewById(R.id.settings_color_error);
+        errorTV.setVisibility(View.GONE);
+
         etColorText.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionTextColor())));
         etColorMark.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionMarkColor())));
 
+        CheckBox cb = view.findViewById(R.id.settings_cb_network_autocheck);
+        cb.setChecked(preferencesManager.isCheckForUpdateAllowed());
+
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                checkStateChangeAutocheck(null, b);
+            }
+        });
+
+        //Elevationeffekt für die Cards erzeugen
         Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
 
-        CardView card = view.findViewById(R.id.settings_card);
+        CardView card = view.findViewById(R.id.settings_card_display);
+        card.setBackground(drawable);
+
+        card = view.findViewById(R.id.settings_card_network);
         card.setBackground(drawable);
 
         refreshColorViews(view);
+        checkStateChangeAutocheck(view, cb.isChecked());
 
         return view;
     }
@@ -101,10 +117,11 @@ public class SettingsFragment extends Fragment{
     private void getColor(View view) {
 
         EditText editText = (EditText) view;
+        TextView errorTV = getActivity().findViewById(R.id.settings_color_error);
+
         String tmpstring;
         tmpstring = editText.getText().toString();
         final String pattern = "#[A-Fa-f0-9]{6}";
-
 
         if (tmpstring.matches(pattern)) {
 
@@ -118,9 +135,11 @@ public class SettingsFragment extends Fragment{
                     break;
             }
             refreshColorViews(null);
+
+            errorTV.setVisibility(View.GONE);
         }
         else {
-            Toast.makeText(getContext(),"Fehlerhafte Eingabe!",Toast.LENGTH_SHORT).show();
+            errorTV.setVisibility(View.VISIBLE);
         }
     }
 
@@ -147,5 +166,24 @@ public class SettingsFragment extends Fragment{
         if (preferencesManager.getPositionTextColor() != 0) {
             colorPositionText.setBackgroundColor(preferencesManager.getPositionTextColor());
        }
+    }
+
+    private void checkStateChangeAutocheck(@Nullable View view, boolean checked) {
+        CheckBox cb;
+        preferencesManager.setCheckForUpdateAllowed(checked);
+
+        if (view == null) {
+            cb = getActivity().findViewById(R.id.settings_cb_network_autocheck);
+        }
+        else {
+            cb = view.findViewById(R.id.settings_cb_network_autocheck);
+        }
+
+        if (checked) {
+            cb.setText(R.string.settings_network_check_enabled);
+        }
+        else {
+            cb.setText(R.string.settings_network_check_disabled);
+        }
     }
 }

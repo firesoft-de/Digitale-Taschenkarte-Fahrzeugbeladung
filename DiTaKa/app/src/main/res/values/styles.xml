@@ -28,4 +28,14 @@
         <item name="colorControlHighlight">@color/colorPrimary</item>
     </style>
 
+    <style name="TextTheme" parent="AppTheme">
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="ErrorTextTheme" parent="AppTheme">
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:textColor">@color/error</item>
+    </style>
+
 </resources>

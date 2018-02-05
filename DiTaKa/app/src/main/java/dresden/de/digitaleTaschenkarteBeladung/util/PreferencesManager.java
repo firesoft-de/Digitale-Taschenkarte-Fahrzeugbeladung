@@ -34,6 +34,9 @@ import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 
+import static dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver.startBackgroundService;
+import static dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver.stopBackgroundService;
+
 /**
  * Der PreferencesManager ist für das Laden der Einstellungen aus den PREFS zuständig. Er gewährleistet dabei die Kompatibilität zu alten App-Versionen
  */
@@ -43,15 +46,21 @@ public class PreferencesManager {
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
 
+    //Einstellungsvariablen
     private int dbVersion;
     private String url;
 
+    private int positionMarkColor;
+    private int positionTextColor;
+
+    private boolean checkForUpdateAllowed;
+
+    //Flag Variablen
     //Diese Variable gibt an ob ein veralteter PREF Satz gefunden wurde. Beim Speichern müssen dann entsprechende Maßnahmen ergriffen werden
     private boolean outdatedPref;
     private boolean contextOnlyMode;
 
-    private int positionMarkColor;
-    private int positionTextColor;
+    //Konstanten
 
     private static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
     private static final String PREFS_URL="url";
@@ -62,6 +71,7 @@ public class PreferencesManager {
     private static final String PREFS_ACTIVE_GROUP="activegroup";
     private static final String PREFS_COLOR_POSITION_MARK="color_position_mark";
     private static final String PREFS_COLOR_POSITION_TEXT="color_position_text";
+    private static final String PREFS_NETWORK_AUTOCHECK_ALLOWED="network_autocheck";
 
 
     public PreferencesManager(Activity parent) {
@@ -111,7 +121,7 @@ public class PreferencesManager {
             case 11:
                 //Version 0.4.3
                 loadv11();
-                outdatedPref = true;
+                outdatedPref = true; //Die Speicherstruktur ist nicht aufwärtskompatibel. Daher wird die Flag auf true gesetzt.
                 break;
             case 12:
                 //Version 0.5
@@ -122,8 +132,12 @@ public class PreferencesManager {
                 loadv13();
                 break;
             case 14:
-                //Version 0.5.1
+                //Version 0.6.1
                 loadv13();
+                break;
+            case 15:
+                //Version 0.6.2
+                loadv15();
                 break;
         }
 
@@ -340,6 +354,7 @@ public class PreferencesManager {
         //Sie können daher nur mit dem Context nicht ausgeführt werden
         if (!contextOnlyMode) {
 
+            //Farbeinstellungen
             int color = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight, null);
 
             positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK, color);
@@ -348,6 +363,15 @@ public class PreferencesManager {
 
             positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT, color);
         }
+    }
+
+    private void loadv15() {
+
+        loadv13();
+
+        //Netzwerkeinstellungen
+        checkForUpdateAllowed = preferences.getBoolean(PREFS_NETWORK_AUTOCHECK_ALLOWED, true);
+
     }
 
     public int getPositionTextColor() {
@@ -364,5 +388,20 @@ public class PreferencesManager {
 
     public void setPositionMarkColor(int positionMark) {
         this.positionMarkColor = positionMark;
+    }
+
+    public boolean isCheckForUpdateAllowed() {
+        return checkForUpdateAllowed;
+    }
+
+    public void setCheckForUpdateAllowed(boolean checkForUpdateAllowed) {
+        this.checkForUpdateAllowed = checkForUpdateAllowed;
+
+        if (checkForUpdateAllowed) {
+            startBackgroundService(context);
+        }
+        else {
+            stopBackgroundService(context);
+        }
     }
 }

@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Debug nach BuildConfig aktivieren
         DEBUG_ENABLED = BuildConfig.DEBUG;
 
         //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
@@ -150,17 +151,20 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         .show();
             }
         }
+
+        //Flag zurücksetzen
         FirstDownloadCompleted = false;
 
         //Service einrichten
         BootReceiver.startBackgroundService(this);
 
-        Intent inputIntent = getIntent();
-
-
+        //Erstes Fragment anzeigen
         Fragment firstFragment = new TrayFragment();
         CallFromNotification = false;
         switchFragment(R.id.MainFrame,firstFragment, FRAGMENT_LIST_TRAY);
+
+        //Eingegebenen Intent abrufen
+        Intent inputIntent = getIntent();
 
         if (inputIntent != null && inputIntent.getAction().equals("DB_UPDATE")) {
             //Datenbankupdate Fragment anzeigen

@@ -46,6 +46,8 @@ namespace ServerManager
             txb_url.Text = settings.Url;
             txb_user.Text = settings.User;
             cbBx_Command.SelectedIndex = 0;
+            ckBx_IncreaseServerVersion.IsChecked = true;
+
         }
 
         //Toolbar Overflowbutton ausblenden
@@ -206,13 +208,14 @@ namespace ServerManager
 
         private void CkBx_IncreaseServerVersion_Checked(object sender, RoutedEventArgs e)
         {
-            txb_version.IsEnabled = true;
+            txb_version.IsEnabled = false;
             txb_version.IsReadOnly = true;
+            txb_version.Text = "";
         }
 
         private void CkBx_IncreaseServerVersion_Unchecked(object sender, RoutedEventArgs e)
         {
-            txb_version.IsEnabled = false;
+            txb_version.IsEnabled = true;
             txb_version.IsReadOnly = false;
         }
 

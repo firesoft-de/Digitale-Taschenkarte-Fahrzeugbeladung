@@ -51,16 +51,13 @@ public class BootReceiver extends BroadcastReceiver {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
-        calendar.setTimeInMillis(System.currentTimeMillis());
-
         //AlarmManager aktivieren
         if (alarmManager != null) { //AlarmManager.INTERVAL_DAY
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),30000,startServiceIntent); //AlarmManager.INTERVAL_DAY
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,startServiceIntent);
         }
     }
 
     public static void stopBackgroundService(Context context) {
         context.stopService(new Intent(context, BackgroundService.class));
     }
-
 }

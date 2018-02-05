@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<environment>
+	<sorting>
+		<equipment>id;categoryId;positionID;groupId;name;setName;description;position;notes;keywords;version</equipment>
+		<tray>id;groupId;name;description;descriptionTwo;positions;version</tray>
+		<positionimage>id;path;categoryId;groupId;version</positionimage>
+		<userx>id;name;groups;pass</userx>
+		<groupx>id;name;trayname;version</groupx>
+	</sorting>
+	<messages>
+	  <message name="CONFIRM_WORK_DONE">Datenbearbeitung abgeschlossen</message>
+	  <message name="CONFIRM_VERSION_UPDATE">Die Datenbankversion wurde erfolgreich aktualisiert.</message>
+	  <message name="CONFIRM_VERSION_UPDATE_WITH_OVERRIDE">Die Datenbankversion wurde erfolgreich überschrieben.</message>
+	  <message name="WARNING_SAME_VERSION">Die eingegebene Datenbankversion entspricht der aktuellen Serverversion.</message>
+	  <message name="ERROR_OUTDATED_VERSION">Die eingegebene Datenbankversion ist kleiner als die aktuelle Serverversion.</message>
+	  <message name="ERROR_INVALID_AUTH">Zugangsdaten ungültig!</message>
+	  <message name="ERROR_MISSING_GROUP_PERMISSION">Sie besitzen keine Berechtigung die eingegebene Gruppe zu bearbeiten!</message>
+	  <message name="ERROR_UNKNOWN_COMMAND">Der verwendete Befehl ist ungültig!</message>
+	  <message name="ERROR_INVALID_TABLE">Die eingegebene Tabelle ist ungültig!</message>
+	  <message name="ERROR_NO_USER">Es wurde kein Nutzername übergeben.</message>
+	  <message name="ERROR_NO_DATA">Es wurde kein Daten übergeben.</message>
+	  <message name="ERROR_NO_COMMAND">Es wurde kein Befehl übergeben.</message>
+	  <message name="ERROR_NO_TABLE">Es wurde keine Tabelle übergeben.</message>
+	  <message name="ERROR_NO_VERSION">Es wurde keine Version übergeben.</message>
+	  <message name="ERROR_NO_PASS">Es wurde kein Passwort übergeben.</message>
+	  <message name="ERROR_NO_GROUP">Es wurde keine Gruppe übergeben.</message>
+	  <message name="MISSING_GROUP_PERMISSION">Sie sind nicht berechtigt dem Eintrag diese Gruppe zuzuweisen.</message>
+	  <message name="MISSING_TABLE_PERMISSION">Sie sind nicht berechtigt diese Tabelle zu berarbeiten.</message>
+	  <message name="INTERNAL_ERROR_WEB_NO_CONNECTION">Die Anwendung konnte keine Verbindung mit dem Server unter der eingegebenen URL herstellen. WebExceptionStatusCode: </message>
+	  <message name="INTERNAL_ERROR_WEB_WEBREQUEST">Ein unbekannter Fehler bei der Verbindung mit dem Server ist aufgetreten. WebExceptionStatusCode: </message>
+	  <message name="INTERNAL_ERROR_WEB_HTML_DETECTED">Ein HTML-Dokument wurde detektiert. Wahrscheinlich wurde eine falsche URL eingegeben.</message>	  
+	  </messages>
+</environment>

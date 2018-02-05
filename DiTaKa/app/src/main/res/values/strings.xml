@@ -58,5 +58,8 @@
     <string name="settings_colors">Anzeige</string>
     <string name="settings_color_position_mark">Farbe der\nPositionsmarkierung</string>
     <string name="settings_color_position_text">Farbe des\nPositionstextes</string>
+    <string name="settings_network">Netzwerk</string>
+    <string name="settings_network_check_enabled">Der Server wird täglich auf Datenbankupdates überprüft.</string>
+    <string name="settings_network_check_disabled">Der Server wird nicht automatisch auf Datenbankupdates überprüft.</string>
 
 </resources>

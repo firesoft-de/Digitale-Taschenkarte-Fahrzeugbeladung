@@ -79,13 +79,13 @@ namespace ServerManager.Loader
 
             foreach (List<string> item in serversort)
             {
-                if (item.ElementAt(0) == tablename)
+                if (item.ElementAt(0).ToLower() == tablename.ToLower())
                 {
                     for (int i = 1; i < item.Count; i++)
                     {
                         foreach (var tablesortitem in tablesort)
                         {
-                            if (tablesortitem == item.ElementAt(i))
+                            if (tablesortitem.ToLower() == item.ElementAt(i).ToLower())
                             {
                                 int tablesort_item_id = tablesort.IndexOf(tablesortitem);
                                 sortingTranslation[tablesort_item_id] = i - 1;
