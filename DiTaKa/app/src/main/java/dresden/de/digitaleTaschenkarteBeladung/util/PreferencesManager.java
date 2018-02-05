@@ -139,6 +139,10 @@ public class PreferencesManager {
                 //Version 0.6.2
                 loadv15();
                 break;
+            case 16:
+                //Version 0.6.2.1
+                loadv15();
+                break;
         }
 
 
@@ -398,10 +402,20 @@ public class PreferencesManager {
         this.checkForUpdateAllowed = checkForUpdateAllowed;
 
         if (checkForUpdateAllowed) {
-            startBackgroundService(context);
+            if (context != null) {
+                startBackgroundService(context);
+            }
+            else {
+                startBackgroundService(parent);
+            }
         }
         else {
-            stopBackgroundService(context);
+            if (context != null) {
+                stopBackgroundService(context);
+            }
+            else {
+                stopBackgroundService(parent);
+            }
         }
     }
 }

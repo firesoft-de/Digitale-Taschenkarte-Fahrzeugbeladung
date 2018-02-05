@@ -9,3 +9,4 @@ server/skripte/config/.htaccess
 *.apk
 DiTaKa/app/release/app-release.apk
 DiTaKa/keystore.properties
+settings.xml
