@@ -143,9 +143,11 @@ public class PreferencesManager {
                 //Version 0.6.2.1
                 loadv15();
                 break;
+            case 17:
+                //Version 0.6.3
+                loadv15();
+                break;
         }
-
-
     }
 
     public void save() {
@@ -225,7 +227,14 @@ public class PreferencesManager {
             parent.dbState = Util.DbState.CLEAN;
             positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
             positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+            checkForUpdateAllowed = true;
         }
+    }
+
+    public void resetSettings() {
+        positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
+        positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+        checkForUpdateAllowed = true;
     }
 
     //=================================================================
@@ -354,19 +363,22 @@ public class PreferencesManager {
     private void loadv13() {
         loadv12();
 
-        //Nachfolgende Befehl benötigen eine Parent-Activity vom Typ MainActivity
-        //Sie können daher nur mit dem Context nicht ausgeführt werden
-        if (!contextOnlyMode) {
+        int colorMark;
+        int colorText;
 
-            //Farbeinstellungen
-            int color = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight, null);
-
-            positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK, color);
-
-            color = ResourcesCompat.getColor(parent.getResources(), R.color.text, null);
-
-            positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT, color);
+        //Farbeinstellungen
+        if (parent != null) {
+            colorMark = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight, null);
+            colorText = ResourcesCompat.getColor(parent.getResources(), R.color.text, null);
         }
+        else {
+            colorMark = ResourcesCompat.getColor(context.getResources(), R.color.position_image_highlight, null);
+            colorText = ResourcesCompat.getColor(context.getResources(), R.color.text, null);
+        }
+
+        positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK, colorMark);
+        positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT, colorText);
+
     }
 
     private void loadv15() {

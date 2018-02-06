@@ -24,6 +24,7 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -76,6 +77,7 @@ public class SettingsFragment extends Fragment{
         TextView errorTV = view.findViewById(R.id.settings_color_error);
         errorTV.setVisibility(View.GONE);
 
+        //Gespeicherten Farbeninteger in HEX konvertieren
         etColorText.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionTextColor())));
         etColorMark.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionMarkColor())));
 
@@ -86,6 +88,15 @@ public class SettingsFragment extends Fragment{
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 checkStateChangeAutocheck(null, b);
+            }
+        });
+
+        //Reset Button einrichten
+        Button resetBT = view.findViewById(R.id.settings_button_reset);
+        resetBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetBTClicked();
             }
         });
 
@@ -114,6 +125,10 @@ public class SettingsFragment extends Fragment{
     //==========================Arbeitsmethoden========================
     //=================================================================
 
+    /**
+     * Prüft die getätigte ColorCode Eingabe und schreibt diese ggf. in den PrefManager
+     * @param view Das Viewobjekt der EditTextBox
+     */
     private void getColor(View view) {
 
         EditText editText = (EditText) view;
@@ -123,6 +138,7 @@ public class SettingsFragment extends Fragment{
         tmpstring = editText.getText().toString();
         final String pattern = "#[A-Fa-f0-9]{6}";
 
+        //Prüfen ob der eingegebene String dem Muster entspricht
         if (tmpstring.matches(pattern)) {
 
             switch (editText.getId()) {
@@ -143,7 +159,10 @@ public class SettingsFragment extends Fragment{
         }
     }
 
-
+    /**
+     * Erneuert die Farbvorschau anhand des PrefManagers
+     * @param view Falls die Methode aus onCreateView aufgerufen wird, kann hier ein View übergeben werden
+     */
     private void refreshColorViews(@Nullable View view) {
 
         View colorPositionMark;
@@ -168,6 +187,29 @@ public class SettingsFragment extends Fragment{
        }
     }
 
+    /***
+     * Setzt die Eingaben zurück und passt die UI entsprechend an
+     */
+    private void resetBTClicked() {
+
+        EditText etColorMark = getActivity().findViewById(R.id.et_colorPositionMark);
+        EditText etColorText = getActivity().findViewById(R.id.et_colorPositionText);
+        CheckBox cb = getActivity().findViewById(R.id.settings_cb_network_autocheck);
+
+        preferencesManager.resetSettings();
+
+        etColorText.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionTextColor())));
+        etColorMark.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionMarkColor())));
+        cb.setChecked(preferencesManager.isCheckForUpdateAllowed());
+
+        refreshColorViews(null);
+    }
+
+    /**
+     * Bearbeitet Veränderungen des CheckState für die automatische Datenbankprüfung
+     * @param view Falls die Methode aus onCreateView aufgerufen wird, kann hier ein View übergeben werden
+     * @param checked Zustand der Checkbox
+     */
     private void checkStateChangeAutocheck(@Nullable View view, boolean checked) {
         CheckBox cb;
         preferencesManager.setCheckForUpdateAllowed(checked);

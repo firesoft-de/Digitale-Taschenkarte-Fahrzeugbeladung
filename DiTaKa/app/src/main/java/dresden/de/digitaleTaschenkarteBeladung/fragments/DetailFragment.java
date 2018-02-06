@@ -63,6 +63,7 @@ public class DetailFragment extends Fragment {
     ImageItem imageItem;
     TrayItem trayItem;
     EquipmentItem equipmentItem;
+    PreferencesManager preferencesManager;
 
 
     public DetailFragment() {
@@ -116,9 +117,18 @@ public class DetailFragment extends Fragment {
 
         //Farbe des Positionstextes an die Einstellung anpassen
         TextView positiontext = view.findViewById(R.id.detailPosition);
-        PreferencesManager preferencesManager = ((MainActivity) getActivity()).pManager;
 
-        positiontext.setTextColor(preferencesManager.getPositionTextColor());
+        if (getActivity().getClass() == MainActivity.class) {
+            preferencesManager = ((MainActivity) getActivity()).pManager;
+            positiontext.setTextColor(preferencesManager.getPositionTextColor());
+        }
+        else {
+            preferencesManager = new PreferencesManager(getContext());
+            preferencesManager.load();
+            positiontext.setTextColor(preferencesManager.getPositionTextColor());
+//            positiontext.setTextColor(getResources().getColor(R.color.text));
+        }
+
 
         return view;
     }
@@ -262,8 +272,6 @@ public class DetailFragment extends Fragment {
             //Prüfen ob Koordinaten hinterlegt sind und damit eine Position eingezeichnet werden kann und prüfen ob im Item eine Position hinterlegt ist
             if (trayItem.getPositionCoordinates() != null && equipmentItem.getPositionIndex() > -1) {
 
-                PreferencesManager preferencesManager = ((MainActivity) getActivity()).pManager;
-
                 //Koordinaten abrufen
                 int left = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4);
                 int top = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4 + 1);
@@ -282,8 +290,14 @@ public class DetailFragment extends Fragment {
                     Paint painter = new Paint();
                     painter.setStyle(Paint.Style.STROKE);
                     painter.setStrokeWidth(5);
-//                    painter.setColor(getResources().getColor(R.color.position_image_highlight));
-                    painter.setColor(preferencesManager.getPositionMarkColor());
+
+                    if (preferencesManager != null) {
+                        painter.setColor(preferencesManager.getPositionMarkColor());
+                    }
+                    else {
+                        painter.setColor(getResources().getColor(R.color.position_image_highlight));
+                    }
+
 
                     canvas.drawRect(rectangle, painter);
                 }
