@@ -27,6 +27,8 @@ public class Group {
     private boolean subscribed;
     private boolean active;
     private String trayname;
+    private boolean restricted;
+    private String password;
 
     /**
      * Initalisiert die neue Gruppe
@@ -46,14 +48,17 @@ public class Group {
             this.id = object.getInt("id");
             this.name = object.getString("name");
             this.trayname = object.getString("trayname");
+            this.restricted = object.getBoolean("restricted");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        //Diese beiden Werte sind abgesetzt, da sie beim Datenabruf vom Server einen Fehler werfen werden.
+        // Diese beiden Werte sind abgesetzt, da sie beim Datenabruf vom Server einen Fehler werfen werden.
+        // Die Methode wird sowohl beim Laden aus den Prefs als auch beim Abruf der Gruppen vom Server verwendet. Im zweiten Fall, sind keine Werte für die nachfolgenden Felder hinterlegt.
         try {
             this.active = object.getBoolean("active");
             this.subscribed = object.getBoolean("subscribed");
+            this.password = object.getString("pass");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -68,6 +73,8 @@ public class Group {
             object.put("active",active);
             object.put("subscribed",subscribed);
             object.put("trayname",trayname);
+            object.put("restricted",restricted);
+            object.put("pass",password);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -112,5 +119,21 @@ public class Group {
 
     public void setTrayname(String trayname) {
         this.trayname = trayname;
+    }
+
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }

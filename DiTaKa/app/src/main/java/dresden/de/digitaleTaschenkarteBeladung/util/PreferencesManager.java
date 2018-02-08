@@ -33,6 +33,7 @@ import dresden.de.digitaleTaschenkarteBeladung.BuildConfig;
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.data.Group;
+import dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver;
 
 import static dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver.startBackgroundService;
 import static dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver.stopBackgroundService;
@@ -147,6 +148,10 @@ public class PreferencesManager {
                 //Version 0.6.3
                 loadv15();
                 break;
+            case 18:
+                //Version 0.7
+                loadv16();
+                break;
         }
     }
 
@@ -255,6 +260,47 @@ public class PreferencesManager {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public int getPositionTextColor() {
+        return positionTextColor;
+    }
+
+    public void setPositionTextColor(int positionText) {
+        this.positionTextColor = positionText;
+    }
+
+    public int getPositionMarkColor() {
+        return positionMarkColor;
+    }
+
+    public void setPositionMarkColor(int positionMark) {
+        this.positionMarkColor = positionMark;
+    }
+
+    public boolean isCheckForUpdateAllowed() {
+        return checkForUpdateAllowed;
+    }
+
+    public void setCheckForUpdateAllowed(boolean checkForUpdateAllowed) {
+        this.checkForUpdateAllowed = checkForUpdateAllowed;
+
+        if (checkForUpdateAllowed) {
+            if (context != null) {
+                startBackgroundService(context);
+            }
+            else {
+                startBackgroundService(parent);
+            }
+        }
+        else {
+            if (context != null) {
+                stopBackgroundService(context);
+            }
+            else {
+                stopBackgroundService(parent);
+            }
+        }
     }
 
 
@@ -390,44 +436,24 @@ public class PreferencesManager {
 
     }
 
-    public int getPositionTextColor() {
-        return positionTextColor;
-    }
+    private void loadv16() {
 
-    public void setPositionTextColor(int positionText) {
-        this.positionTextColor = positionText;
-    }
-
-    public int getPositionMarkColor() {
-        return positionMarkColor;
-    }
-
-    public void setPositionMarkColor(int positionMark) {
-        this.positionMarkColor = positionMark;
-    }
-
-    public boolean isCheckForUpdateAllowed() {
-        return checkForUpdateAllowed;
-    }
-
-    public void setCheckForUpdateAllowed(boolean checkForUpdateAllowed) {
-        this.checkForUpdateAllowed = checkForUpdateAllowed;
-
-        if (checkForUpdateAllowed) {
-            if (context != null) {
-                startBackgroundService(context);
-            }
-            else {
-                startBackgroundService(parent);
-            }
+        //Um Fehler auszuschließen wird der Hintergrundprozess einmal beendet
+        if (context != null) {
+            stopBackgroundService(context);
         }
         else {
-            if (context != null) {
-                stopBackgroundService(context);
-            }
-            else {
-                stopBackgroundService(parent);
-            }
+            stopBackgroundService(parent);
         }
+
+        if (context != null) {
+            startBackgroundService(context);
+        }
+        else {
+            startBackgroundService(parent);
+        }
+
+        loadv15();
+
     }
 }

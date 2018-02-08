@@ -218,6 +218,19 @@ namespace ServerManager
             txb_version.IsEnabled = true;
             txb_version.IsReadOnly = false;
         }
+        
+        private void BT_Hash_Erzeugen(object sender, RoutedEventArgs e)
+        {
+            if (txb_pass.Text != "")
+            {
+                txb_hash.Text = HttpManager.CreateHash(txb_pass.Text);
+            }
+            else
+            {
+                PrintTXB("Bitte geben Sie ein Passwort ein!");
+            }
+        }
+
 
         //===========================================================================
         //==============================Hilfsmethoden================================

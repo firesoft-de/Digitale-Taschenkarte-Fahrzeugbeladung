@@ -38,6 +38,10 @@ public class BootReceiver extends BroadcastReceiver {
 
     }
 
+    /**
+     * Startet den Hintegrundservice der regelmäßig die Serverdatenbankversion abfragt
+     * @param context Context aus dem die Methode aufgerufen wird
+     */
     public static void startBackgroundService(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
@@ -57,6 +61,10 @@ public class BootReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Stoppt den Hintergrundservice
+     * @param context Context aus dem die Methode aufgerufen wird
+     */
     public static void stopBackgroundService(Context context) {
         context.stopService(new Intent(context, BackgroundService.class));
     }
