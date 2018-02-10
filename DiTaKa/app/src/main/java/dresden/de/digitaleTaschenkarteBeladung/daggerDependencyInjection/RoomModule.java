@@ -36,7 +36,6 @@ import dresden.de.digitaleTaschenkarteBeladung.viewmodels.CustomViewModelFactory
 @Module
 public class RoomModule {
 
-
     private final DatabaseClass database;
 
     public RoomModule(Application application) {

@@ -586,7 +586,7 @@ public class Util_Http {
      * @param url Die zu bearbeitende URL
      * @return Die bearbietete URL
      */
-    public static String handleURL(String url, Activity activity) {
+    public static String handleURL(String url) {
         //https einfügen falls nicht vorhanden
         if (!url.contains("http://") && !url.contains("https://")) {
             //TODO: ACHTUNG! AUS PERFORMANCEGRÜNDEN WIRD DER HTTPS REQUEST HIER ÜBERSCHRIEBEN!!
@@ -597,10 +597,6 @@ public class Util_Http {
         if ((url.charAt(url.length() - 2)) == '/') {
             url = (String) url.subSequence(0, url.length() - 3);
         }
-
-        MainActivity parent = (MainActivity) activity;
-        parent.pManager.setUrl(url);
-        parent.pManager.save();
 
         return url;
     }

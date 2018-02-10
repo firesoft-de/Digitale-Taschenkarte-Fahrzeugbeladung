@@ -28,12 +28,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.time.temporal.ValueRange;
+
 import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
 
@@ -41,6 +46,15 @@ public class AboutFragment extends Fragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+
+    @Inject
+    GroupManager gManager;
+
+    @Inject
+    VariableManager vManager;
+
+    @Inject
+    PreferencesManager pManager;
 
     DataFragViewModel viewModel;
 
@@ -53,7 +67,7 @@ public class AboutFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) getActivity().getApplication())
+        ((CustomApplication) getActivity().getApplication())
                 .getApplicationComponent()
                 .inject(this);
 
@@ -104,10 +118,9 @@ public class AboutFragment extends Fragment {
     private void resetApp() {
 
         viewModel.deleteAll();
-        MainActivity activity = (MainActivity) getActivity();
-        activity.gManager.clear();
-        activity.pManager.reset();
-        activity.dbState = Util.DbState.CLEAN;
+        gManager.clear();
+        pManager.reset();
+        vManager.reset();
 
         Snackbar.make(getActivity().findViewById(R.id.MainFrame), "Die App wurde erfolgreich zurückgesetzt", Snackbar.LENGTH_SHORT)
                 .show();

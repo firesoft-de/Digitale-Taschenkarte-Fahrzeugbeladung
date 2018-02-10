@@ -22,6 +22,10 @@ import android.widget.CheckBox;
 
 import dresden.de.digitaleTaschenkarteBeladung.R;
 
+/**
+ * Diese Klasse erzeugt zusammen mit dem group_selector.xml Layout eine Auswahloption für die Gruppen.
+ * Diese werden im Datenimportfragment angezeigt
+ */
 public class ViewGroupSelector extends View{
 
     View ownView;

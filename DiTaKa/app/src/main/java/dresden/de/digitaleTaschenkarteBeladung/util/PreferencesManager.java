@@ -15,6 +15,7 @@
 package dresden.de.digitaleTaschenkarteBeladung.util;
 
 import android.app.Activity;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -42,10 +43,11 @@ import static dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver.stopB
  * Der PreferencesManager ist für das Laden der Einstellungen aus den PREFS zuständig. Er gewährleistet dabei die Kompatibilität zu alten App-Versionen
  */
 public class PreferencesManager {
-    private MainActivity parent;
     private Context context;
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
+    GroupManager gManager;
+    VariableManager vManager;
 
     //Einstellungsvariablen
     private int dbVersion;
@@ -58,11 +60,9 @@ public class PreferencesManager {
 
     //Flag Variablen
     //Diese Variable gibt an ob ein veralteter PREF Satz gefunden wurde. Beim Speichern müssen dann entsprechende Maßnahmen ergriffen werden
-    private boolean outdatedPref;
-    private boolean contextOnlyMode;
+    private boolean outdatedPref = false;
 
     //Konstanten
-
     private static final String PREFS_NAME="dresden.de.digitaleTaschenkarteBeladung";
     private static final String PREFS_URL="url";
     private static final String PREFS_DBVERSION="dbversion";
@@ -74,20 +74,15 @@ public class PreferencesManager {
     private static final String PREFS_COLOR_POSITION_TEXT="color_position_text";
     private static final String PREFS_NETWORK_AUTOCHECK_ALLOWED="network_autocheck";
 
+    public int id;
 
-    public PreferencesManager(Activity parent) {
-        this.parent = (MainActivity) parent;
-        outdatedPref = false;
-        contextOnlyMode = false;
-    }
-
-    public PreferencesManager(Context context) {
-        this.parent = null;
+    public PreferencesManager(Context context, GroupManager gManager, VariableManager vManager) {
         this.context = context;
-        outdatedPref = false;
+        this.gManager = gManager;
+        this.vManager = vManager;
 
-        //Da über den Context kein Zugriff auf gManager etc. stattfinden kann, wird die entsprechende Flag gesetzt
-        contextOnlyMode = true;
+        //Die ID wird verwendet um festzustellen, ob durch Dagger verschiedene Instanzen ausgegebene werden
+        id = (int) (Math.random() * 1000 + 1);
     }
 
     //=================================================================
@@ -97,7 +92,6 @@ public class PreferencesManager {
     public void load() {
         int appversion = 11;
 
-        if (parent == null) {
            preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
             try {
@@ -106,17 +100,6 @@ public class PreferencesManager {
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
-        }
-        else {
-            preferences = parent.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-
-            try {
-                PackageInfo pInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
-                appversion = pInfo.versionCode;
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
 
         switch (appversion) {
             case 11:
@@ -157,10 +140,6 @@ public class PreferencesManager {
 
     public void save() {
 
-        if (contextOnlyMode) {
-            return;
-        }
-
         editor = preferences.edit();
 
         if (outdatedPref) {
@@ -174,8 +153,8 @@ public class PreferencesManager {
         editor.putInt(PREFS_VERSION, BuildConfig.VERSION_CODE);
 
         //Sortierung
-        if (parent.liveSort.getValue() != null) {
-            switch (parent.liveSort.getValue()) {
+        if (vManager.liveSort.getValue() != null) {
+            switch (vManager.liveSort.getValue()) {
                 case PRESET:
                     editor.putInt(PREFS_SORT, 0);
                     break;
@@ -187,9 +166,6 @@ public class PreferencesManager {
                     break;
             }
         }
-
-        //Gruppe
-        GroupManager gManager = parent.gManager;
 
         if (gManager.getSubscribedGroups().size() > 0) {
 
@@ -218,6 +194,7 @@ public class PreferencesManager {
     }
 
     public void delete() {
+        editor = preferences.edit();
         editor.clear();
         editor.apply();
     }
@@ -227,18 +204,16 @@ public class PreferencesManager {
         dbVersion = -1;
         url = "NO_URL_FOUND";
 
-        if (!contextOnlyMode) {
-            parent.liveNetDBVersion.setValue(0);
-            parent.dbState = Util.DbState.CLEAN;
-            positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
-            positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
-            checkForUpdateAllowed = true;
-        }
+        vManager.liveNetDBVersion.setValue(0);
+        vManager.dbState = Util.DbState.CLEAN;
+        positionTextColor = ResourcesCompat.getColor(context.getResources(), R.color.text,null);
+        positionMarkColor = ResourcesCompat.getColor(context.getResources(), R.color.position_image_highlight,null);
+        checkForUpdateAllowed = true;
     }
 
     public void resetSettings() {
-        positionTextColor = ResourcesCompat.getColor(parent.getResources(), R.color.text,null);
-        positionMarkColor = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight,null);
+        positionTextColor = ResourcesCompat.getColor(context.getResources(), R.color.text,null);
+        positionMarkColor = ResourcesCompat.getColor(context.getResources(), R.color.position_image_highlight,null);
         checkForUpdateAllowed = true;
     }
 
@@ -286,20 +261,10 @@ public class PreferencesManager {
         this.checkForUpdateAllowed = checkForUpdateAllowed;
 
         if (checkForUpdateAllowed) {
-            if (context != null) {
-                startBackgroundService(context);
-            }
-            else {
-                startBackgroundService(parent);
-            }
+            startBackgroundService(context);
         }
         else {
-            if (context != null) {
-                stopBackgroundService(context);
-            }
-            else {
-                stopBackgroundService(parent);
-            }
+            stopBackgroundService(context);
         }
     }
 
@@ -314,26 +279,21 @@ public class PreferencesManager {
         dbVersion = preferences.getInt(PREFS_DBVERSION, -1);
         url = preferences.getString(PREFS_URL, "NO_URL_FOUND");
 
-        //Nachfolgende Befehl benötigen eine Parent-Activity vom Typ MainActivity
-        //Sie können daher nur mit dem Context nicht ausgeführt werden
-        if (!contextOnlyMode) {
-
         //Sortierung
             int pref = preferences.getInt(PREFS_SORT, 0);
             switch (pref) {
                 default:
-                    parent.liveSort.setValue(Util.Sort.PRESET);
+                    vManager.liveSort.setValue(Util.Sort.PRESET);
                     break;
                 case 1:
-                    parent.liveSort.setValue(Util.Sort.AZ);
+                    vManager.liveSort.setValue(Util.Sort.AZ);
                     break;
                 case 2:
-                    parent.liveSort.setValue(Util.Sort.ZA);
+                    vManager.liveSort.setValue(Util.Sort.ZA);
                     break;
             }
 
         //Gruppen laden
-        GroupManager gManager = parent.gManager;
         String saveString = preferences.getString(PREFS_GROUPS,"");
         ArrayList<String> subscribedGroups = new ArrayList<>();
 
@@ -353,7 +313,6 @@ public class PreferencesManager {
         //Aktive Gruppe laden
         gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP,""));
 
-        }
     }
 
     private void loadv12() {
@@ -362,48 +321,42 @@ public class PreferencesManager {
         dbVersion = preferences.getInt(PREFS_DBVERSION,-1);
         url = preferences.getString(PREFS_URL,"NO_URL_FOUND");
 
-        //Nachfolgende Befehl benötigen eine Parent-Activity vom Typ MainActivity
-        //Sie können daher nur mit dem Context nicht ausgeführt werden
-        if (!contextOnlyMode) {
+        //Sortierung
+        int pref = preferences.getInt(PREFS_SORT, 0);
+        switch (pref) {
+            default:
+                vManager.liveSort.setValue(Util.Sort.PRESET);
+                break;
+            case 1:
+                vManager.liveSort.setValue(Util.Sort.AZ);
+                break;
+            case 2:
+                vManager.liveSort.setValue(Util.Sort.ZA);
+                break;
+        }
 
-            //Sortierung
-            int pref = preferences.getInt(PREFS_SORT, 0);
-            switch (pref) {
-                default:
-                    parent.liveSort.setValue(Util.Sort.PRESET);
-                    break;
-                case 1:
-                    parent.liveSort.setValue(Util.Sort.AZ);
-                    break;
-                case 2:
-                    parent.liveSort.setValue(Util.Sort.ZA);
-                    break;
-            }
+        //Gruppen laden
+        String json = preferences.getString(PREFS_GROUPS, "");
 
-            //Gruppen laden
-            GroupManager gManager = parent.gManager;
-            String json = preferences.getString(PREFS_GROUPS, "");
+        JSONArray array = new JSONArray();
+        try {
+            JSONObject object = new JSONObject(json);
+            array = object.getJSONArray("GROUPS");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-            JSONArray array = new JSONArray();
+        for (int i = 0; i < array.length(); i++) {
             try {
-                JSONObject object = new JSONObject(json);
-                array = object.getJSONArray("GROUPS");
+                Group group = new Group((JSONObject) array.get(i));
+                gManager.add(group);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            for (int i = 0; i < array.length(); i++) {
-                try {
-                    Group group = new Group((JSONObject) array.get(i));
-                    gManager.add(group);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            //Aktive Gruppe laden
-            gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP, ""));
         }
+
+        //Aktive Gruppe laden
+        gManager.setActiveGroup(preferences.getString(PREFS_ACTIVE_GROUP, ""));
     }
 
     private void loadv13() {
@@ -413,14 +366,8 @@ public class PreferencesManager {
         int colorText;
 
         //Farbeinstellungen
-        if (parent != null) {
-            colorMark = ResourcesCompat.getColor(parent.getResources(), R.color.position_image_highlight, null);
-            colorText = ResourcesCompat.getColor(parent.getResources(), R.color.text, null);
-        }
-        else {
-            colorMark = ResourcesCompat.getColor(context.getResources(), R.color.position_image_highlight, null);
-            colorText = ResourcesCompat.getColor(context.getResources(), R.color.text, null);
-        }
+        colorMark = ResourcesCompat.getColor(context.getResources(), R.color.position_image_highlight, null);
+        colorText = ResourcesCompat.getColor(context.getResources(), R.color.text, null);
 
         positionMarkColor = preferences.getInt(PREFS_COLOR_POSITION_MARK, colorMark);
         positionTextColor = preferences.getInt(PREFS_COLOR_POSITION_TEXT, colorText);
@@ -439,19 +386,9 @@ public class PreferencesManager {
     private void loadv16() {
 
         //Um Fehler auszuschließen wird der Hintergrundprozess einmal beendet
-        if (context != null) {
-            stopBackgroundService(context);
-        }
-        else {
-            stopBackgroundService(parent);
-        }
+        stopBackgroundService(context);
 
-        if (context != null) {
-            startBackgroundService(context);
-        }
-        else {
-            startBackgroundService(parent);
-        }
+        startBackgroundService(context);
 
         loadv15();
 

@@ -27,17 +27,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.IFragmentCallbacks;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SearchResultListFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
@@ -47,7 +47,7 @@ import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_DETAIL;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_ITEM;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
-public class SearchableActivity extends AppCompatActivity  implements TrayFragment.fragmentCallbackListener{
+public class SearchableActivity extends AppCompatActivity  implements IFragmentCallbacks{
 
     private static final String LOG_TAG="SearchableActivity_LOG";
 
@@ -80,7 +80,7 @@ public class SearchableActivity extends AppCompatActivity  implements TrayFragme
 
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) this.getApplication())
+        ((CustomApplication) this.getApplication())
                 .getApplicationComponent()
                 .inject(this);
 
@@ -157,6 +157,21 @@ public class SearchableActivity extends AppCompatActivity  implements TrayFragme
         ft.addToBackStack(tag);
         ft.commit();
 
+    }
+
+    @Override
+    public void getNetDBState(boolean callForUser) {
+        throw new java.lang.UnsupportedOperationException();
+    }
+
+    @Override
+    public void manageActionBar(String tag) {
+        throw new java.lang.UnsupportedOperationException();
+    }
+
+    @Override
+    public void invalOptionsMenu() {
+        throw new java.lang.UnsupportedOperationException();
     }
 
     //Hier werden die Click-Events für die Menuitems gehandelt

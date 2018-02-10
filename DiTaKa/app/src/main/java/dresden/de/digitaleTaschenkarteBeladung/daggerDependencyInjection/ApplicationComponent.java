@@ -19,13 +19,16 @@ import android.app.Application;
 import javax.inject.Singleton;
 
 import dagger.Component;
+import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.SearchableActivity;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
+import dresden.de.digitaleTaschenkarteBeladung.service.BackgroundService;
 
 /**
  * Diese Klasse bildet das Grundgerüst für die Dagger2 gestützte Abhängigkeitsinjection die alles weitere erleichtert.
@@ -33,7 +36,7 @@ import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
  */
 
 @Singleton
-@Component(modules = {ApplicationModule.class, RoomModule.class})
+@Component(modules = {ApplicationModule.class, RoomModule.class, WorkModule.class})
 public interface ApplicationComponent {
 
     void inject(TrayFragment trayFragment);
@@ -43,6 +46,9 @@ public interface ApplicationComponent {
     void inject(DetailFragment detailFragment);
     void inject(SearchableActivity searchableActivity);
     void inject(AboutFragment aboutFragment);
+    void inject(MainActivity mainActivity);
+    void inject(BackgroundService backgroundService);
+    void inject(SettingsFragment settingsFragment);
 
     Application application();
 

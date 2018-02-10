@@ -62,5 +62,6 @@
     <string name="settings_network_check_enabled">Der Server wird täglich auf Datenbankupdates überprüft.</string>
     <string name="settings_network_check_disabled">Der Server wird nicht automatisch auf Datenbankupdates überprüft.</string>
     <string name="settings_color_error">Es wird ein HEX-Color Code benötigt!</string>
+    <string name="settings_color_explain">Die Farben werden als hexadezimaler RGB-Farbwert nach dem Muster #RRGGBB gespeichert.</string>
 
 </resources>

@@ -38,12 +38,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
@@ -56,6 +57,7 @@ import dresden.de.digitaleTaschenkarteBeladung.loader.TrayLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.ARGS_CALLFROMINTENT;
@@ -75,9 +77,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     private static final int IMAGE_LOADER = 3;
     private static final int GROUP_LOADER = 4;
 
-    //Datenbankversion
-    private int dbversion;
-    private String url;
 
     //Dieser Marker wird beim ersten Start der App verwendet. Wenn er TRUE ist, wird der Observer für das LiveData Objekt netDBVersion die Loader initalisieren, sobald eine Änderung der Version erkannt wird
     private boolean initLoaderAfterNetVersionRefresh;
@@ -88,15 +87,23 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     //Gibt an ob die Gruppen schon abgefragt wurden, also als nächstes der richtige Download stattfinden soll
     private boolean groupSelectionCompleted = false;
 
-    //Wird beim Start true gesetzt um zu verhindern, dass über die EditText Focus Change Methode das Textfeld geleert wird
-    private boolean launch;
-
     public ArrayList<String> newGroups;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    @Inject
+    GroupManager gManager;
+
+    @Inject
+    VariableManager vManager;
+
+    @Inject
+    PreferencesManager pManager;
+
     DataFragViewModel viewModel;
+
+    IFragmentCallbacks caller;
 
     public DataImportFragment() {
         // Required empty public constructor
@@ -111,7 +118,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         super.onCreate(savedInstanceState);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) getActivity().getApplication())
+        ((CustomApplication) getActivity().getApplication())
                 .getApplicationComponent()
                 .inject(this);
 
@@ -128,17 +135,14 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         final View result = inflater.inflate(R.layout.fragment_data, container, false);
 
+        caller = (IFragmentCallbacks) getActivity();
+
         //Marker zurücksetzen
         initLoaderAfterNetVersionRefresh = false;
 
         //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
         viewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(DataFragViewModel.class);
-
-        //URL und Datenbankversion aus den mitgelieferten Argumenten abrufen
-        url = this.getArguments().getString(Util.ARGS_URL);
-        dbversion = this.getArguments().getInt(Util.ARGS_VERSION);
-        launch = this.getArguments().getBoolean(ARGS_CALLFROMINTENT);
 
 
         //Progressbar einrichten
@@ -151,9 +155,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //Textfeld einrichten
         final EditText editText = result.findViewById(R.id.text_url);
         editText.clearFocus();
-        if (!url.equals("NO_URL_FOUND")) {
-            editText.setText(url);
-            updateDBVersion(dbversion,result);
+        if (!pManager.getUrl().equals("NO_URL_FOUND")) {
+            editText.setText(pManager.getUrl());
+            updateDBVersion(pManager.getDbVersion(),result);
             editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View view, boolean b) {
@@ -195,13 +199,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //Einen Observer für das LiveData Objekt in der MainActivity initaliseren, welches die Version der Serverdatenbank enthält
         final MainActivity activity = (MainActivity) getActivity();
 
-        activity.liveNetDBVersion.observe(this, new Observer<Integer>() {
+        vManager.liveNetDBVersion.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(@Nullable Integer integer) {
 
                 if (integer != -1) {
 
-                    activity.pManager.setUrl(url);
+//                    pManager.setUrl(editText.getText().toString());
 
                     if (!initLoaderAfterNetVersionRefresh) {
                         updateNetVersion(integer, null);
@@ -211,7 +215,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     }
                 }
                 else {
-                    if (activity.dbState != Util.DbState.CLEAN) {
+                    if (vManager.dbState != Util.DbState.CLEAN) {
                         //Es ist ein Fehler beim Datenabruf aufgetreten!
                         toggleURLError(true);
                         publishProgress(true,true);
@@ -220,7 +224,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
-        updateDBVersion(dbversion, result);
+        updateDBVersion(pManager.getDbVersion(), result);
 
         FloatingActionButton fab = result.findViewById(R.id.flActBt);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -240,10 +244,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MainActivity activity = (MainActivity) getActivity();
-
-        //addGroupToSelection(activity.groups_subscribed,true);
-
+        //Elevation für die Cards erstellen
         drawElevation(view, null,false);
 
         //URL Fehler ausblenden
@@ -252,7 +253,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
         //Verwaltungsmodus für die Gruppen einschalten, wenn eine URL vorhanden ist.
         //Der Nutzer kann damit die Gruppen unabhängig vom Versionsstand abonnieren oder deabonnieren
-        if (url != "NO_URL_FOUND") {
+        if (!pManager.getUrl().equals("NO_URL_FOUND")) {
             buttonAddClick(true);
         }
 
@@ -263,12 +264,10 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         //Diese Methode wird aufgerufen wenn der LoadManager seine Loader initalisiert
         //Es werden je nach eingegebener ID die unterschiedlichen Loader zurückgegeben
 
-        MainActivity activity = (MainActivity) getActivity();
-
-        String url = args.getString(Util.ARGS_URL);
-        Integer version = args.getInt(Util.ARGS_VERSION);
-        String group = activity.gManager.subscribedToQuery();
-        String newGroup = activity.gManager.newGroupsQuery();
+        String url = pManager.getUrl();
+        Integer version = pManager.getDbVersion();
+        String group = gManager.subscribedToQuery();
+        String newGroup = gManager.newGroupsQuery();
 
         switch (id) {
             case ITEM_LOADER:
@@ -363,19 +362,16 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         } else {
             if (downloadsCompleted == 4) {
                 //Datenbankversion aktualiseren
-                MainActivity activity = (MainActivity) getActivity();
 
-                GroupManager gManager = activity.gManager;
-                PreferencesManager pManager = activity.pManager;
 
                 //Wird nur benötigt, falls der erste Download abgeschlossen wurde. Wird aber trotzdem zur Sicherheit immer true gesetzt
-                activity.FirstDownloadCompleted = true;
+                vManager.FirstDownloadCompleted = true;
 
                 gManager.moveNewGroupsToMainList();
 
                 //Gruppen speichern
                 gManager.setActiveGroup("");
-                activity.invalidateOptionsMenu();
+                caller.invalOptionsMenu();
 
                 pManager.save();
 
@@ -383,23 +379,21 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
                 //Vollzug melden
                 publishProgress(true,false);
-                Snackbar.make(activity.findViewById(R.id.MainFrame),"Die Datenbank wurde erfolgreich heruntergeladen.",Snackbar.LENGTH_LONG)
+                Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Die Datenbank wurde erfolgreich heruntergeladen.",Snackbar.LENGTH_LONG)
                         .show();
 
                 //Variablen aktualisieren
-                activity.pManager.setDbVersion(activity.liveNetDBVersion.getValue());
-                activity.dbState = Util.DbState.VALID;
-                dbversion = activity.pManager.getDbVersion();
+                pManager.setDbVersion(vManager.liveNetDBVersion.getValue());
+                vManager.dbState = Util.DbState.VALID;
 
                 //Preferences speichern
-                activity.pManager.save();
+                pManager.save();
 
                 //Angezeigte Datenbankversion aktualisieren
-                updateDBVersion(dbversion,null);
+                updateDBVersion(pManager.getDbVersion(),null);
 
                 //Aufräumen
-                activity.gManager = gManager;
-                activity.manageActionBar(Util.FRAGMENT_DATA);
+                caller.manageActionBar(Util.FRAGMENT_DATA);
 
             }
         }
@@ -414,13 +408,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         EditText editText = getActivity().findViewById(R.id.text_url);
         CardView card = getActivity().findViewById(R.id.cardGroup);
 
-        if (launch) {
+        if (vManager.CallFromNotification) {
             View next = getActivity().findViewById(R.id.flActBt);
             if (next != null) {
                 next.requestFocus();
             }
             toggleURLError(false);
-            launch = false;
+            vManager.CallFromNotification = false;
         }
         else {
             if (focus) {
@@ -433,7 +427,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 card.setVisibility(View.GONE);
             } else {
                 if (editText.getText().equals("")) {
-                    editText.setText(url);
+                    editText.setText(pManager.getUrl());
                 }
             }
         }
@@ -445,8 +439,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     //=======================================================
 
     private void buttonAddClick(boolean groupManagementMode) {
-        MainActivity activity = (MainActivity) getActivity();
-        GroupManager gManager = activity.gManager;
 
         //URL Fehlermeldung zurücksetzen
         toggleURLError(false);
@@ -461,19 +453,20 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             if (editText.getText().toString().equals("")) {
                 publishProgress(true,true);
                 toggleURLError(true);
-                Snackbar.make(activity.findViewById(R.id.MainFrame),R.string.data_url_error,Snackbar.LENGTH_LONG)
+                Snackbar.make(getActivity().findViewById(R.id.MainFrame),R.string.data_url_error,Snackbar.LENGTH_LONG)
                         .show();
                 return;
             }
-
-            url = Util_Http.handleURL(editText.getText().toString(), getActivity());
+            else {
+                // Eingegebenene URL verarbeiten und in den PreferenceManager schreiben
+                String url = Util_Http.handleURL(editText.getText().toString());
+                pManager.setUrl(url);
+                pManager.save();
+            }
 
             // Netzwerkstatus überpüfen
             if (Util_Http.checkNetwork(getActivity())) {
                 // Netzwerkverbindung i.O.
-
-                // Serverdatenbankversion abrufen
-                activity.getNetDBState(url, false);
 
                 // Wenn der Gruppenmanagment Modus aktiviert ist, wird manuell der Gruppenloader gestartet
                 // Der Gruppenmanagment Modus zeigt direkt die verfügbaren Gruppen an. Damit kann der Nutzer Gruppen abonnieren oder deabonnieren ohne auf eine neue Serverversion warten zu müssen.
@@ -488,14 +481,15 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                     // Marker für den Observer setzen. Mit diesem werden bei einer Änderung der Live-Variable netVersion die Loader gestartet.
                     initLoaderAfterNetVersionRefresh = true;
                 }
+                // Serverdatenbankversion abrufen
+                caller.getNetDBState(false);
 
                 //Auf das Ergebniss des LiveData Objects warten
-
             }
             else {
                 //Keine Netzwerkverbindung -> Nachricht und Ende
                 publishProgress(true,true);
-                Snackbar.make(activity.findViewById(R.id.MainFrame),R.string.app_noConnection,Snackbar.LENGTH_LONG)
+                Snackbar.make(getActivity().findViewById(R.id.MainFrame),R.string.app_noConnection,Snackbar.LENGTH_LONG)
                         .show();
             }
         }
@@ -507,7 +501,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             ArrayList<Group> groups = gManager.getGroupsByName(list);
             if (list.size() == 0) {
                 publishProgress(true,true);
-                Snackbar.make(activity.findViewById(R.id.MainFrame),"Bitte wähle mindestens eine Gruppe aus",Snackbar.LENGTH_LONG)
+                Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Bitte wähle mindestens eine Gruppe aus",Snackbar.LENGTH_LONG)
                         .show();
             }
             else {
@@ -518,12 +512,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 gManager.setSubscribedGroups(groups);
 
                 //Loader starten
-                initateLoader(activity.liveNetDBVersion.getValue());
+                initateLoader(vManager.liveNetDBVersion.getValue());
             }
         }
-
-        activity.gManager = gManager;
-
     }
 
     /**
@@ -533,51 +524,37 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     private void initateLoader(int netVersion) {
 
         if (netVersion != -1) {
-//            if (dbversion < netVersion) {
+            //Loader initialiseren
+            LoaderManager loaderManager = getLoaderManager();
+            Bundle args = new Bundle();
 
-                //Loader initialiseren
-                LoaderManager loaderManager = getLoaderManager();
-
-                Bundle args = new Bundle();
-                args.putString(Util.ARGS_URL, url);
-                args.putInt(Util.ARGS_VERSION, dbversion);
-
-                if (groupSelectionCompleted) {
-                    //Loader anwerfen
-                    if (loaderManager.getLoader(ITEM_LOADER) == null) {
-                        loaderManager.initLoader(ITEM_LOADER, args, this);
-                    } else {
-                        loaderManager.restartLoader(ITEM_LOADER, args, this);
-                    }
-
-                    if (loaderManager.getLoader(TRAY_LOADER) == null) {
-                        loaderManager.initLoader(TRAY_LOADER, args, this);
-                    } else {
-                        loaderManager.restartLoader(TRAY_LOADER, args, this);
-                    }
-
-                    if (loaderManager.getLoader(IMAGE_LOADER) == null) {
-                        loaderManager.initLoader(IMAGE_LOADER, args, this);
-                    } else {
-                        loaderManager.restartLoader(IMAGE_LOADER, args, this);
-                    }
-                }
-                else {
-                    if (loaderManager.getLoader(GROUP_LOADER) == null) {
-                        loaderManager.initLoader(GROUP_LOADER, args, this);
-                    } else {
-                        loaderManager.restartLoader(GROUP_LOADER, args, this);
-                    }
+            if (groupSelectionCompleted) {
+                //Loader anwerfen
+                if (loaderManager.getLoader(ITEM_LOADER) == null) {
+                    loaderManager.initLoader(ITEM_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(ITEM_LOADER, args, this);
                 }
 
-//            } else {
-//                Snackbar.make(getActivity().findViewById(R.id.MainFrame),R.string.app_nodbRefresh,Snackbar.LENGTH_LONG)
-//                        .show();
-//
-//                transformFAB(2);
-//                publishProgress(true,false);
-//
-//            }
+                if (loaderManager.getLoader(TRAY_LOADER) == null) {
+                    loaderManager.initLoader(TRAY_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(TRAY_LOADER, args, this);
+                }
+
+                if (loaderManager.getLoader(IMAGE_LOADER) == null) {
+                    loaderManager.initLoader(IMAGE_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(IMAGE_LOADER, args, this);
+                }
+            }
+            else {
+                if (loaderManager.getLoader(GROUP_LOADER) == null) {
+                    loaderManager.initLoader(GROUP_LOADER, args, this);
+                } else {
+                    loaderManager.restartLoader(GROUP_LOADER, args, this);
+                }
+            }
         }
     }
 
@@ -686,16 +663,13 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     private void addGroupToSelection(ArrayList<Group> groups, boolean fragmentStart)  {
 
-        MainActivity activity = (MainActivity) getActivity();
-        GroupManager gManager = activity.gManager;
-
         groups = gManager.mergeNewGroupList(groups);
         gManager.addToTmpList(groups);
 
         if (groups.size() > 0) {
 
             // Karte einstellen
-            CardView card = activity.findViewById(R.id.cardGroup);
+            CardView card = getActivity().findViewById(R.id.cardGroup);
             card.setVisibility(View.VISIBLE);
             card.setMinimumHeight(30);
 
@@ -815,8 +789,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 card.setBackground(drawable);
             }
         }
-
-
     }
 }
 

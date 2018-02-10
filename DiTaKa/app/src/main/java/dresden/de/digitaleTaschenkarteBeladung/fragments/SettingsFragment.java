@@ -15,6 +15,7 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -30,16 +31,31 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 
 public class SettingsFragment extends Fragment{
 
+    @Inject
     PreferencesManager preferencesManager;
 
     public SettingsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
+        ((CustomApplication) getActivity().getApplication())
+                .getApplicationComponent()
+                .inject(this);
+
     }
 
 
@@ -48,9 +64,6 @@ public class SettingsFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-
-        MainActivity activity = (MainActivity) getActivity();
-        preferencesManager = activity.pManager;
 
         EditText etColorMark = view.findViewById(R.id.et_colorPositionMark);
         etColorMark.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -73,7 +86,6 @@ public class SettingsFragment extends Fragment{
         });
 
         //UI in den Standardzustand bringen
-
         TextView errorTV = view.findViewById(R.id.settings_color_error);
         errorTV.setVisibility(View.GONE);
 
@@ -106,8 +118,9 @@ public class SettingsFragment extends Fragment{
         CardView card = view.findViewById(R.id.settings_card_display);
         card.setBackground(drawable);
 
+        Drawable drawable2 = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
         card = view.findViewById(R.id.settings_card_network);
-        card.setBackground(drawable);
+        card.setBackground(drawable2);
 
         refreshColorViews(view);
         checkStateChangeAutocheck(view, cb.isChecked());
@@ -169,7 +182,7 @@ public class SettingsFragment extends Fragment{
         View colorPositionText;
 
         if (view == null) {
-            MainActivity activity = (MainActivity) getActivity();
+            Activity activity = getActivity();
             colorPositionMark = activity.findViewById(R.id.vw_colorPositionMark);
             colorPositionText = activity.findViewById(R.id.vw_colorPositionText);
         }

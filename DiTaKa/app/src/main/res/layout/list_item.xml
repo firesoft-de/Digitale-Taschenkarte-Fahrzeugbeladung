@@ -32,7 +32,7 @@
         android:id="@+id/listItem_tv_position"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginEnd="30dp"
         android:layout_marginStart="@dimen/margin_normal"
         android:maxLines="3"
         android:textAlignment="viewStart"

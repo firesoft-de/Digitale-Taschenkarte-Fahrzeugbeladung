@@ -36,8 +36,11 @@ import android.widget.Toast;
 
 import junit.runner.Version;
 
+import javax.inject.Inject;
+
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.loader.VersionLoader;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
@@ -48,10 +51,21 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
  */
 public class BackgroundService extends Service {
 
+    @Inject
+    PreferencesManager pManager;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        ((CustomApplication) getApplication())
+                .getApplicationComponent()
+                .inject(this);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        final PreferencesManager pManager = new PreferencesManager(this);
         pManager.load();
 
         VersionLoader vLoader = new VersionLoader(getApplicationContext(),pManager.getUrl());

@@ -33,8 +33,6 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util;
  */
 public class LicenseFragment extends Fragment {
 
-
-
     public LicenseFragment() {
         // Required empty public constructor
     }

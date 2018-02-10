@@ -34,18 +34,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
 /**
@@ -58,12 +58,15 @@ public class DetailFragment extends Fragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    @Inject
+    PreferencesManager pManager;
+
+
     //Marker um zu prüfen ob die Bitmap bereits modifiziert wurde
     boolean modifyBitmap = false;
     ImageItem imageItem;
     TrayItem trayItem;
     EquipmentItem equipmentItem;
-    PreferencesManager preferencesManager;
 
 
     public DetailFragment() {
@@ -75,7 +78,7 @@ public class DetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) getActivity().getApplication())
+        ((CustomApplication) getActivity().getApplication())
                 .getApplicationComponent()
                 .inject(this);
     }
@@ -118,17 +121,7 @@ public class DetailFragment extends Fragment {
         //Farbe des Positionstextes an die Einstellung anpassen
         TextView positiontext = view.findViewById(R.id.detailPosition);
 
-        if (getActivity().getClass() == MainActivity.class) {
-            preferencesManager = ((MainActivity) getActivity()).pManager;
-            positiontext.setTextColor(preferencesManager.getPositionTextColor());
-        }
-        else {
-            preferencesManager = new PreferencesManager(getContext());
-            preferencesManager.load();
-            positiontext.setTextColor(preferencesManager.getPositionTextColor());
-//            positiontext.setTextColor(getResources().getColor(R.color.text));
-        }
-
+        positiontext.setTextColor(pManager.getPositionTextColor());
 
         return view;
     }
@@ -163,8 +156,6 @@ public class DetailFragment extends Fragment {
         }
         else {
             tvDescription.setVisibility(View.GONE);
-//            TextView tvDescriptionStatic = activity.findViewById(R.id.detailDescriptionStatic);
-//            tvDescriptionStatic.setVisibility(View.GONE);
         }
 
         //Ausstattungssatz bedarfsabhängig anzeigen
@@ -291,8 +282,8 @@ public class DetailFragment extends Fragment {
                     painter.setStyle(Paint.Style.STROKE);
                     painter.setStrokeWidth(5);
 
-                    if (preferencesManager != null) {
-                        painter.setColor(preferencesManager.getPositionMarkColor());
+                    if (pManager != null) {
+                        painter.setColor(pManager.getPositionMarkColor());
                     }
                     else {
                         painter.setColor(getResources().getColor(R.color.position_image_highlight));
