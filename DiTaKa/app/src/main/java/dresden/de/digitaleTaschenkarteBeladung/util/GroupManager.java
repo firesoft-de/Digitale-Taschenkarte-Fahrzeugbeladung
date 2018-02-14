@@ -38,7 +38,7 @@ public class GroupManager {
     private ArrayList<Group> availableGroups;
 
 
-    static final String NO_SUBSCRIBED_GROUPS="no-subscribed-groups";
+    public static final String NO_SUBSCRIBED_GROUPS="no-subscribed-groups";
 
     //=======================================================
     //=====================Konstruktoren=====================

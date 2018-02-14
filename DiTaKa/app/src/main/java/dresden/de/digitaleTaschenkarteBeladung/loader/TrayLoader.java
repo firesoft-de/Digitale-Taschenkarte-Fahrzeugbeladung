@@ -17,10 +17,25 @@ package dresden.de.digitaleTaschenkarteBeladung.loader;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_GROUP;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_NEW_GROUP;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_TABLE;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_VERSION;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_TABLE_TRAY;
 
 /**
  * Loaderklasse für die Behälterelemente
@@ -45,12 +60,78 @@ public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<TrayItem> loadInBackground() {
-        return Util_Http.requestTray(url, version, group, newGroup);
+        return requestTray(url, version, group, newGroup);
     }
 
     @Override
     protected void onStartLoading() {
         forceLoad();
+    }
+
+    /**
+     * Lädt die Datenbankeinträge des Servers für die Trays herunter.
+     * @return Liste
+     */
+    private static ArrayList<TrayItem> requestTray(String url, int dbVersion, String group, String newGroups) {
+        String httpResponse = null;
+
+        //URL generieren, Util_HTTP_URL im Git nicht enthalten
+        String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY;
+
+        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
+        }
+
+        httpResponse = Util_Http.request(queryURL);
+
+        //Antwort mittels JSON Parser verarbeiten
+        if (httpResponse != null) {
+            return jsonTrayParsing(httpResponse);
+        }
+
+        return null;
+    }
+
+    /**
+     * Die Methode verarbeitet den Antwortstring des Servers und generiert eine ArrayListe mit den Behältern
+     * @param response Die Serverantwort
+     * @return Liste mit den Ausrüstungsgegenständen
+     */
+    private static ArrayList<TrayItem> jsonTrayParsing(String response) {
+
+        ArrayList<TrayItem> trayList  = new ArrayList<>();
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(response);
+            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+
+            for (int i = 0; i < responseArray.length(); i ++) {
+                JSONObject object =  responseArray.getJSONObject(i);
+
+                TrayItem item = new TrayItem(object.getInt("id"),
+                        object.getString("name"),
+                        object.getString("description"));
+
+                item.positionCoordFromString(object.getString("positions"));
+
+                //Gruppenid setzen
+                item.setGroup(object.getString("groupId"));
+
+                trayList.add(item);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+
+        return trayList;
     }
 
 

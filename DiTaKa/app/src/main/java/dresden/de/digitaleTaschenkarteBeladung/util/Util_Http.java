@@ -46,337 +46,51 @@ import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.saveImage;
 
+/**
+ * Stellt Methoden zum Verbinden mit einem HTTP-Server zur Verfügung. Gleichzeitig werden die benötigten Serverquerys in dieser Klasse vorgehalten.
+ */
 public class Util_Http {
 
     private static final String LOG_TRACE = "Util_Http";
 
-    private static final String SERVER_QUERY_GET = "/getDatabase.php?";
-    private static final String SERVER_QUERY_GET_VERSION = "dbversion=";
-    private static final String SERVER_QUERY_GET_TABLE = "dbtable=";
-    private static final String SERVER_QUERY_GET_GROUP = "groups=";
-    private static final String SERVER_QUERY_GET_NEW_GROUP = "loadfullgroup=1&fullgroups=";
+    public static final String SERVER_QUERY_GET = "/getDatabase.php?";
+    public static final String SERVER_QUERY_GET_VERSION = "dbversion=";
+    public static final String SERVER_QUERY_GET_TABLE = "dbtable=";
+    public static final String SERVER_QUERY_GET_GROUP = "groups=";
+    public static final String SERVER_QUERY_GET_NEW_GROUP = "loadfullgroup=1&fullgroups=";
 
-    private static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
+    public static final String SERVER_QUERY_VERSION = "/getDBVersion.php";
 
-    private static final String SERVER_QUERY_IMAGE = "/getImageList.php";
-    private static final String SERVER_QUERY_IMAGE_VERSION = "dbVersion=";
+    public static final String SERVER_QUERY_IMAGE = "/getImageList.php";
+    public static final String SERVER_QUERY_IMAGE_VERSION = "dbVersion=";
 
-    private static final String SERVER_TABLE_ITEM = "equipment";
-    private static final String SERVER_TABLE_TRAY = "tray";
-    private static final String SERVER_TABLE_GROUP = "group";
-
-    /**
-     * Die Methode fragt die Ausrüstungsgegenstände vom Server ab
-     * @param url Enthält die rohe Serverurl
-     * @param dbVersion Enthält die Datenbankversion des Clients
-     * @param group Enthält die abonnierten Gruppen
-     * @return Liste der abgefragten EquipmentItems
-     */
-    public static ArrayList<EquipmentItem> requestItems(String url, int dbVersion, String group, String newGroups) {
-        String httpResponse = null;
-
-        String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
-                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM;
-
-        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
-            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
-        }
-
-        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
-            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
-        }
-
-        URL urlV = generateURL(queryURL);
-
-        //HTTP Abfrage durchführen
-        if (urlV != null) {
-            InputStream stream =  httpsRequester(urlV);
-            httpResponse = readStream(stream);
-        }
-
-        //Antwort mittels JSON Parser verarbeiten
-        if (httpResponse != null) {
-            return jsonItemParsing(httpResponse);
-        }
-
-        return null;
-    }
+    public static final String SERVER_TABLE_ITEM = "equipment";
+    public static final String SERVER_TABLE_TRAY = "tray";
+    public static final String SERVER_TABLE_GROUP = "group";
 
     /**
-     * führt eine Datenabfrage mittels HTTP-Protokoll durch
-     * @return Liste
+     * Führt eine HTTP-Abfrage unter der mitgelieferten URL durch.
+     * @param url Die Zieladresse
+     * @return Antwort des Ziels als String
      */
-    public static ArrayList<TrayItem> requestTray(String url, int dbVersion, String group, String newGroups) {
-        String httpResponse = null;
-
-        //URL generieren, Util_HTTP_URL im Git nicht enthalten
-        String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
-                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_TRAY;
-
-        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
-            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
-        }
-
-        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
-            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
-        }
-
-        URL urlV = generateURL(queryURL);
-
-        //HTTP Abfrage durchführen
-        if (urlV != null) {
-            InputStream stream =  httpsRequester(urlV);
-            httpResponse = readStream(stream);
-        }
-
-        //Antwort mittels JSON Parser verarbeiten
-        if (httpResponse != null) {
-            return jsonTrayParsing(httpResponse);
-        }
-
-        return null;
-    }
-
-    /**
-     * Ruft die aktuelle Datenbankversion vom Server ab
-     * @param url Die Serverurl
-     * @return Im Fehlerfall wird -1 zurück gegeben
-     */
-    public static int requestVersion(String url) {
-            int result;
-
-            URL urlV = generateURL(url + SERVER_QUERY_VERSION);
-            InputStream stream = null;
-
-            if (urlV != null) {
-                try {
-                    stream = httpsRequester(urlV);
-                } catch (Exception e) {
-                    LogError(LOG_TRACE,"Fehler beim Konvertieren der Versionantwort nach Integer! Nachricht: "+e.getMessage());
-
-                    //Alternative HTTP Verbindung aufbauen
-                    try {
-                        URL newURL = new URL("http", urlV.getHost(), urlV.getFile());
-                        stream = httpRequester(newURL);
-                    } catch (MalformedURLException e1) {
-                        e1.printStackTrace();
-                        return -1;
-                    }
-                }
-            }
-
-            //Prüfen ob ein Fehler beim Abrufen der Version passiert ist.
-            String response = readStream(stream);
-            if (response.equals("")) {
-                return -1;
-            }
-            else {
-                result = Integer.valueOf(response);
-
-                return result;
-            }
-        }
-
-    /**
-     * Diese Methode lädt Bilder vom Server und speichert sie lokal. Zum Zugriff wird eine Liste von ImageItems zurückgegeben.
-     * @param url die Serverurl
-     * @param dbVersion die lokale Datenbankversion
-     * @param context Context der Ausführung
-     * @param group String mit den abonnierten Gruppen
-     * @return Liste der Bilder als Imageitems
-     */
-    public static ArrayList<ImageItem> requestImages(String url, int dbVersion, Context context, String group, String newGroups) {
-        ArrayList<ImageItem> items = new ArrayList<>();
-
-        //URL generieren, Util_HTTP_URL im Git nicht enthalten
-        String queryURL = url + SERVER_QUERY_IMAGE + "?" + SERVER_QUERY_IMAGE_VERSION + dbVersion;
-
-        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
-            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
-        }
-
-        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
-            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
-        }
-
-        URL urlV = generateURL(queryURL);
-
-        Bitmap image = null;
-        InputStream stream = httpsRequester(urlV);
-        String response = readStream(stream);
-
-        //Bildpfade aufschlüsseln
-//        ArrayList<String> path = new ArrayList<>();
-
-        try {
-            JSONObject baseJsonResponse = new JSONObject(response);
-
-            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
-            String returnPath;
-
-            for (int i = 0; i < responseArray.length(); i ++) {
-
-                //Json decodieren
-                JSONObject object =  responseArray.getJSONObject(i);
-
-                int id = object.getInt("id");
-                String destination = object.getString("path");
-                int catID = object.getInt("categoryId");
-
-                if (!destination.equals("-1")) {
-
-                    destination = destination.replace("#", "/");
-
-                    URL urlX = generateURL(url + destination + Integer.toString(id) + ".jpg");
-                    stream = httpsRequester(urlX);
-
-                    //Das Bild herunterladen
-                    try {
-                        image = BitmapFactory.decodeStream(stream);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //Bild speichern und das ImageItem erstellen
-                    returnPath = saveImage(id,image, context);
-
-                }
-                else {
-                    returnPath = "-1";
-                }
-
-                ImageItem item = new ImageItem(id,returnPath,catID);
-                //Gruppenid setzen
-                item.setGroup(object.getString("groupId"));
-                items.add(item);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //TODO: Ordentliche Fehlerbehandlung
-        }
-
-        return items;
-    }
-
-
-    public static ArrayList<Group> requestGroups(String url) {
-        ArrayList<Group> list;
-
-        URL urlV = generateURL(url + SERVER_QUERY_GET + SERVER_QUERY_GET_TABLE + SERVER_TABLE_GROUP);
+    public static String request(String url) {
+        URL urlV = generateURL(url);
 
         InputStream stream = httpsRequester(urlV);
         String response = readStream(stream);
 
-        list = jsonGroupParsing(response);
-
-        return list;
+        return response;
     }
 
     /**
-     * Die Methode verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste
-     * @param response Die Serverantwort
-     * @return ArrayListe mit den Ausrüstungsgegenständen
+     * Führt eine HTTP-Abfrage unter der mitgelieferten URL durch.
+     * @param url Die Zieladresse
+     * @return Antwort des Ziels als InputStream
      */
-    private static ArrayList<EquipmentItem> jsonItemParsing(String response) {
-
-        ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
-
-        try {
-            JSONObject baseJsonResponse = new JSONObject(response);
-
-            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
-
-            for (int i = 0; i < responseArray.length(); i ++) {
-                JSONObject object =  responseArray.getJSONObject(i);
-
-                EquipmentItem item = new EquipmentItem(object.getInt("id"),
-                        object.getString("name"),
-                        object.getString("description"),
-                        object.getString("setName"),
-                        object.getString("position"),
-                        object.getInt("categoryId"),null);
-
-                String keywords = object.getString("keywords");
-                String[] keys = keywords.split(",");
-                item.setKeywordsFromArray(keys);
-
-                //Hinweise einfügen
-                item.setAdditionalNotes(object.getString("notes"));
-
-                //Den Positionsmarkierungsindex setzen
-                item.setPositionIndex(object.getInt("positionID"));
-
-                //Gruppenid setzen
-                item.setGroup(object.getString("groupId"));
-
-                equipmentList.add(item);
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //TODO: Ordentliche Fehlerbehandlung
-        }
-
-        return equipmentList;
-    }
-
-    /**
-     * Die Methode verarbeitet den Antwortstring des Servers und generiert eine ArrayListe mit den Behältern
-     * @param response Die Serverantwort
-     * @return Liste mit den Ausrüstungsgegenständen
-     */
-    private static ArrayList<TrayItem> jsonTrayParsing(String response) {
-
-        ArrayList<TrayItem> trayList  = new ArrayList<>();
-
-        try {
-            JSONObject baseJsonResponse = new JSONObject(response);
-            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
-
-            for (int i = 0; i < responseArray.length(); i ++) {
-                JSONObject object =  responseArray.getJSONObject(i);
-
-                TrayItem item = new TrayItem(object.getInt("id"),
-                        object.getString("name"),
-                        object.getString("description"));
-
-                item.positionCoordFromString(object.getString("positions"));
-
-                //Gruppenid setzen
-                item.setGroup(object.getString("groupId"));
-
-                trayList.add(item);
-
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //TODO: Ordentliche Fehlerbehandlung
-        }
-
-        return trayList;
-    }
-
-    private static ArrayList<Group> jsonGroupParsing(String response) {
-
-        ArrayList<Group> list  = new ArrayList<>();
-
-        try {
-            JSONObject baseJsonResponse = new JSONObject(response);
-            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
-
-            for (int i = 0; i < responseArray.length(); i ++) {
-                JSONObject object =  responseArray.getJSONObject(i);
-                Group group = new Group(object);
-                list.add(group);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //TODO: Ordentliche Fehlerbehandlung
-        }
-        return list;
+    public static InputStream streamRequest(String url) {
+        URL urlV = generateURL(url);
+        InputStream stream = httpsRequester(urlV);
+        return stream;
     }
 
     /**
@@ -384,9 +98,14 @@ public class Util_Http {
      * @param url die Server-URL
      * @return Antwort des Servers als String
      */
-    private static InputStream httpsRequester(URL url) {
+    public static InputStream httpsRequester(URL url) {
 
-        //TODO: ACHTUNG! AUS PERFORMANCEGRÜNDEN WIRD DER HTTPS REQUEST HIER ÜBERSCHRIEBEN!!
+        //=======================================================
+        //===========================ACHTUNG=====================
+        //=======================================================
+
+        // Da es teilweise zu Problemen mit dem Erkennen von Zertifikatspfaden kam, wird an dieser Stelle HTTPS übergangen.
+        // Stattdessen wird eine normale HTTP Verbindung aufgebaut
 
         if (true) {
             return httpRequester(url);
@@ -408,7 +127,7 @@ public class Util_Http {
                 } catch (IOException e) {
                     e.printStackTrace();
 
-                    //Alternative HTTP Verbindung aufbauen
+                    //Alternative HTTP Verbindung aufbauen, da die HTTPS-Verbindung fehlgeschlagen ist
                     URL newURL = null;
                     try {
                         newURL = new URL("http", url.getHost(), url.getFile());
@@ -421,7 +140,6 @@ public class Util_Http {
                 if (connection != null) {
 
                     try {
-
                         //Verbindungseinstellungen
                         connection.setConnectTimeout(10000);
                         connection.setReadTimeout(10000);
@@ -436,14 +154,12 @@ public class Util_Http {
 
                             //Übergabe des InputStreams zur Verarbeitung
                             response = connection.getInputStream();
-
                         }
-
                     } catch (Exception e) {
                         e.printStackTrace();
                         if (e.getMessage().contains("java.security.cert.CertPathValidatorException")) {
 
-                            //Alternative HTTP Verbindung aufbauen
+                            //Alternative HTTP Verbindung aufbauen, da die HTTPS-Verbindung fehlgeschlagen ist
                             URL newURL = null;
                             try {
                                 newURL = new URL("http", url.getHost(), url.getFile());
@@ -452,7 +168,6 @@ public class Util_Http {
                             }
                             response = httpRequester(newURL);
                         }
-
                         LogError(LOG_TRACE, "Fehler während der Verbindungsherstellung! Meldung: " + e.getMessage());
                     }
                 }

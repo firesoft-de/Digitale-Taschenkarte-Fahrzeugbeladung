@@ -27,6 +27,15 @@
         android:layout_marginTop="@dimen/margin_small"
         android:layout_marginBottom="@dimen/margin_small"/>
 
+    <EditText
+        android:id="@+id/group_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:visibility="gone"/>
+
 
     <!--app:layout_constraintTop_toTopOf="parent"-->
     <!--app:layout_constraintLeft_toLeftOf="parent"-->

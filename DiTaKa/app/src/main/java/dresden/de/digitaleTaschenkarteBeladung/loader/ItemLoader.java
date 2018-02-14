@@ -18,10 +18,25 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_GROUP;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_NEW_GROUP;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_TABLE;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_GET_VERSION;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_TABLE_ITEM;
 
 
 /**
@@ -48,7 +63,7 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
     //Hauptmethode der Klasse. Bewältigt die Hintergrundarbeit
     @Override
     public List<EquipmentItem> loadInBackground() {
-        return Util_Http.requestItems(url, version,group,newGroup);
+        return requestItems(url, version, group, newGroup);
     }
 
     @Override
@@ -56,5 +71,88 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
         forceLoad();
     }
 
+    /**
+     * Die Methode fragt die Ausrüstungsgegenstände vom Server ab
+     * @param url Enthält die rohe Serverurl
+     * @param dbVersion Enthält die Datenbankversion des Clients
+     * @param group Enthält die abonnierten Gruppen
+     * @return Liste der abgefragten EquipmentItems
+     */
+    private static ArrayList<EquipmentItem> requestItems(String url, int dbVersion, String group, String newGroups) {
+        String response = null;
+
+        // URL zusammenbauen und dabei berücksichtigen, dass manche Gruppe komplett und andere nur partiell heruntergeladen werden müssen
+        String queryURL = url + SERVER_QUERY_GET + SERVER_QUERY_GET_VERSION +
+                dbVersion + "&" + SERVER_QUERY_GET_TABLE + SERVER_TABLE_ITEM;
+
+        if (!group.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_GROUP + group;
+        }
+
+        if (!newGroups.equals(GroupManager.NO_SUBSCRIBED_GROUPS)) {
+            queryURL += "&" + SERVER_QUERY_GET_NEW_GROUP + newGroups;
+        }
+
+        response = Util_Http.request(queryURL);
+
+        //Antwort mittels JSON Parser verarbeiten
+        if (response != null) {
+            return jsonItemParsing(response);
+        }
+        else {
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+
+        return null;
+    }
+
+    /**
+     * Die Methode verarbeitet den Antwortstring des Servers und generiert eine Ausrüstungsliste
+     * @param response Die Serverantwort
+     * @return ArrayListe mit den Ausrüstungsgegenständen
+     */
+    private static ArrayList<EquipmentItem> jsonItemParsing(String response) {
+
+        ArrayList<EquipmentItem> equipmentList = new ArrayList<>();
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(response);
+
+            JSONArray responseArray = baseJsonResponse.getJSONArray("OUTPUT");
+
+            for (int i = 0; i < responseArray.length(); i ++) {
+                JSONObject object =  responseArray.getJSONObject(i);
+
+                EquipmentItem item = new EquipmentItem(object.getInt("id"),
+                        object.getString("name"),
+                        object.getString("description"),
+                        object.getString("setName"),
+                        object.getString("position"),
+                        object.getInt("categoryId"),null);
+
+                String keywords = object.getString("keywords");
+                String[] keys = keywords.split(",");
+                item.setKeywordsFromArray(keys);
+
+                //Hinweise einfügen
+                item.setAdditionalNotes(object.getString("notes"));
+
+                //Den Positionsmarkierungsindex setzen
+                item.setPositionIndex(object.getInt("positionID"));
+
+                //Gruppenid setzen
+                item.setGroup(object.getString("groupId"));
+
+                equipmentList.add(item);
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            //TODO: Ordentliche Fehlerbehandlung
+        }
+
+        return equipmentList;
+    }
 
 }

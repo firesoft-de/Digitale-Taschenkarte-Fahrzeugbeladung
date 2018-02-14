@@ -38,7 +38,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -60,7 +59,6 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DataFragViewModel;
 
-import static dresden.de.digitaleTaschenkarteBeladung.util.Util.ARGS_CALLFROMINTENT;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
 
@@ -334,7 +332,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 if (data != null) {
                     if (((ArrayList<Group>) data).size() != 0) {
 
-                        addGroupToSelection((ArrayList<Group>) data,false);
+                        addGroupToGui((ArrayList<Group>) data,false);
                         publishProgress(true,false);
                         groupSelectionCompleted = true;
                     }
@@ -661,7 +659,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
-    private void addGroupToSelection(ArrayList<Group> groups, boolean fragmentStart)  {
+    private void addGroupToGui(ArrayList<Group> groups, boolean fragmentStart)  {
 
         groups = gManager.mergeNewGroupList(groups);
         gManager.addToTmpList(groups);
@@ -675,6 +673,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             drawElevation(null,getActivity(),true);
 
+            // Die Views werden in einer ViewGroup gesammelt
             ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
             //Abgerufene Gruppen in die Auswahl aufnehmen und dabei die bereits abonnierten Gruppen markieren
@@ -683,10 +682,20 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
                 ViewGroupSelector groupSelector = new ViewGroupSelector(LayoutInflater.from(getContext()), getContext(), viewGroup);
                 groupSelector.setGroupName(group.getName());
 
+                // Nach Bedarf das Passwortfeld anzeigen
+                if (group.isRestricted()) {
+                    groupSelector.setPasswordFieldVisibility(0);
+                }
+                else {
+                    groupSelector.setPasswordFieldVisibility(8);
+                }
+
+                // Nach Bedarf den CheckState setzen
                 if (group.isSubscribed()) {
                     groupSelector.setCheckState(true);
                 }
 
+                // View Objekt erstellen und dieses zur ViewGroup hinzufügen
                 View view = groupSelector.getOwnView();
                 viewGroup.addView(view);
             }

@@ -18,7 +18,14 @@ package dresden.de.digitaleTaschenkarteBeladung.loader;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
+
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util_Http.SERVER_QUERY_VERSION;
 
 public class VersionLoader extends AsyncTaskLoader<Integer> {
 
@@ -34,7 +41,7 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
 
     @Override
     public Integer loadInBackground() {
-        version = Util_Http.requestVersion(url);
+        version = requestVersion(url);
         return version;
     }
 
@@ -43,7 +50,6 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
         forceLoad();
     }
 
-
     public int getVersion() {
         return version;
     }
@@ -51,4 +57,22 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
     public void setVersion(int version) {
         this.version = version;
     }
+
+    /**
+     * Ruft die aktuelle Datenbankversion vom Server ab
+     * @param url Die Serverurl
+     * @return Im Fehlerfall wird -1 zurück gegeben
+     */
+    public static int requestVersion(String url) {
+        String response = Util_Http.request(url + SERVER_QUERY_VERSION);
+
+        //Prüfen ob ein Fehler beim Abrufen der Version passiert ist.
+        if (response.equals("")) {
+            return -1;
+        }
+        else {
+            return Integer.valueOf(response);
+        }
+    }
+
 }
