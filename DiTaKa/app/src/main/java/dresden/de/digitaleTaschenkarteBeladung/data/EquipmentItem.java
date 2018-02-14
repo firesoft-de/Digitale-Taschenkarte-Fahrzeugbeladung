@@ -57,7 +57,9 @@ public class EquipmentItem implements Parcelable {
     private int categoryId;
 
     //Zusätzliche Beschreibung, bspw. für Ausrüstungssätze
-    private String mSetName;
+    private String setName;
+
+    private int count;
 
     //Enthält ein Bild des Items
 //    private Image image;
@@ -105,13 +107,11 @@ public class EquipmentItem implements Parcelable {
      */
     @Ignore
     public EquipmentItem(int id, String name, String description, String position, int categoryId) {
-
         this.id = id;
         this.name = name;
         this.description = description;
         this.position = position;
         this.categoryId = categoryId;
-
     }
 
     /**
@@ -124,29 +124,25 @@ public class EquipmentItem implements Parcelable {
      * @param categoryId Id des zugehörigen Behälters
      */
     public EquipmentItem(int id, String name, String description, String setName, String position, int categoryId, ArrayList<String> keywords) {
-
         this.id = id;
         this.name = name;
         this.description = description;
         this.position = position;
         this.categoryId = categoryId;
         this.keywords = keywords;
-        this.mSetName = setName;
-//        mImage = null;
-
-
+        this.setName = setName;
     }
 
 
-    //FÜr Parcelable
+    //Für Parcelable
     public EquipmentItem(Parcel input) {
         id = input.readInt();
         name = input.readString();
         description = input.readString();
         position = input.readString();
         categoryId = input.readInt();
-        mSetName = input.readString();
-
+        setName = input.readString();
+        count = input.readInt();
 
         String[] keys = input.createStringArray();
         keywords = new ArrayList<>();
@@ -170,7 +166,7 @@ public class EquipmentItem implements Parcelable {
 
     public int getCategoryId() {return categoryId;}
 
-    public String getMSetName() {return mSetName;}
+    public String getSetName() {return setName;}
 
     public ArrayList<String> getKeywords() {return keywords;}
 
@@ -180,9 +176,11 @@ public class EquipmentItem implements Parcelable {
 
     public String getGroup() {return group;}
 
-    //Set Methoden
+    public int getCount() {
+        return count;
+    }
 
-    public void setId(int id) {}
+    //Set Methoden
 
     public void setName(String name) {this.name = name;}
 
@@ -192,7 +190,7 @@ public class EquipmentItem implements Parcelable {
 
     public void setCategoryId(int categoryId) {this.categoryId = categoryId;}
 
-    public void setmSetName(String setName) {this.mSetName = setName;}
+    public void setSetName(String setName) {this.setName = setName;}
 
     public void setKeywords(ArrayList<String> keywords) {this.keywords = keywords;}
 
@@ -200,12 +198,12 @@ public class EquipmentItem implements Parcelable {
 
     public void setKeywordsFromArray(String[] keywords) {
         ArrayList<String> list = new ArrayList<>();
-
-        for (int i = 0; i < keywords.length; i++) {
-            list.add(keywords[i]);
-        }
-
+        list.addAll(Arrays.asList(keywords));
         this.keywords = list;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public void setGroup(String group) {this.group = group;}
@@ -215,9 +213,6 @@ public class EquipmentItem implements Parcelable {
     }
 
 
-
-//    public void setImage(Image image) {mImage = image;}
-
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(id);
@@ -225,7 +220,8 @@ public class EquipmentItem implements Parcelable {
         parcel.writeString(description);
         parcel.writeString(position);
         parcel.writeInt(categoryId);
-        parcel.writeString(mSetName);
+        parcel.writeString(setName);
+        parcel.writeInt(count);
         parcel.writeStringArray((String[]) keywords.toArray());
     }
 
@@ -234,26 +230,11 @@ public class EquipmentItem implements Parcelable {
          return 0;
     }
 
-  /*  public DatabaseEquipmentObject toDatabaseObject() {
-
-       DatabaseEquipmentObject object = new DatabaseEquipmentObject();
-       object.id = id;
-       object.name = name;
-       object.position = position;
-       List<String> tmp =  Arrays.asList(keywords);
-       object.keywords = new ArrayList<String>();
-       object.keywords.addAll(tmp);
-       object.categoryId = categoryId;
-       object.setName = setName;
-
-        return object;
-    }*/
-
-  public void fromMinimal(DatabaseEquipmentMininmal minimal) {
-      this.id = minimal.id;
-      this.name = minimal.name;
-      this.position = minimal.position;
-  }
+//  public void fromMinimal(DatabaseEquipmentMininmal minimal) {
+//      this.id = minimal.id;
+//      this.name = minimal.name;
+//      this.position = minimal.position;
+//  }
 
 }
 
@@ -268,8 +249,7 @@ class Converters {
     public static String fromArray(ArrayList<String> list) {
 
         Gson gson = new Gson();
-        String json = gson.toJson(list);
-        return json;
+        return gson.toJson(list);
     }
 
     @TypeConverter
@@ -283,12 +263,12 @@ class Converters {
                 array = new JSONArray(value);
             } catch (JSONException e) {
                 e.printStackTrace();
-            } finally {
+
                 for (int i = 0; i < array.length(); i++) {
                     try {
                         list.add(array.getInt(i));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                    } catch (JSONException x) {
+                        x.printStackTrace();
                     }
                 }
                 return list;

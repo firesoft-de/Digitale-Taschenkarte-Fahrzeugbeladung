@@ -36,16 +36,13 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
 import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.ImageItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
-import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
-import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
 /**
@@ -127,8 +124,8 @@ public class DetailFragment extends Fragment {
     }
 
     /**
-     * Bestückt das Fragment
-     * @param item
+     * Füllt die GUI mit den zum gegebenen Item verfügbaren Informationen
+     * @param item Das Item, dass angezeigt werden soll.
      */
     private  void insertData(EquipmentItem item) {
 
@@ -141,6 +138,9 @@ public class DetailFragment extends Fragment {
         TextView tvNotes = activity.findViewById(R.id.detailAdditionalNotes);
         TextView tvSetNameStatic = activity.findViewById(R.id.detailSetNameStatic);
         TextView tvNotesStatic = activity.findViewById(R.id.detailAdditionalNotesStatic);
+        TextView tvCountStatic = activity.findViewById(R.id.detailCountStatic);
+        TextView tvCount = activity.findViewById(R.id.detailCount);
+
 
         ImageView imageView = activity.findViewById(R.id.detailItemImage);
 
@@ -159,7 +159,7 @@ public class DetailFragment extends Fragment {
         }
 
         //Ausstattungssatz bedarfsabhängig anzeigen
-        String setName = item.getMSetName();
+        String setName = item.getSetName();
 
         if (!setName.equals("")) {
             tvSetName.setText(setName);
@@ -188,30 +188,42 @@ public class DetailFragment extends Fragment {
 
         }
 
-        String position = item.getPosition();
-
-        String[] positionParts = position.split(" - ");
-
-        tvPosition.setText(positionParts[0]);
-
-        for (int i = 1; i< positionParts.length; i++) {
-
-            tvPosition.append("\n\n" + positionParts[i]);
-
+        // Anzahl anzeigen
+        if (item.getCount() == 0 || item.getCount() == -1) {
+            tvCount.setVisibility(View.GONE);
+            tvCountStatic.setVisibility(View.GONE);
+        }
+        else {
+            tvCount.setText(String.valueOf(item.getCount()));
         }
 
+        // Position anzeigen
+        String position = item.getPosition();
+
+        // Kodierte Position splitten und jeweils in eine neue Zeile schreiben
+        String[] positionParts = position.split(" - ");
+        tvPosition.setText(positionParts[0]);
+
+        // Neue Zeilen einfügen
+        for (int i = 1; i< positionParts.length; i++) {
+            tvPosition.append("\n\n" + positionParts[i]);
+        }
+
+        // Positionsbild einfügen
+        // Im folgenden müssen das Imageitem und das Trayitem abgerufen werden, da in beiden eine benötigte Information liegt (Bildpfad und Positionsmarkierung).
+        // Da diese beiden Abfragen parallel durchgeführt werden, wird eine von beiden früher fertig sein und entsprechend muss auf die andere gewartet werden.
+        // Dazu wird die Variable modifyBitmap auf true gesetzt. Die Abfrage die zuerst fertig ist, setzt sie auf true. Die zweite Abfrage weiß dann, dass sofort mit der Bitmap Modifikation begonnen werden kann.
         viewModel.getImageByCatID(item.getCategoryId()).observe(this, new Observer<ImageItem>() {
             @Override
             public void onChanged(@Nullable ImageItem imageItemX) {
                 if (imageItemX != null) {
                     imageItem = imageItemX;
                     if (!modifyBitmap) {
-                        //Trayitem noch nicht geladen. Marker auf true setzen und warten bis Trayitem geladen wurden
+                        //Trayitem wurde noch nicht geladen. Marker auf true setzen und warten bis Trayitem geladen wurden (LiveItem!)
                         modifyBitmap = true;
                     }
                     else {
-                        //Wenn das Trayitem schon geladen wurde direkt die Bildbearbeitung beginnen
-
+                        //Wenn das Trayitem schon geladen wurden, kann direkt die Bildbearbeitung beginnen
                         modifyBitmap();
                     }
                 }
@@ -247,7 +259,9 @@ public class DetailFragment extends Fragment {
     }
 
 
-    //Zeigt die Bitmap an und modifziert sie ggf.
+    /**
+     * Zeigt eine Bitmap im Fragment an und fügt zu dieser, falls vorhanden, die Positionsmarkierung hinzu
+     */
     private void modifyBitmap() {
 
         //Prüfen ob ein Bild hinterlegt ist
@@ -293,12 +307,8 @@ public class DetailFragment extends Fragment {
                     canvas.drawRect(rectangle, painter);
                 }
             }
-
             imageView.setImageBitmap(workBitmap);
             modifyBitmap = false;
-
         }
-
     }
-
 }

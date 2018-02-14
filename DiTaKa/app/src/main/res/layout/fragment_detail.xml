@@ -90,7 +90,7 @@
                     android:textColor="@color/text"
                     android:textSize="@dimen/text_size_normal"
                     card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toBottomOf="@+id/detailSetNameStatic" />
+                    card_view:layout_constraintTop_toBottomOf="@+id/detailCountStatic" />
 
                 <TextView
                     android:id="@+id/detailAdditionalNotes"
@@ -104,9 +104,36 @@
                     android:textSize="@dimen/text_size_normal"
                     card_view:layout_constraintBottom_toBottomOf="parent"
                     card_view:layout_constraintEnd_toEndOf="parent"
-                    card_view:layout_constraintStart_toStartOf="@+id/detailAdditionalNotesStatic"
+                    card_view:layout_constraintStart_toStartOf="@+id/detailCountStatic"
                     card_view:layout_constraintTop_toTopOf="@+id/detailAdditionalNotesStatic"
                     tools:text="Platzhalter mit langem Text sdkflskdf lskmdflkdmf aasdfasd" />
+
+                <TextView
+                    android:id="@+id/detailCountStatic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_normal"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/detail_count"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_size_normal"
+                    card_view:layout_constraintStart_toStartOf="parent"
+                    card_view:layout_constraintTop_toBottomOf="@+id/detailSetNameStatic" />
+
+                <TextView
+                    android:id="@+id/detailCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="fill"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:layout_marginStart="85dp"
+                    android:textColor="@color/text"
+                    android:textSize="@dimen/text_size_normal"
+                    card_view:layout_constraintBaseline_toBaselineOf="@+id/detailCountStatic"
+                    card_view:layout_constraintEnd_toEndOf="parent"
+                    card_view:layout_constraintStart_toStartOf="@+id/detailCountStatic"
+                    tools:text="12" />
 
             </android.support.constraint.ConstraintLayout>
 

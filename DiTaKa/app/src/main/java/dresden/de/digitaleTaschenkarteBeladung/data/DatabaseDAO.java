@@ -20,10 +20,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.TypeConverter;
-import android.arch.persistence.room.TypeConverters;
 import android.arch.persistence.room.Update;
-import android.media.Image;
 
 import java.util.List;
 
@@ -36,7 +33,6 @@ public interface DatabaseDAO {
     //=======================================================
     //======================DAO ITEMS========================
     //=======================================================
-
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertItem(EquipmentItem... item); //Eventuell Long
@@ -75,7 +71,7 @@ public interface DatabaseDAO {
     LiveData<Integer> countItems();
 
     //Query für das Suchfeld
-    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords LIKE :key OR name LIKE :key OR mSetName LIKE :key)")
+    @Query("SELECT id, name, position FROM equipment WHERE NOT name LIKE '%#X#x#X#%' AND (keywords LIKE :key OR name LIKE :key OR setName LIKE :key)")
     LiveData<List<DatabaseEquipmentMininmal>> searchItemsMinimal(String key);
 
 
@@ -100,10 +96,6 @@ public interface DatabaseDAO {
 
     @Query("SELECT * FROM tray WHERE id LIKE :id AND NOT name LIKE '%#X#x#X#%'")
     LiveData<TrayItem> getTrayById(int id);
-
-    //    @Query("SELECT positions FROM tray WHERE id LIKE :id")
-//    @TypeConverters(Converters.class)
-//    LiveData<List<Integer>> getPositionCoordinates(int id);
 
 
     //=======================================================

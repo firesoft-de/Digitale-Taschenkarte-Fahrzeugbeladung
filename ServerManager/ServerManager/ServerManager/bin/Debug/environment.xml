@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <environment>
 	<sorting>
-		<equipment>id;categoryId;positionID;groupId;name;setName;description;position;notes;keywords;version</equipment>
+		<equipment>id;categoryId;positionID;groupId;name;setName;description;position;notes;count;keywords;version</equipment>
 		<tray>id;groupId;name;description;descriptionTwo;positions;version</tray>
 		<positionimage>id;path;categoryId;groupId;version</positionimage>
 		<userx>id;name;groups;pass</userx>

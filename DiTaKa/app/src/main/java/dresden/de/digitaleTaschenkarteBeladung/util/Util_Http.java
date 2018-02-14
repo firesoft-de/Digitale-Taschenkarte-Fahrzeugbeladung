@@ -77,9 +77,8 @@ public class Util_Http {
         URL urlV = generateURL(url);
 
         InputStream stream = httpsRequester(urlV);
-        String response = readStream(stream);
 
-        return response;
+        return readStream(stream);
     }
 
     /**
@@ -89,8 +88,7 @@ public class Util_Http {
      */
     public static InputStream streamRequest(String url) {
         URL urlV = generateURL(url);
-        InputStream stream = httpsRequester(urlV);
-        return stream;
+        return httpsRequester(urlV);
     }
 
     /**

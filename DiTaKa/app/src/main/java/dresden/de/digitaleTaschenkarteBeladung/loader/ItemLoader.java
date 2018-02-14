@@ -134,6 +134,10 @@ public class ItemLoader extends AsyncTaskLoader<List<EquipmentItem>> {
                 String[] keys = keywords.split(",");
                 item.setKeywordsFromArray(keys);
 
+                if (object.getInt("count") != 0) {
+                    item.setCount(object.getInt("count"));
+                }
+
                 //Hinweise einfügen
                 item.setAdditionalNotes(object.getString("notes"));
 

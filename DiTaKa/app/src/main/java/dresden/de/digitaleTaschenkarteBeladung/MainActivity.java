@@ -202,9 +202,6 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
             menu.findItem(R.id.OptionMenuDebug).setVisible(false);
         }
 
-        //TODO: Einstellungsdialog wieder einschalten
-//        menu.findItem(R.id.OptionMenuSettings).setVisible(false);
-
         //Zählervariale
         int x = 0;
 
