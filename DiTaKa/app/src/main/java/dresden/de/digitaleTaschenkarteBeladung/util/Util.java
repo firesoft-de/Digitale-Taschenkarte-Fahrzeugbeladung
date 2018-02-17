@@ -52,6 +52,7 @@ public class Util {
     public static final String ARGS_VERSION = "ARGS_VERSION";
     public static final String ARGS_DBSTATE = "ARGS_DBSTATE";
     public static final String ARGS_CALLFORUSER = "ARGS_CALLFORUSER";
+    public static final String ARGS_CALLFROMINTENT = "ARGS_CALLFROMINTENT";
 
     private static final String FILE_DESTINATION_IMAGE = "image";
 

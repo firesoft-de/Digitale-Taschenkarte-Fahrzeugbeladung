@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "4220bdbf5e56c47a41d2398cd6a0e7fc",
+    "version": 2,
+    "identityHash": "52437ed6d7d8b32f3e22b8d7f97575d2",
     "entities": [
       {
         "tableName": "equipment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `mSetName` TEXT, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, `group` TEXT, `positionIndex` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `setName` TEXT, `count` INTEGER NOT NULL, `position` TEXT, `keywords` TEXT, `additionalNotes` TEXT, `group` TEXT, `positionIndex` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -33,10 +33,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "mSetName",
-            "columnName": "mSetName",
+            "fieldPath": "setName",
+            "columnName": "setName",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "count",
+            "columnName": "count",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "position",
@@ -169,7 +175,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"4220bdbf5e56c47a41d2398cd6a0e7fc\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"52437ed6d7d8b32f3e22b8d7f97575d2\")"
     ]
   }
 }

@@ -18,8 +18,6 @@ package dresden.de.digitaleTaschenkarteBeladung.fragments;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -37,11 +35,11 @@ import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
-import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
-import dresden.de.digitaleTaschenkarteBeladung.util.Util;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.DebugViewModel;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_ExampleData;
 
@@ -56,6 +54,14 @@ public class DebugFragment extends Fragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    @Inject
+    VariableManager vManager;
+
+    @Inject
+    PreferencesManager pManager;
+
+    IFragmentCallbacks caller;
+
     DebugViewModel debugViewModel;
 
     public DebugFragment() {
@@ -68,10 +74,11 @@ public class DebugFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) getActivity().getApplication())
+        ((CustomApplication) getActivity().getApplication())
                 .getApplicationComponent()
                 .inject(this);
 
+        caller = (IFragmentCallbacks) getActivity();
     }
 
     @Override
@@ -158,10 +165,9 @@ public class DebugFragment extends Fragment {
         btResetVersion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity activity = (MainActivity) getActivity();
-                activity.pManager.setDbVersion(0);
-                activity.liveNetDBVersion.postValue(0);
-                activity.getNetDBState(null,true);
+                pManager.setDbVersion(0);
+                vManager.liveNetDBVersion.postValue(0);
+                caller.getNetDBState( true );
             }
         });
 
@@ -169,8 +175,7 @@ public class DebugFragment extends Fragment {
         btRevertVersion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity activity = (MainActivity) getActivity();
-                activity.pManager.setDbVersion( activity.pManager.getDbVersion() - 1);
+                pManager.setDbVersion( pManager.getDbVersion() - 1);
             }
         });
 
@@ -178,8 +183,7 @@ public class DebugFragment extends Fragment {
         btdeletePrefs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity activity = (MainActivity) getActivity();
-                activity.pManager.delete();
+                pManager.delete();
 
                 Toast.makeText(getContext(),"Prefs gelöscht!",Toast.LENGTH_SHORT).show();
             }

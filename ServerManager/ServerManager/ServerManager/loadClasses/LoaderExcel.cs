@@ -212,7 +212,7 @@ namespace ServerManager.Loader
         {
             foreach (List<string> item in serversort)
             {
-                if (item.ElementAt(0) == tableName)
+                if (item.ElementAt(0).ToLower() == tableName.ToLower())
                 {
                     List<string> export = new List<string>();
                     export.AddRange(item);

@@ -37,6 +37,7 @@
                 Loaded="ToolBar_Loaded" >
 
                 <Button Content="Exceldatei laden" Background="LightGray" Margin="15,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center"  ToolBar.OverflowMode="Never" Padding="5" Click="BT_Load_Excel" />
+                <Button Content="Hash erzeugen" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Hash_Erzeugen"/>
                 <Button Content="Server abfragen" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Click_CheckServer"/>
                 <Button Content="Upload starten" Background="LightGray" Margin="10,0,0,0" Height="30" Foreground="Black" VerticalAlignment="Center" ToolBar.OverflowMode="Never" Padding="5" Click="BT_Start_Upload"/>
                 <!--<Menu  ToolBar.OverflowMode="Never" Height="30" Margin="10,0,0,0">

@@ -27,6 +27,8 @@ import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseDAO;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseRepository;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.CustomViewModelFactory;
 
+import static dresden.de.digitaleTaschenkarteBeladung.data.DatabaseClass.MIGRATION_1_2;
+
 /**
  * In dieser Klasse werden verschiedene Elemente für Dagger definiert. Letztendlich wird Dagger hiermit gesagt:
  * "Wenn du auf einen dieser Datentypen stößt, dann kriegst du mit den hier genannten Methoden die passende Instanz/Daten."
@@ -36,15 +38,15 @@ import dresden.de.digitaleTaschenkarteBeladung.viewmodels.CustomViewModelFactory
 @Module
 public class RoomModule {
 
-
     private final DatabaseClass database;
 
     public RoomModule(Application application) {
         this.database = Room.databaseBuilder(
                 application,
                 DatabaseClass.class,
-                "equipment"
-        ).build();
+                "equipment")
+                .addMigrations(MIGRATION_1_2)
+                .build();
     }
 
     @Provides

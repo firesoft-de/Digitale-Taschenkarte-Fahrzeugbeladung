@@ -19,7 +19,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.icu.text.LocaleDisplayNames;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -29,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,17 +38,19 @@ import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.TrayAdapter;
 import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.TrayViewModel;
 
 /**
  * Das {@link TrayFragment}Fragment zum Darstellen der Fächer in einem vordefinierten Listen Layout
  */
 public class TrayFragment extends Fragment {
-    fragmentCallbackListener masterCallback;
+    IFragmentCallbacks caller;
 
     private TrayAdapter trayAdapter;
 
@@ -58,6 +58,12 @@ public class TrayFragment extends Fragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+
+    @Inject
+    VariableManager vManager;
+
+    @Inject
+    GroupManager gManager;
 
     ArrayList<TrayItem> trays;
 
@@ -70,7 +76,7 @@ public class TrayFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) getActivity().getApplication())
+        ((CustomApplication) getActivity().getApplication())
                 .getApplicationComponent()
                 .inject(this);
 
@@ -81,7 +87,7 @@ public class TrayFragment extends Fragment {
         super.onAttach(context);
 
         try {
-            masterCallback = (fragmentCallbackListener) getActivity();
+            caller = (IFragmentCallbacks) getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString()
                     + " must implement OnHeadlineSelectedListener");
@@ -97,26 +103,14 @@ public class TrayFragment extends Fragment {
         viewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(TrayViewModel.class);
 
-        String arg = this.getArguments().getString(Util.ARGS_DBSTATE);
+        final ListView lv = result.findViewById(R.id.ListViewMain);
 
-        Util.DbState dbState;
-        if (arg != "") {
-            dbState = Util.DbState.valueOf(arg);
-        }
-        else {
-            dbState = Util.DbState.UNKNOWN;
-        }
-
-        final ListView lv = (ListView) result.findViewById(R.id.ListViewMain);
-        MainActivity activity = (MainActivity) getActivity();
-
-
-        if (dbState == Util.DbState.VALID || dbState == Util.DbState.EXPIRED) {
-            viewModel.getTrays(activity.gManager.getActiveGroup().getName()).observe(this, new Observer<List<TrayItem>>() {
+        if (vManager.dbState == Util.DbState.VALID || vManager.dbState == Util.DbState.EXPIRED) {
+            viewModel.getTrays(gManager.getActiveGroup().getName()).observe(this, new Observer<List<TrayItem>>() {
                 @Override
                 public void onChanged(@Nullable List<TrayItem> trayItems) {
                     trays = (ArrayList<TrayItem>) trayItems;
-                    changeSorting(((MainActivity) getActivity()).liveSort.getValue());
+                    changeSorting(vManager.liveSort.getValue());
                 }
             });
 
@@ -133,7 +127,7 @@ public class TrayFragment extends Fragment {
                     ItemFragment itemFragment = new ItemFragment();
                     itemFragment.setArguments(args);
 
-                    masterCallback.switchFragment(R.id.MainFrame,itemFragment, Util.FRAGMENT_LIST_ITEM);
+                    caller.switchFragment(R.id.MainFrame,itemFragment, Util.FRAGMENT_LIST_ITEM);
                 }
             });
         }
@@ -141,7 +135,7 @@ public class TrayFragment extends Fragment {
             displayFirstRun(lv);
         }
 
-        activity.liveSort.observe(this, new Observer<Util.Sort>() {
+        vManager.liveSort.observe(this, new Observer<Util.Sort>() {
             @Override
             public void onChanged(@Nullable Util.Sort sort) {
                 changeSorting(sort);
@@ -150,17 +144,6 @@ public class TrayFragment extends Fragment {
 
         return result;
 
-    }
-
-    //=======================================================
-    //======================INTERFACES=======================
-    //=======================================================
-
-    //Interfacedefinition um schneller mit der Mainactivity zu kommunizieren
-    public  interface fragmentCallbackListener {
-        void switchFragment(int id, Fragment fragment, String tag);
-
-        //void sendToFragment(int fragmentID, Object message);
     }
 
     //=======================================================
@@ -257,7 +240,7 @@ public class TrayFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<TrayItem> trayItems) {
                 trays = (ArrayList<TrayItem>) trayItems;
-                changeSorting(((MainActivity) getActivity()).liveSort.getValue());
+                changeSorting(vManager.liveSort.getValue());
             }
         });
     }

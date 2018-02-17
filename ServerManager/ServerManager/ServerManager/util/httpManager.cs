@@ -332,7 +332,7 @@ namespace ServerManager.util
         /// </summary>
         /// <param name="raw">Zu hashender String</param>
         /// <returns>Gehashter Wert</returns>
-        public string CreateHash(string raw)
+        public static string CreateHash(string raw)
         {
             SHA256 hash;
             hash = SHA256.Create();

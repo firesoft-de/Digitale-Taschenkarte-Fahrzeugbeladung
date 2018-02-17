@@ -16,7 +16,7 @@ package dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection;
 
 import android.app.Application;
 
-public class ApplicationForDagger extends Application {
+public class CustomApplication extends Application {
     private ApplicationComponent applicationComponent;
 
     @Override
@@ -27,6 +27,7 @@ public class ApplicationForDagger extends Application {
                 .builder()
                 .applicationModule(new ApplicationModule(this))
                 .roomModule(new RoomModule(this))
+                .workModule(new WorkModule(this))
                 .build();
 
     }

@@ -137,7 +137,7 @@ Module Module1
 
         Next
 
-        result = result.Remove(result.Length - 1, 1)
+        result = result.Remove(result.Length - 2, 2)
 
         Return result
 
@@ -170,7 +170,7 @@ Module Module1
             result &= Environment.NewLine
 
         Next
-        result = result.Remove(result.Length - 1, 1)
+        result = result.Remove(result.Length - 2, 2)
 
         Return result
 

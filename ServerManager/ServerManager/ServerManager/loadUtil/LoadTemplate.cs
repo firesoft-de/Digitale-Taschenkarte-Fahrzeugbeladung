@@ -13,15 +13,38 @@ namespace ServerManager.Loader
     {
         public abstract void Load(IProgress<string> reporter);
         
+        /// <summary>
+        /// Enthält eine Liste mit UploadObjecten
+        /// </summary>
         public abstract List<UploadObject> Data { get; }
+
+        /// <summary>
+        /// Enthält die Anzahl der geladenenen Einträge
+        /// </summary>
         public abstract int Entries { get; }
+
+        /// <summary>
+        /// Enthält die Anzahl der geladenen Tabellen
+        /// </summary>
         public abstract int Tables { get; }
+
+        /// <summary>
+        /// Enthält den Pfad zur Datenquelle
+        /// </summary>
         public abstract string Path { get; set; }
+
+        /// <summary>
+        /// Enhält eine Liste mit den Namen der geladenenen Tabellen
+        /// </summary>
         public abstract List<string> Tablenames { get; }
+
+        /// <summary>
+        /// Stellt eine Möglichkeit zur Verfügung Ausgaben an den Nutzer zu tätigen
+        /// </summary>
         internal LoadManager.loaderCallback Caller { get => caller; set => caller = value; }
 
 
-        //Delegate um Nachrichten aus dieser Klasse über das Ausgabefenster an den Nutzer zu senden
+        //Delegate um Nachrichten aus dieser Klasse über das Ausgabefenster an den Nutzer zu senden 
         private LoadManager.loaderCallback caller;
 
         /// <summary>
@@ -79,13 +102,13 @@ namespace ServerManager.Loader
 
             foreach (List<string> item in serversort)
             {
-                if (item.ElementAt(0) == tablename)
+                if (item.ElementAt(0).ToLower() == tablename.ToLower())
                 {
                     for (int i = 1; i < item.Count; i++)
                     {
                         foreach (var tablesortitem in tablesort)
                         {
-                            if (tablesortitem == item.ElementAt(i))
+                            if (tablesortitem.ToLower() == item.ElementAt(i).ToLower())
                             {
                                 int tablesort_item_id = tablesort.IndexOf(tablesortitem);
                                 sortingTranslation[tablesort_item_id] = i - 1;

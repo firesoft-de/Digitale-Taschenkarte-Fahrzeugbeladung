@@ -103,9 +103,21 @@
 	
 	echo('- Erstelle Datenbanktabelle userx <br/>');
 
-	//Tabelle groupx anlegen
+	//Tabelle userx anlegen
 	$queryString = "CREATE TABLE `userx` ( `id` int(11) NOT NULL, `name` text NOT NULL, `groups` text NOT NULL, `tables` text NOT NULL,
 					`pass` text NOT NULL, UNIQUE KEY `id` (`id`), UNIQUE KEY `id_2` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+					
+	//Datenbankabfrage vorbereiten
+	$stmt=$pdo->prepare($queryString);
+
+	//Statment schließen
+	$stmt->closeCursor();
+
+	//SQL Abfrage ausführen
+	$stmt->execute();
+	
+	//Tabelle Administrato anlegen
+	$queryString = "INSERT INTO `userx` (`id`, `name`, `groups`, `tables`, `pass`) VALUES ('0', 'admin', 'all', 'all', '55168238193206251041251947226144812201664120910022619614913916165213244195851240104143')";
 					
 	//Datenbankabfrage vorbereiten
 	$stmt=$pdo->prepare($queryString);

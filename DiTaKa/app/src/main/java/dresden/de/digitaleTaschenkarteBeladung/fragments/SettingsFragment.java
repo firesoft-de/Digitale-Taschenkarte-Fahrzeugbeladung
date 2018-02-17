@@ -15,34 +15,47 @@
 package dresden.de.digitaleTaschenkarteBeladung.fragments;
 
 
-import android.content.Context;
-import android.graphics.Canvas;
+import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
+
+import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 
 public class SettingsFragment extends Fragment{
 
+    @Inject
     PreferencesManager preferencesManager;
 
     public SettingsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
+        ((CustomApplication) getActivity().getApplication())
+                .getApplicationComponent()
+                .inject(this);
+
     }
 
 
@@ -51,9 +64,6 @@ public class SettingsFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
-
-        MainActivity activity = (MainActivity) getActivity();
-        preferencesManager = activity.pManager;
 
         EditText etColorMark = view.findViewById(R.id.et_colorPositionMark);
         etColorMark.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -75,15 +85,45 @@ public class SettingsFragment extends Fragment{
             }
         });
 
+        //UI in den Standardzustand bringen
+        TextView errorTV = view.findViewById(R.id.settings_color_error);
+        errorTV.setVisibility(View.GONE);
+
+        //Gespeicherten Farbeninteger in HEX konvertieren
         etColorText.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionTextColor())));
         etColorMark.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionMarkColor())));
 
+        CheckBox cb = view.findViewById(R.id.settings_cb_network_autocheck);
+        cb.setChecked(preferencesManager.isCheckForUpdateAllowed());
+
+        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                checkStateChangeAutocheck(null, b);
+            }
+        });
+
+        //Reset Button einrichten
+        Button resetBT = view.findViewById(R.id.settings_button_reset);
+        resetBT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetBTClicked();
+            }
+        });
+
+        //Elevationeffekt für die Cards erzeugen
         Drawable drawable = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
 
-        CardView card = view.findViewById(R.id.settings_card);
+        CardView card = view.findViewById(R.id.settings_card_display);
         card.setBackground(drawable);
 
+        Drawable drawable2 = getResources().getDrawable(android.R.drawable.dialog_holo_light_frame);
+        card = view.findViewById(R.id.settings_card_network);
+        card.setBackground(drawable2);
+
         refreshColorViews(view);
+        checkStateChangeAutocheck(view, cb.isChecked());
 
         return view;
     }
@@ -98,14 +138,20 @@ public class SettingsFragment extends Fragment{
     //==========================Arbeitsmethoden========================
     //=================================================================
 
+    /**
+     * Prüft die getätigte ColorCode Eingabe und schreibt diese ggf. in den PrefManager
+     * @param view Das Viewobjekt der EditTextBox
+     */
     private void getColor(View view) {
 
         EditText editText = (EditText) view;
+        TextView errorTV = getActivity().findViewById(R.id.settings_color_error);
+
         String tmpstring;
         tmpstring = editText.getText().toString();
         final String pattern = "#[A-Fa-f0-9]{6}";
 
-
+        //Prüfen ob der eingegebene String dem Muster entspricht
         if (tmpstring.matches(pattern)) {
 
             switch (editText.getId()) {
@@ -118,20 +164,25 @@ public class SettingsFragment extends Fragment{
                     break;
             }
             refreshColorViews(null);
+
+            errorTV.setVisibility(View.GONE);
         }
         else {
-            Toast.makeText(getContext(),"Fehlerhafte Eingabe!",Toast.LENGTH_SHORT).show();
+            errorTV.setVisibility(View.VISIBLE);
         }
     }
 
-
+    /**
+     * Erneuert die Farbvorschau anhand des PrefManagers
+     * @param view Falls die Methode aus onCreateView aufgerufen wird, kann hier ein View übergeben werden
+     */
     private void refreshColorViews(@Nullable View view) {
 
         View colorPositionMark;
         View colorPositionText;
 
         if (view == null) {
-            MainActivity activity = (MainActivity) getActivity();
+            Activity activity = getActivity();
             colorPositionMark = activity.findViewById(R.id.vw_colorPositionMark);
             colorPositionText = activity.findViewById(R.id.vw_colorPositionText);
         }
@@ -147,5 +198,47 @@ public class SettingsFragment extends Fragment{
         if (preferencesManager.getPositionTextColor() != 0) {
             colorPositionText.setBackgroundColor(preferencesManager.getPositionTextColor());
        }
+    }
+
+    /***
+     * Setzt die Eingaben zurück und passt die UI entsprechend an
+     */
+    private void resetBTClicked() {
+
+        EditText etColorMark = getActivity().findViewById(R.id.et_colorPositionMark);
+        EditText etColorText = getActivity().findViewById(R.id.et_colorPositionText);
+        CheckBox cb = getActivity().findViewById(R.id.settings_cb_network_autocheck);
+
+        preferencesManager.resetSettings();
+
+        etColorText.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionTextColor())));
+        etColorMark.setText(String.format("#%06X", (0xFFFFFF & preferencesManager.getPositionMarkColor())));
+        cb.setChecked(preferencesManager.isCheckForUpdateAllowed());
+
+        refreshColorViews(null);
+    }
+
+    /**
+     * Bearbeitet Veränderungen des CheckState für die automatische Datenbankprüfung
+     * @param view Falls die Methode aus onCreateView aufgerufen wird, kann hier ein View übergeben werden
+     * @param checked Zustand der Checkbox
+     */
+    private void checkStateChangeAutocheck(@Nullable View view, boolean checked) {
+        CheckBox cb;
+        preferencesManager.setCheckForUpdateAllowed(checked);
+
+        if (view == null) {
+            cb = getActivity().findViewById(R.id.settings_cb_network_autocheck);
+        }
+        else {
+            cb = view.findViewById(R.id.settings_cb_network_autocheck);
+        }
+
+        if (checked) {
+            cb.setText(R.string.settings_network_check_enabled);
+        }
+        else {
+            cb.setText(R.string.settings_network_check_disabled);
+        }
     }
 }

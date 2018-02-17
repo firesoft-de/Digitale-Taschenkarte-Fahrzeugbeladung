@@ -20,7 +20,6 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Parcelable;
 import android.os.Trace;
 import android.support.annotation.Nullable;
@@ -30,7 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,19 +39,21 @@ import javax.inject.Inject;
 
 import dresden.de.digitaleTaschenkarteBeladung.MainActivity;
 import dresden.de.digitaleTaschenkarteBeladung.R;
-import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.ApplicationForDagger;
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.DatabaseEquipmentMininmal;
 import dresden.de.digitaleTaschenkarteBeladung.data.EquipmentItem;
-import dresden.de.digitaleTaschenkarteBeladung.data.TrayItem;
 import dresden.de.digitaleTaschenkarteBeladung.dataStructure.ItemAdapter;
+import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
+import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 import dresden.de.digitaleTaschenkarteBeladung.viewmodels.ItemViewModel;
 
 /**
  * Das {@link ItemFragment}Fragment zum Darstellen der Fächer in einem vordefinierten Listen Layout
  */
 public class ItemFragment extends Fragment {
-    TrayFragment.fragmentCallbackListener masterCallback;
+    IFragmentCallbacks masterCallback;
 
     private final static String LOG_TAG="ItemFragment_LOG";
 
@@ -74,6 +74,13 @@ public class ItemFragment extends Fragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    @Inject
+    GroupManager gManager;
+
+    @Inject
+    VariableManager vManager;
+
+
     ItemViewModel itemViewModel;
 
     @Override
@@ -81,7 +88,7 @@ public class ItemFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //Anweisung an Dagger, dass hier eine Injection vorgenommen wird ??
-        ((ApplicationForDagger) getActivity().getApplication())
+        ((CustomApplication) getActivity().getApplication())
                 .getApplicationComponent()
                 .inject(this);
 
@@ -93,10 +100,6 @@ public class ItemFragment extends Fragment {
 
         MainActivity activity = (MainActivity) getActivity();
 
-//        if (activity.DEBUG_ENABLED) {
-//            Debug.startMethodTracing("sample");
-//        }
-
         //Hier wird das Viewmodel erstellt und durch die Factory mit Eigenschaften versehen
         itemViewModel = ViewModelProviders.of(this,viewModelFactory)
                 .get(ItemViewModel.class);
@@ -107,7 +110,7 @@ public class ItemFragment extends Fragment {
 
             catID =  args.getInt(BUNDLE_TAG_ITEMS);
             //Observer einrichten
-            itemViewModel.getItemsByCatID(catID, activity.gManager.getActiveGroup().getName()).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
+            itemViewModel.getItemsByCatID(catID, gManager.getActiveGroup().getName()).observe(this, new Observer<List<DatabaseEquipmentMininmal>>() {
                 @Override
                 public void onChanged(@Nullable List<DatabaseEquipmentMininmal> items) {
                         insertData(null,items);
@@ -119,25 +122,18 @@ public class ItemFragment extends Fragment {
             throw new IllegalArgumentException("Keine Behälter-ID angegeben!");
         }
 
-        activity.liveSort.observe(this, new Observer<Util.Sort>() {
+        vManager.liveSort.observe(this, new Observer<Util.Sort>() {
             @Override
             public void onChanged(@Nullable Util.Sort sort) {
                 changeSorting(sort);
             }
         });
-
-//        if (activity.DEBUG_ENABLED) {
-//            Debug.stopMethodTracing();
-//        }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
 
-        View result = inflater.inflate(R.layout.list_layout,parent,false);
-
-        return result;
+        return inflater.inflate(R.layout.list_layout,parent,false);
 
     }
 
@@ -146,7 +142,7 @@ public class ItemFragment extends Fragment {
         super.onAttach(context);
 
         try {
-            masterCallback = (TrayFragment.fragmentCallbackListener) getActivity();
+            masterCallback = (IFragmentCallbacks) getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString()
                     + " must implement OnHeadlineSelectedListener");
@@ -192,10 +188,9 @@ public class ItemFragment extends Fragment {
             throw new IllegalArgumentException("Es darf nur ein Argument der Methode insertData null sein!");
         }
 
-        changeSorting(((MainActivity) getActivity()).liveSort.getValue());
+        changeSorting(vManager.liveSort.getValue());
 
         //Click Listener für die ListViewItems setzen um Details anzeigen zu können
-
         ListView lv = (ListView) getActivity().findViewById(R.id.ListViewMain);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

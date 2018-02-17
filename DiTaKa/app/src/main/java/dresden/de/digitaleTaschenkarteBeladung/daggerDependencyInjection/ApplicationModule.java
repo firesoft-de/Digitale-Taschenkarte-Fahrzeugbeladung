@@ -21,14 +21,14 @@ import dagger.Provides;
 
 @Module
 public class ApplicationModule {
-    private final ApplicationForDagger application;
+    private final CustomApplication application;
 
-    public ApplicationModule(ApplicationForDagger application) {
+    public ApplicationModule(CustomApplication application) {
         this.application = application;
     }
 
     @Provides
-    ApplicationForDagger provideDaggerApplication(){
+    CustomApplication provideDaggerApplication(){
         return application;
     }
 

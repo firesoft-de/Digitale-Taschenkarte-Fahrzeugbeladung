@@ -41,7 +41,7 @@ import static dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment.BUN
 
 public class SearchResultListFragment extends Fragment {
 
-    TrayFragment.fragmentCallbackListener masterCallback;
+    IFragmentCallbacks masterCallback;
 
     ArrayList<DatabaseEquipmentMininmal> itemList;
 
@@ -104,7 +104,7 @@ public class SearchResultListFragment extends Fragment {
 
         //Callback attachen
         try {
-            masterCallback = (TrayFragment.fragmentCallbackListener) getActivity();
+            masterCallback = (IFragmentCallbacks) getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString()
                     + " must implement OnHeadlineSelectedListener");
@@ -159,7 +159,7 @@ public class SearchResultListFragment extends Fragment {
 
         ItemAdapter searchAdapter = new ItemAdapter(getActivity(),(ArrayList<DatabaseEquipmentMininmal>) itemList);
 
-        ListView lv = (ListView) getActivity().findViewById(R.id.ListViewSearch);
+        ListView lv = getActivity().findViewById(R.id.ListViewSearch);
 
         lv.setAdapter(searchAdapter);
 
@@ -173,7 +173,7 @@ public class SearchResultListFragment extends Fragment {
     private void refreshData(View view) {
         ItemAdapter searchAdapter = new ItemAdapter(getActivity(),(ArrayList<DatabaseEquipmentMininmal>) itemList);
 
-        ListView lv = (ListView) view.findViewById(R.id.ListViewSearch);
+        ListView lv = view.findViewById(R.id.ListViewSearch);
 
         lv.setAdapter(searchAdapter);
 

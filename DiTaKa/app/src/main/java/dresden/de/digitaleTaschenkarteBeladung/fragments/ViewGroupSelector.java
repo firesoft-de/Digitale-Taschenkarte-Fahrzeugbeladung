@@ -19,9 +19,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
 
 import dresden.de.digitaleTaschenkarteBeladung.R;
 
+/**
+ * Diese Klasse erzeugt zusammen mit dem group_selector.xml Layout eine Auswahloption für die Gruppen.
+ * Diese werden im Datenimportfragment angezeigt
+ */
 public class ViewGroupSelector extends View{
 
     View ownView;
@@ -60,5 +65,14 @@ public class ViewGroupSelector extends View{
     public void setCheckState(boolean checkState) {
         CheckBox tv = ownView.findViewById(R.id.group_selector);
         tv.setChecked(checkState);
+    }
+
+    /**
+     * Ändert den Anzeigestatus des Passwortfeldes
+     * @param viewState 0 = VISIBLE, 4 = INVISIBLE, 8 = GONE
+     */
+    public void setPasswordFieldVisibility(int viewState) {
+        EditText et = ownView.findViewById(R.id.group_password);
+        et.setVisibility(viewState);
     }
 }

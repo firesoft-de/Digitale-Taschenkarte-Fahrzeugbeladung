@@ -15,6 +15,8 @@
 package dresden.de.digitaleTaschenkarteBeladung;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
@@ -36,27 +38,38 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 
+import java.util.Calendar;
+
+import javax.inject.Inject;
+
+import dresden.de.digitaleTaschenkarteBeladung.daggerDependencyInjection.CustomApplication;
 import dresden.de.digitaleTaschenkarteBeladung.data.Group;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.AboutFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DataImportFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DebugFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.DetailFragment;
+import dresden.de.digitaleTaschenkarteBeladung.fragments.IFragmentCallbacks;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.ItemFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.LicenseFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.SettingsFragment;
 import dresden.de.digitaleTaschenkarteBeladung.fragments.TrayFragment;
+import dresden.de.digitaleTaschenkarteBeladung.service.BackgroundService;
+import dresden.de.digitaleTaschenkarteBeladung.service.BootReceiver;
 import dresden.de.digitaleTaschenkarteBeladung.util.GroupManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.PreferencesManager;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 import dresden.de.digitaleTaschenkarteBeladung.loader.VersionLoader;
+import dresden.de.digitaleTaschenkarteBeladung.util.VariableManager;
 
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.ARGS_CALLFROMINTENT;
+import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_DATA;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_ITEM;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.FRAGMENT_LIST_TRAY;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
 
-public class MainActivity extends AppCompatActivity implements TrayFragment.fragmentCallbackListener, SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
+public class MainActivity extends AppCompatActivity implements IFragmentCallbacks, SearchView.OnQueryTextListener, LoaderManager.LoaderCallbacks {
 
     //=======================================================
     //======================KONSTANTEN=======================
@@ -69,23 +82,21 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
     public static Boolean DEBUG_ENABLED;
 
     //Globale Variablen
-    private FragmentManager fManager;
-    private LoaderManager lManager;
+    public FragmentManager fManager;
 
+    // DI's
+    @Inject
+    GroupManager gManager;
 
-    public Util.DbState dbState;
+    @Inject
+    PreferencesManager pManager;
 
-    public GroupManager gManager;
-    public PreferencesManager pManager;
+    @Inject
+    VariableManager vManager;
 
-    public MutableLiveData<Integer> liveNetDBVersion;
-    public MutableLiveData<Util.Sort> liveSort;
-
+    // Sonstiges
     private Menu xMenu;
-
-    private boolean NetDBVersionCallForUser;
-    public boolean FirstDownloadCompleted;
-
+    private LoaderManager lManager;
     //=======================================================
     //===================OVERRIDEMETHODEN====================
     //=======================================================
@@ -96,35 +107,33 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Injection durchführen
+        ((CustomApplication) this.getApplication())
+                .getApplicationComponent()
+                .inject(this);
+
+        //Debug nach BuildConfig aktivieren
         DEBUG_ENABLED = BuildConfig.DEBUG;
-
-        //Default Zustand -1 -> Keine Internetverbindung, noch keine Daten empfangen oder ein unbekannter Fehler ist aufgetreten!
-        liveNetDBVersion = new MutableLiveData<>();
-        liveNetDBVersion.setValue(-1);
-
-        liveSort = new MutableLiveData<>();
 
         //Manager initalisieren
         fManager = this.getSupportFragmentManager();
         lManager = this.getSupportLoaderManager();
-        pManager = new PreferencesManager(this);
-        gManager = new GroupManager();
 
         //PREFS laden
         pManager.load();
 
-        dbState = Util.DbState.VALID;
+        vManager.dbState = Util.DbState.VALID;
 
         if (pManager.getUrl() == "NO_URL_FOUND") {
             //Kein SERVER-URL gefunden (App wird das erste Mal gestartet) -> Keine internen Datenbankabfragen durchführen sondern Dummy Tray mit Hinweisen für die Erstbenutzung anzeigen!
-            dbState = Util.DbState.CLEAN;
+            vManager.dbState = Util.DbState.CLEAN;
             pManager.setDbVersion(0);
         }
         else if (pManager.getDbVersion() == -1) {
-            dbState = Util.DbState.CLEAN;
+            vManager.dbState = Util.DbState.CLEAN;
             pManager.setDbVersion(0);
             if (Util_Http.checkNetwork(this)) {
-                getNetDBState(null,true);
+                getNetDBState(true);
             }
             else {
                 //Keine Netzwerkverbindung -> Nachricht und Ende
@@ -134,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         }
         else {
             if (Util_Http.checkNetwork(this)) {
-                getNetDBState(null, true);
+                getNetDBState( true);
             }
             else {
                 //Keine Netzwerkgenymverbindung -> Nachricht und Ende
@@ -142,11 +151,29 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         .show();
             }
         }
-        FirstDownloadCompleted = false;
 
-        //Erstes Fragment einfügen
-        Fragment trayFragment = new TrayFragment();
-        switchFragment(R.id.MainFrame,trayFragment, FRAGMENT_LIST_TRAY);
+        //Flag zurücksetzen
+        vManager.FirstDownloadCompleted = false;
+
+        //Service einrichten
+        BootReceiver.startBackgroundService(this);
+
+        //Erstes Fragment anzeigen
+        Fragment firstFragment = new TrayFragment();
+        vManager.CallFromNotification = false;
+        switchFragment(R.id.MainFrame,firstFragment, FRAGMENT_LIST_TRAY);
+
+        //Eingegebenen Intent abrufen
+        Intent inputIntent = getIntent();
+
+        if (inputIntent != null && inputIntent.getAction().equals("DB_UPDATE")) {
+            //Datenbankupdate Fragment anzeigen
+
+            firstFragment = new DataImportFragment();
+            vManager.CallFromNotification = true;
+            switchFragment(R.id.MainFrame,firstFragment, FRAGMENT_DATA);
+        }
+
     }
 
     //Festlegen was passiert wenn der BackButton gedrückt wird
@@ -174,9 +201,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         else {
             menu.findItem(R.id.OptionMenuDebug).setVisible(false);
         }
-
-        //TODO: Einstellungsdialog wieder einschalten
-//        menu.findItem(R.id.OptionMenuSettings).setVisible(false);
 
         //Zählervariale
         int x = 0;
@@ -279,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
         }
 
         //Initalen Wert für das Sortierungsmenü festlegen
-        switch (liveSort.getValue()) {
+        switch (vManager.liveSort.getValue()) {
             case AZ:
                 menu.findItem(R.id.SortAZ).setChecked(true);
                 break;
@@ -327,19 +351,19 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                 return true;
 
             case R.id.SortAZ:
-                liveSort.postValue(Util.Sort.AZ);
+                vManager.liveSort.postValue(Util.Sort.AZ);
                 pManager.save();
                 item.setChecked(true);
                 return true;
 
             case R.id.SortZA:
-                liveSort.postValue(Util.Sort.ZA);
+                vManager.liveSort.postValue(Util.Sort.ZA);
                 pManager.save();
                 item.setChecked(true);
                 return true;
 
             case R.id.SortXY:
-                liveSort.postValue(Util.Sort.PRESET);
+                vManager.liveSort.postValue(Util.Sort.PRESET);
                 pManager.save();
                 item.setChecked(true);
                 return true;
@@ -394,22 +418,22 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     @Override
     public void onLoadFinished(Loader loader, Object data) {
-        liveNetDBVersion.postValue((int) data);
+        vManager.liveNetDBVersion.postValue((int) data);
         int netDBVersion = (int) data;
 
         if ((int) data != -1) {
             if (netDBVersion > pManager.getDbVersion()) {
                 //Eine neue Datenbankversion ist verfügbar!
-                dbState = Util.DbState.EXPIRED;
+                vManager.dbState = Util.DbState.EXPIRED;
 
-                if (NetDBVersionCallForUser) {
+                if (vManager.NetDBVersionCallForUser) {
                     Snackbar.make(this.findViewById(R.id.MainFrame), R.string.app_db_update_available, Snackbar.LENGTH_LONG)
                             .show();
                 }
             } else if (netDBVersion == pManager.getDbVersion()) {
-                dbState = Util.DbState.VALID;
+                vManager.dbState = Util.DbState.VALID;
             } else {
-                dbState = Util.DbState.UNKNOWN;
+                vManager.dbState = Util.DbState.UNKNOWN;
                 LogError(LOG_TAG, "Datenbankstatus ist unbekannt! Irgendwas stimmt hier nicht o.O");
             }
         }
@@ -439,15 +463,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             //Im BackStack einen Schritt zurück gehen
             manager.popBackStack();
 
-            if (FirstDownloadCompleted) {
-                Fragment newFrag = manager.findFragmentByTag(FRAGMENT_LIST_TRAY);
-                TrayFragment trayFragment = (TrayFragment) newFrag;
-                Bundle args = new Bundle();
-                args.putString(Util.ARGS_DBSTATE,dbState.toString());
-                trayFragment.setArguments(args);
-                FirstDownloadCompleted = false;
-            }
-
             //Überprüfen welches Fragment als nächstes kommt. Dazu wird zunächst geschaut ob der Stack größer gleich 2 ist.
             //Die Überprüfung ist hier etwas umständlich, da der aktuelle Eintrag (also backStackCount - 1) nicht den nächsten Eintrag im Backstack darstellt, sondern den aktuell angezeigten.
             int backStackCount = manager.getBackStackEntryCount();
@@ -464,22 +479,16 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
 
     /**
      * Ermittelt die Versionsnummer der Online-Datenbank
-     * @param url Server-URL
      * @param callForUser Soll dem Nutzer eine Nachricht ausgegeben werden?
      */
-    public void getNetDBState(@Nullable String url, boolean callForUser) {
+    public void getNetDBState(boolean callForUser) {
 
         Bundle args = new Bundle();
 
-        if (url == null) {
-            args.putString(Util.ARGS_URL,pManager.getUrl());
-        }
-        else {
-            args.putString(Util.ARGS_URL,url);
-        }
+        args.putString(Util.ARGS_URL,pManager.getUrl());
 
         //Soll mit dem Wert eine Anzeige für den Benutzer gefüttert werden?
-        NetDBVersionCallForUser = callForUser;
+        vManager.NetDBVersionCallForUser = callForUser;
 
         if (lManager.getLoader(0) == null) {
             lManager.initLoader(0, args, this);
@@ -528,6 +537,7 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                         Bundle args = new Bundle();
                         args.putString(Util.ARGS_URL, pManager.getUrl());
                         args.putInt(Util.ARGS_VERSION, pManager.getDbVersion());
+
                         fragment.setArguments(args);
                     }
                     else {
@@ -547,12 +557,6 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
                     if (newFragment) {
                         fragment = new TrayFragment();
                     }
-                    Bundle args = new Bundle();
-                    if (dbState != null) {
-                        args.putString(Util.ARGS_DBSTATE,dbState.toString()); }
-                    else {
-                        args.putString(Util.ARGS_DBSTATE,""); }
-                    fragment.setArguments(args);
                     break;
 
                 case FRAGMENT_LIST_ITEM:
@@ -758,4 +762,9 @@ public class MainActivity extends AppCompatActivity implements TrayFragment.frag
             }
         }
     }
+
+    public void invalOptionsMenu() {
+        invalidateOptionsMenu();
+    }
+
 }
