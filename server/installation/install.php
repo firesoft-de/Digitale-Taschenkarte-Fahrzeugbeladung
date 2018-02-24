@@ -104,8 +104,10 @@
 	echo('- Erstelle Datenbanktabelle userx <br/>');
 
 	//Tabelle userx anlegen
-	$queryString = "CREATE TABLE `userx` ( `id` int(11) NOT NULL, `name` text NOT NULL, `groups` text NOT NULL, `tables` text NOT NULL,
-					`pass` text NOT NULL, UNIQUE KEY `id` (`id`), UNIQUE KEY `id_2` (`id`)) ENGINE=InnoDB DEFAULT CHARSET=latin1";
+	$queryString = "CREATE TABLE `userx` (`id` int(11) NOT NULL, `name` text NOT NULL, `groups` text NOT NULL, `tables` text NOT NULL,
+					 `pass` text NOT NULL, `active` tinyint(1) NOT NULL COMMENT 'Gibt an ob der Nutzer aktiv oder gesperrt ist',
+					 `login_attempts` int(11) NOT NULL COMMENT 'Enthält die aktuelle Anzahl von fehlgeschlagenen Logins', UNIQUE KEY `id` (`id`), UNIQUE KEY `id_2` (`id`)
+					) ENGINE=InnoDB DEFAULT CHARSET=latin1";
 					
 	//Datenbankabfrage vorbereiten
 	$stmt=$pdo->prepare($queryString);
