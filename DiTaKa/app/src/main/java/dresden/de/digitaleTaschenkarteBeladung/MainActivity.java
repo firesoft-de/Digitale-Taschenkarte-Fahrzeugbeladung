@@ -483,8 +483,15 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
      */
     public void getNetDBState(boolean callForUser) {
 
-        Bundle args = new Bundle();
+        // Beim ersten Start ist noch keine URL vorhanden.
+        // Dies wird als Identifikator verwendet, um die entsprechenden Marker zu setzen.
+        if (pManager.getUrl() == null) {
+            vManager.dbState = Util.DbState.CLEAN;
+            vManager.liveNetDBVersion.setValue(-1);
+            return;
+        }
 
+        Bundle args = new Bundle();
         args.putString(Util.ARGS_URL,pManager.getUrl());
 
         //Soll mit dem Wert eine Anzeige für den Benutzer gefüttert werden?

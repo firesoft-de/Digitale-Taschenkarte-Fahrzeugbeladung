@@ -25,8 +25,8 @@ android {
         applicationId "dresden.de.digitaleTaschenkarteBeladung"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 20
-        versionName "0.6.4"
+        versionCode 21
+        versionName "0.6.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         javaCompileOptions {
@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'

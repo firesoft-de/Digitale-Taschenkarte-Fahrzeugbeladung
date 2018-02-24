@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
  * Diese Klasse vereint das Datenbankobjeckt und die DAO Klasse
  */
 @Database(entities = {EquipmentItem.class, TrayItem.class, ImageItem.class}, version = 2)
-@TypeConverters({Converters.class})
 public abstract class DatabaseClass extends RoomDatabase{
     public abstract DatabaseDAO equipmentDAO();
 

@@ -37,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -102,6 +103,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     DataFragViewModel viewModel;
 
     IFragmentCallbacks caller;
+
+    // Flag für den Zustand des FAB
+    int fabState;
 
     public DataImportFragment() {
         // Required empty public constructor
@@ -312,7 +316,8 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
             case TRAY_LOADER:
                 if (data != null) {
-                    viewModel.addTrays((ArrayList<TrayItem>) data);
+                    ArrayList<TrayItem> traylist = (ArrayList<TrayItem>) data;
+                    viewModel.addTrays(traylist);
                     downloadsCompleted += 1;
                 } else {
                     error = true;
@@ -437,6 +442,10 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     //=======================================================
 
     private void buttonAddClick(boolean groupManagementMode) {
+
+        if (fabState == 2) {
+            return;
+        }
 
         //URL Fehlermeldung zurücksetzen
         toggleURLError(false);
@@ -661,6 +670,21 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
 
     private void addGroupToGui(ArrayList<Group> groups, boolean fragmentStart)  {
 
+        // Die Views werden in einer ViewGroup gesammelt
+        ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
+
+        // Dupplikate aus der Liste entfernen
+        groups = checkGroupListForDupplicates(groups);
+
+        // Liste zurücksetzen
+        //viewGroup.removeAllViews(); // Führt zu einem Fehler, wodurch die markierten Gruppen nicht mehr erkannt werden
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            if (viewGroup.getChildAt(i) instanceof ViewGroupSelector) {
+                viewGroup.removeViewAt(i);
+            }
+        }
+
+        // Gruppen laden
         groups = gManager.mergeNewGroupList(groups);
         gManager.addToTmpList(groups);
 
@@ -672,9 +696,6 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             card.setMinimumHeight(30);
 
             drawElevation(null,getActivity(),true);
-
-            // Die Views werden in einer ViewGroup gesammelt
-            ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
 
             //Abgerufene Gruppen in die Auswahl aufnehmen und dabei die bereits abonnierten Gruppen markieren
             for (Group group : groups
@@ -707,6 +728,23 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    private ArrayList<Group> checkGroupListForDupplicates(ArrayList<Group> groups) {
+
+        // Saubere Liste erstellen und ein erstes Element hinzufügen
+        ArrayList<Group> cleanList = new ArrayList<>();
+        cleanList.add(groups.get(0));
+
+        for (Group group: groups
+             ) {
+            // Prüfen ob das aktuelle Element bereits in der neuen Liste vorhanden ist.
+            // Falls nein, wird dieses der neuen Liste hinzugefügt.
+            if (!cleanList.contains(group)) {
+                cleanList.add(group);
+            }
+        }
+        return cleanList;
+    }
+
     private ArrayList<String> checkSelectedGroups() {
 
         ViewGroup viewGroup = getActivity().findViewById(R.id.data_llayout);
@@ -731,6 +769,9 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
     private void transformFAB(int state) {
         FloatingActionButton floatingActionButton = getActivity().findViewById(R.id.flActBt);
         Drawable draw;
+
+        fabState = state;
+
         switch (state) {
             case 0:
                 draw = floatingActionButton.getBackground();
