@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
         else if (pManager.getDbVersion() == -1) {
             vManager.dbState = Util.DbState.CLEAN;
             pManager.setDbVersion(0);
-            if (Util_Http.checkNetwork(this)) {
+            if (Util_Http.checkNetwork(this,null)) {
                 getNetDBState(true);
             }
             else {
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
             }
         }
         else {
-            if (Util_Http.checkNetwork(this)) {
+            if (Util_Http.checkNetwork(this,null)) {
                 getNetDBState( true);
             }
             else {
@@ -483,8 +483,15 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
      */
     public void getNetDBState(boolean callForUser) {
 
-        Bundle args = new Bundle();
+        // Beim ersten Start ist noch keine URL vorhanden.
+        // Dies wird als Identifikator verwendet, um die entsprechenden Marker zu setzen.
+        if (pManager.getUrl() == null) {
+            vManager.dbState = Util.DbState.CLEAN;
+            vManager.liveNetDBVersion.setValue(-1);
+            return;
+        }
 
+        Bundle args = new Bundle();
         args.putString(Util.ARGS_URL,pManager.getUrl());
 
         //Soll mit dem Wert eine Anzeige für den Benutzer gefüttert werden?

@@ -19,6 +19,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverter;
+import android.arch.persistence.room.TypeConverters;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -38,6 +39,7 @@ import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogDebug;
  * {@link EquipmentItem} Diese Klasse implementiert die Datenstruktur für einen einzelnen Ausstattungsgegenstand
  */
 @Entity(tableName = "equipment")
+@TypeConverters({ItemConverter.class})
 public class EquipmentItem implements Parcelable {
     //Interne Variablen
 
@@ -238,57 +240,3 @@ public class EquipmentItem implements Parcelable {
 
 }
 
-class Converters {
-    @TypeConverter
-    public static ArrayList<String> fromJSON(String value) {
-        Type listType = new TypeToken<ArrayList<String>>() {}.getType();
-        return new Gson().fromJson(value, listType);
-    }
-
-    @TypeConverter
-    public static String fromArray(ArrayList<String> list) {
-
-        Gson gson = new Gson();
-        return gson.toJson(list);
-    }
-
-    @TypeConverter
-    public static ArrayList<Integer> fromJSONToInt(String value) {
-
-        if (value != null) {
-            ArrayList<Integer> list = new ArrayList<>();
-            JSONArray array = null;
-
-            try {
-                array = new JSONArray(value);
-            } catch (JSONException e) {
-                e.printStackTrace();
-
-                for (int i = 0; i < array.length(); i++) {
-                    try {
-                        list.add(array.getInt(i));
-                    } catch (JSONException x) {
-                        x.printStackTrace();
-                    }
-                }
-                return list;
-            }
-        }
-        return null;
-    }
-
-    @TypeConverter
-    public static String fromArrayToJSON(ArrayList<Integer> list) {
-        JSONArray array = new JSONArray();
-
-        if (list != null) {
-            for (int value : list) {
-                array.put(value);
-            }
-            return array.toString();
-        }
-        else {
-            return null;
-        }
-    }
-}

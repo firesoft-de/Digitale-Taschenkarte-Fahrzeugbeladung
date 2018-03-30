@@ -102,6 +102,9 @@ public class PreferencesManager {
             }
 
         switch (appversion) {
+            default:
+                loadv21();
+                break;
             case 11:
                 //Version 0.4.3
                 loadv11();
@@ -134,6 +137,14 @@ public class PreferencesManager {
             case 20:
                 //Version 0.6.4
                 loadv16();
+                break;
+            case 21:
+                //Version 0.6.5
+                loadv21();
+                break;
+            case 22:
+                //Version 0.6.6
+                loadv21();
                 break;
         }
     }
@@ -387,10 +398,13 @@ public class PreferencesManager {
 
         //Um Fehler auszuschließen wird der Hintergrundprozess einmal beendet
         stopBackgroundService(context);
-
         startBackgroundService(context);
 
         loadv15();
 
+    }
+
+    private void loadv21() {
+        loadv15();
     }
 }

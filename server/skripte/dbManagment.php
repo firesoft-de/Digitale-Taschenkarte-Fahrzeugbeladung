@@ -40,6 +40,9 @@
 		$group;
 		$table;
 		$tablecols;
+                
+                // Konstante, die die maximale Anzahl von Loginversuchen enthält bevor der Account gesperrt wird
+                define("MAX_LOGIN_ATTEMPTS", 5);
 				
 		include 'util.php';
 	
@@ -105,7 +108,7 @@
 			}		
 			
 			// Query erstellen
-			$queryString = "SELECT id,groups FROM `userx` WHERE name LIKE :user AND pass LIKE :pass";	
+			$queryString = "SELECT id,groups,active,login_attempts FROM `userx` WHERE name LIKE :user AND pass LIKE :pass";	
 			
 			// Datenbankabfrage vorbereiten
 			$stmt=$pdo->prepare($queryString);				
@@ -120,22 +123,76 @@
 			// Überprüfen ob der Nutzer gültig ist
 			if ($res["id"] == -1) {
 				echo('ERROR_INVALID_AUTH');
-				loginteral("Gescheiterter Loginversuch für Account: " . $user);
+				loginteral("Gescheiterter Loginversuch für Account: " . $user);                               
 				die;
 			}	
-			$id = $res["id"];			
+                        elseif ($res == false){
+                            // Die Nutzer-Passwort-Kombination scheint nicht zu existieren. Um die nachfolgenden Sicherheitsmechanismen nicht auszuhebeln,
+                            // wird jetzt noch einmal nur nach dem Nutzer gesucht und anschließend ein Fehlversuch hinzugefügt.                            
+                            $queryString = "SELECT id,active,login_attempts FROM `userx` WHERE name LIKE :user";	
+			
+                            // Datenbankabfrage vorbereiten
+                            $stmt=$pdo->prepare($queryString);				
+                            $stmt->bindParam(':user', $user , PDO::PARAM_STR);			
+                            $stmt->closeCursor();	
+                            $stmt->execute();   
+                                                        
+                            $res = $stmt->fetch(PDO::FETCH_ASSOC);
+                            
+                            // Feld "login_attempts" um eins erhöhen                                                                
+                            $attempts = $res["login_attempts"];
+                            $attempts += 1;
 
-			if ($res == false) {
-				echo('ERROR_INVALID_AUTH');
-				loginteral("Gescheiterter Loginversuch für Account: " . $user);
-				die;
-			}
-						
+                            // Loging durchführung
+                            loginteral("Gescheiterter Loginversuch für Account: " . $user);                                
+
+                            // Neuen Wert zurückschreiben
+                            $queryString = "UPDATE `userx` SET login_attempts = :attempts WHERE name LIKE :user";
+                            $stmt=$pdo->prepare($queryString);				
+                            $stmt->bindParam(':user', $user , PDO::PARAM_STR);		
+                            $stmt->bindParam(':attempts', $attempts , PDO::PARAM_INT);
+                            $stmt->closeCursor();	
+                            $stmt->execute(); 
+                            
+                            // Prüfen ob der Maximalwert überschritten wurde
+                            if ($attempts >= MAX_LOGIN_ATTEMPTS) {
+
+                                // Nutzer sperren (Feld "active" auf false setzen)
+                                $queryString = "UPDATE `userx` SET active = 0 WHERE name LIKE :user";
+                                $stmt=$pdo->prepare($queryString);				
+                                $stmt->bindParam(':user', $user , PDO::PARAM_STR);
+                                $stmt->closeCursor();	
+                                $stmt->execute();                   
+
+                                echo('ERROR_TOO_MANY_ATTEMPTS');
+                                loginteral("Nutzer " . $user . " aufgrund zu vieler fehlerhafter Loginversuche gesperrt!");                                       
+                                die;
+                            }
+                            
+                            echo('ERROR_INVALID_AUTH');
+                            die;                     
+                        }
+			$id = $res["id"];	   
+                        
+                        if ($res["active"] == 0) {                            
+                            echo('ERROR_USER_DISABLED');
+                            loginteral("Loginversuch mit gesperrtem Nutzer: " . $user);                                       
+                            die;
+                        }                        			
+                        
+                        // Ab hier kann davon ausgeangen werden, dass der Loginversuch erfolgreich ist
+                        // Daher kann jetzt die aktuelle Anzahl der fehlgeschlagenen Loginversuche zurückgesetzt werden
+                        $queryString = "UPDATE `userx` SET login_attempts = 0 WHERE name LIKE :user";
+                        $stmt=$pdo->prepare($queryString);				
+                        $stmt->bindParam(':user', $user , PDO::PARAM_STR);		
+                        $stmt->closeCursor();	
+                        $stmt->execute();  
+                        						
 			// Überprüfen ob der Nutzer die Gruppe bearbeiten darf
 			if ($res["groups"] == "all") {
-				//Nutzer darf alle Gruppen bearbeiten
-				$group = "all";
-				return $id;
+                            //Nutzer darf alle Gruppen bearbeiten
+                            $group = "all";
+                            return $id;
 			}
 			
 			$group_array = explode("_",$res["groups"]);

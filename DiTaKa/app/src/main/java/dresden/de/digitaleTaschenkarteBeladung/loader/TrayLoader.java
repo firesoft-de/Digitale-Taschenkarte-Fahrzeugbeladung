@@ -117,7 +117,7 @@ public class TrayLoader extends AsyncTaskLoader<List<TrayItem>> {
                         object.getString("name"),
                         object.getString("description"));
 
-                item.positionCoordFromString(object.getString("positions"));
+                item.setPositionCoordinates(object.getString("positions"));
 
                 //Gruppenid setzen
                 item.setGroup(object.getString("groupId"));

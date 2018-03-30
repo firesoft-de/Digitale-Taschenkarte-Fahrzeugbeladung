@@ -71,8 +71,8 @@ public class DataFragViewModel extends ViewModel {
 
         @Override
         protected Void doInBackground(TrayItem... trays) {
-            for (int i = 0; i< trays.length; i++) {
-                repository.add(trays[i]);
+            for (TrayItem tray : trays) {
+                repository.add(tray);
             }
             return null;
         }

@@ -49,8 +49,8 @@ public class TrayItem {
     //Die vier Koordinaten werden als vier unabhängige Einträge angelegt. D.h. beim Abrufen muss der ausgegebene Index mit 4 multipliziert werden und dann dieser sowie
     // die nachfolgenden drei abgefragt werden um die richtigen Koordinaten zu erhalten
     @ColumnInfo(name = "positions")
-    @TypeConverters(Converters.class)
-    private ArrayList<Integer> positionCoordinates;
+    // @TypeConverters(TrayConverter.class)
+    private String positionCoordinates;
 
     //Ein Bild
 //    private Image mImage;
@@ -83,7 +83,7 @@ public class TrayItem {
 
 //    public Image getImage() {return mImage;}
 
-    public ArrayList<Integer> getPositionCoordinates() {
+    public String getPositionCoordinates() {
         return positionCoordinates;
     }
 
@@ -98,35 +98,71 @@ public class TrayItem {
 
 //    public void setImage(Image image) {mImage = image;}
 
-    public void setPositionCoordinates(ArrayList<Integer> positionCoordinates) {
+    public void setPositionCoordinates(String positionCoordinates) {
         this.positionCoordinates = positionCoordinates;
     }
 
     public void setGroup(String group) {this.group = group;}
 
-    public void positionCoordFromString(String positions) {
+//    public void positionCoordFromString(String positions) {
+//
+//        if (!positions.equals("-1")) {
+//
+//            //Pattern:
+//            // PositionsID:coordLinks-coordOben-coordRechts-coordUnten;PositionsID2:coorLinks2- etc.
+//
+//            if (!positions.equals("")) {
+//                String[] coords = positions.split(";");
+//
+//                if (positionCoordinates == null) {
+//                    positionCoordinates = new ArrayList<>();
+//                }
+//
+//                for (String coord : coords) {
+//                    String[] coordQuery = coord.split(":");
+//                    String[] singleCoord = coordQuery[1].split("-");
+//                    for (String s : singleCoord
+//                            ) {
+//                        positionCoordinates.add(Integer.valueOf(s));
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-        if (!positions.equals("-1")) {
+    /**
+     * Gibt die Positionskoordinaten für den Markierungsrahmen für einen bestimmten Index aus
+     * @param positionIndex Der Index für den die Koordinaten ermittelt werden sollen.
+     * @return Array mit den Koordinaten. Die Reihenfolge lautet links, oben, rechts, unten. Falls keine Daten hinterlegt sind, wird auf Arrayposition 0 eine -1 übergeben.
+     */
+    public int[] getCoordinates(int positionIndex) {
+
+        int[] positions = new int[4];
+
+        // Prüfen ob keine Positionen hinterlegt sind (-> wird mit -1 gekennzeichnet) oder der gespeicherte String leer ist
+        if (!positionCoordinates.equals("") && !positionCoordinates.equals("-1")) {
 
             //Pattern:
             // PositionsID:coordLinks-coordOben-coordRechts-coordUnten;PositionsID2:coorLinks2- etc.
+            String[] coordSections = positionCoordinates.split(";");
 
-            if (!positions.equals("")) {
-                String[] coords = positions.split(";");
+            for (String coordSection : coordSections) {
+                String[] coordQuery = coordSection.split(":");
 
-                if (positionCoordinates == null) {
-                    positionCoordinates = new ArrayList<>();
-                }
-
-                for (String coord : coords) {
-                    String[] coordQuery = coord.split(":");
+                // Den gesuchten Abschnitt identifizieren
+                if (Integer.valueOf(coordQuery[0]) == positionIndex) {
                     String[] singleCoord = coordQuery[1].split("-");
-                    for (String s : singleCoord
-                            ) {
-                        positionCoordinates.add(new Integer(s));
+
+                    for (int i = 0; i < singleCoord.length; i++) {
+                        positions[i] = Integer.valueOf(singleCoord[i]);
                     }
                 }
             }
         }
+        else {
+            positions[0] = -1;
+        }
+
+        return positions;
     }
 }

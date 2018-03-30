@@ -1,8 +1,5 @@
 ## Infos
 ### Anwendung
-- [ ] Android App
-- [ ] ServerManager
-- [ ] DesktopConverter
 
 ### Verwendete Version
 Version: 

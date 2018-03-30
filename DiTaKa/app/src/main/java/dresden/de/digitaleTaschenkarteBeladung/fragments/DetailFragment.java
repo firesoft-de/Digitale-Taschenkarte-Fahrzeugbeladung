@@ -277,21 +277,13 @@ public class DetailFragment extends Fragment {
             //Prüfen ob Koordinaten hinterlegt sind und damit eine Position eingezeichnet werden kann und prüfen ob im Item eine Position hinterlegt ist
             if (trayItem.getPositionCoordinates() != null && equipmentItem.getPositionIndex() > -1) {
 
-                //Koordinaten abrufen
-                int left = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4);
-                int top = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4 + 1);
-                int right = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4 + 2);
-                int bottom = trayItem.getPositionCoordinates().get(equipmentItem.getPositionIndex() * 4 + 3);
+                int coordinates[] = trayItem.getCoordinates(equipmentItem.getPositionIndex());
 
-                //Prüfen ob für diese Position keine Koordinaten hinterlegt sind. Die Koordinaten wären in diesem Fall alle 0
-                if (left == 0 && top == 0 && right == 0 && bottom == 0 ) {
-                    //Nichts tun
-                }
-                else {
+                if (coordinates[0] != -1) {
                     //Canvas initailiseren
                     Canvas canvas = new Canvas(workBitmap);
 
-                    Rect rectangle = new Rect(left, top, right, bottom);
+                    Rect rectangle = new Rect(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
                     Paint painter = new Paint();
                     painter.setStyle(Paint.Style.STROKE);
                     painter.setStrokeWidth(5);
@@ -302,7 +294,6 @@ public class DetailFragment extends Fragment {
                     else {
                         painter.setColor(getResources().getColor(R.color.position_image_highlight));
                     }
-
 
                     canvas.drawRect(rectangle, painter);
                 }

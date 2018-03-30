@@ -62,8 +62,6 @@ public class DatabaseRepository {
 
 
 
-
-
     public void add(TrayItem object) {daoObject.insertTray(object);}
 
     public void deleteAllTrays() {daoObject.deleteTray();}
