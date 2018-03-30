@@ -142,6 +142,10 @@ public class PreferencesManager {
                 //Version 0.6.5
                 loadv21();
                 break;
+            case 22:
+                //Version 0.6.6
+                loadv21();
+                break;
         }
     }
 

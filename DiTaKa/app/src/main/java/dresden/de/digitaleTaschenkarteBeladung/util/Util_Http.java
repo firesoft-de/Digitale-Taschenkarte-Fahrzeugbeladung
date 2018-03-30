@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -276,9 +277,19 @@ public class Util_Http {
         return generatedUrl;
     }
 
-    public static boolean checkNetwork(Activity activity) {
+    public static boolean checkNetwork(@Nullable Activity activity, @Nullable Context context) {
         // Get a reference to the ConnectivityManager to check state of network connectivity
-        ConnectivityManager connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr;
+
+        if (activity != null) {
+            connMgr = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
+        else if (context != null) {
+            connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
+        else {
+            return false;
+        }
 
         // Get details on the currently active default data network
         if (connMgr != null) {

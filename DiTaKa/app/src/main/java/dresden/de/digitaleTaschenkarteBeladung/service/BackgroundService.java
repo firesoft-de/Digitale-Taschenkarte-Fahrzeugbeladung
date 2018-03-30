@@ -51,6 +51,8 @@ import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
  */
 public class BackgroundService extends Service {
 
+    private static final String LOG_TRACE = "VersionService";
+
     @Inject
     PreferencesManager pManager;
 

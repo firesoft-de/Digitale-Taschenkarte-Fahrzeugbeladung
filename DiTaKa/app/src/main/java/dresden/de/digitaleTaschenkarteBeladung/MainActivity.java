@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
         else if (pManager.getDbVersion() == -1) {
             vManager.dbState = Util.DbState.CLEAN;
             pManager.setDbVersion(0);
-            if (Util_Http.checkNetwork(this)) {
+            if (Util_Http.checkNetwork(this,null)) {
                 getNetDBState(true);
             }
             else {
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements IFragmentCallback
             }
         }
         else {
-            if (Util_Http.checkNetwork(this)) {
+            if (Util_Http.checkNetwork(this,null)) {
                 getNetDBState( true);
             }
             else {

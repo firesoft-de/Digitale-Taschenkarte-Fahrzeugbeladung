@@ -472,7 +472,7 @@ public class DataImportFragment extends Fragment implements LoaderManager.Loader
             }
 
             // Netzwerkstatus überpüfen
-            if (Util_Http.checkNetwork(getActivity())) {
+            if (Util_Http.checkNetwork(getActivity(),null)) {
                 // Netzwerkverbindung i.O.
 
                 // Wenn der Gruppenmanagment Modus aktiviert ist, wird manuell der Gruppenloader gestartet

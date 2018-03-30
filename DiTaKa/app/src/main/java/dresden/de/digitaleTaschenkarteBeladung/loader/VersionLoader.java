@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import dresden.de.digitaleTaschenkarteBeladung.util.Util;
 import dresden.de.digitaleTaschenkarteBeladung.util.Util_Http;
 
 import static dresden.de.digitaleTaschenkarteBeladung.util.Util.LogError;
@@ -33,15 +34,18 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
 
     private String url;
     private int version;
+    private Context context;
 
     public VersionLoader(Context context, String url) {
         super(context);
         this.url = url;
+        this.context = context;
     }
 
     @Override
     public Integer loadInBackground() {
-        version = requestVersion(url);
+        Util.LogDebug(LOG_TAG,"Versionsabfrage im Hintergrund ausgelöst.");
+        version = requestVersion(url, context);
         return version;
     }
 
@@ -63,15 +67,21 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
      * @param url Die Serverurl
      * @return Im Fehlerfall wird -1 zurück gegeben
      */
-    public static int requestVersion(String url) {
-        String response = Util_Http.request(url + SERVER_QUERY_VERSION);
+    private static int requestVersion(String url,Context sContext) {
+        // Prüfen ob eine Internetverbindung besteht
+        if (Util_Http.checkNetwork(null, sContext)) {
+            String response = Util_Http.request(url + SERVER_QUERY_VERSION);
 
-        //Prüfen ob ein Fehler beim Abrufen der Version passiert ist.
-        if (response.equals("")) {
-            return -1;
+            //Prüfen ob ein Fehler beim Abrufen der Version passiert ist.
+            if (response.equals("")) {
+                return -1;
+            }
+            else {
+                return Integer.valueOf(response);
+            }
         }
         else {
-            return Integer.valueOf(response);
+            return -1;
         }
     }
 
