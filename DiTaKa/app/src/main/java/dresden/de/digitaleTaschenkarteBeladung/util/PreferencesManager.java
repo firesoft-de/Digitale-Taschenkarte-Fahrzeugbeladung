@@ -80,9 +80,6 @@ public class PreferencesManager {
         this.context = context;
         this.gManager = gManager;
         this.vManager = vManager;
-
-        //Die ID wird verwendet um festzustellen, ob durch Dagger verschiedene Instanzen ausgegebene werden
-        id = (int) (Math.random() * 1000 + 1);
     }
 
     //=================================================================
@@ -144,6 +141,10 @@ public class PreferencesManager {
                 break;
             case 22:
                 //Version 0.6.6
+                loadv21();
+                break;
+            case 23:
+                //Version 0.6.7
                 loadv21();
                 break;
         }

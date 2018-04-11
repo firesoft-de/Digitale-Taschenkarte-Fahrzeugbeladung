@@ -44,7 +44,6 @@ public class VersionLoader extends AsyncTaskLoader<Integer> {
 
     @Override
     public Integer loadInBackground() {
-        Util.LogDebug(LOG_TAG,"Versionsabfrage im Hintergrund ausgelöst.");
         version = requestVersion(url, context);
         return version;
     }
