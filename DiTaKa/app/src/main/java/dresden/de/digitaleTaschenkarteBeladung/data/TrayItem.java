@@ -135,7 +135,7 @@ public class TrayItem {
      * @param positionIndex Der Index für den die Koordinaten ermittelt werden sollen.
      * @return Array mit den Koordinaten. Die Reihenfolge lautet links, oben, rechts, unten. Falls keine Daten hinterlegt sind, wird auf Arrayposition 0 eine -1 übergeben.
      */
-    public int[] getCoordinates(int positionIndex) {
+    public int[] getCoordinates(int positionIndex) throws NumberFormatException{
 
         int[] positions = new int[4];
 

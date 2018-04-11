@@ -15,15 +15,12 @@
 package dresden.de.digitaleTaschenkarteBeladung.loader;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 

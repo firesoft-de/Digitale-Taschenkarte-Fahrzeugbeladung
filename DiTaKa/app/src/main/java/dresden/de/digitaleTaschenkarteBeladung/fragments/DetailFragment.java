@@ -26,6 +26,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -277,7 +278,16 @@ public class DetailFragment extends Fragment {
             //Prüfen ob Koordinaten hinterlegt sind und damit eine Position eingezeichnet werden kann und prüfen ob im Item eine Position hinterlegt ist
             if (trayItem.getPositionCoordinates() != null && equipmentItem.getPositionIndex() > -1) {
 
-                int coordinates[] = trayItem.getCoordinates(equipmentItem.getPositionIndex());
+                int coordinates[] = new int[0];
+                try {
+                    coordinates = trayItem.getCoordinates(equipmentItem.getPositionIndex());
+                } catch (NumberFormatException e) {
+                    // Es tritt ein Fehler beim Umwandeln des Positionsstrings in der Datenbank in eine Zahl auf.
+                    e.printStackTrace();
+                    Snackbar.make(getActivity().findViewById(R.id.MainFrame),"Es ist ein Fehler beim Abrufen der Markierungsdaten aufgetreten. Markierungen werden wahrscheinlich nicht richtig angezeigt!",Snackbar.LENGTH_LONG)
+                            .show();
+                    return;
+                }
 
                 if (coordinates[0] != -1) {
                     //Canvas initailiseren
