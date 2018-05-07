@@ -66,6 +66,9 @@ public class BootReceiver extends BroadcastReceiver {
      * @param context Context aus dem die Methode aufgerufen wird
      */
     public static void stopBackgroundService(Context context) {
-        context.stopService(new Intent(context, BackgroundService.class));
+        Intent serviceIntent = new Intent(context, BackgroundService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context, 0, serviceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        pendingIntent.cancel();
     }
 }

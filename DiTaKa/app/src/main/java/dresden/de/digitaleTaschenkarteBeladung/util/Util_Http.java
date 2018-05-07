@@ -306,7 +306,7 @@ public class Util_Http {
 
 
     /**
-     * Diese Methode bearbeitet die eingebene URL so, dass sie konform mit den nachfolgenden Arbeitschritte ist. Außerdem wird die URL in den PREFS gespeichert.
+     * Diese Methode bearbeitet die eingebene URL so, dass sie konform mit den nachfolgenden Arbeitschritte ist.
      * @param url Die zu bearbeitende URL
      * @return Die bearbietete URL
      */
