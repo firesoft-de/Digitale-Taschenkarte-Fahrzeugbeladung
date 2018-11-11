@@ -30,7 +30,7 @@ import static android.support.annotation.VisibleForTesting.PROTECTED;
  */
 public class BaseDataClass {
 
-    // #region Variablen
+    // region Variablen
 
     protected int id;
     protected String name;
@@ -38,9 +38,9 @@ public class BaseDataClass {
     protected Bitmap image;
     protected ArrayList<String> tags;
 
-    // #endregion
+    // endregion
 
-    // #region Funktionen und Methoden
+    // region Funktionen und Methoden
 
     /**
      * Wandelt einen String (bspw. "tag1;tag2;tag3;tag4") anhand eines Trennzeichens in eine String-ArrayList. Eventuell vorhandene Daten werden überschrieben!
@@ -91,9 +91,9 @@ public class BaseDataClass {
     }
 
 
-    // #endregion
+    // endregion
 
-    // #region Getter / Setter für Variablen
+    // region Getter / Setter für Variablen
 
     public int getId() {
         return id;
@@ -132,5 +132,5 @@ public class BaseDataClass {
     }
 
 
-    // #endregion
+    // endregion
 }

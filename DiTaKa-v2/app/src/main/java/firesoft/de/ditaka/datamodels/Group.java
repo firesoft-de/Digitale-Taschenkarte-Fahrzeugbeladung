@@ -21,7 +21,7 @@ package firesoft.de.ditaka.datamodels;
  */
 public class Group extends BaseDataClass{
 
-    // #region Konstruktoren
+    // region Konstruktoren
 
     /**
      * Erstellt eine neue Instanz vom Typ Group
@@ -43,10 +43,10 @@ public class Group extends BaseDataClass{
 
     }
 
-    // #endregion
+    // endregion
 
-    // #region Getter / Setter für Variablen
+    // region Getter / Setter für Variablen
 
-    // #endregion
+    // endregion
 
 }

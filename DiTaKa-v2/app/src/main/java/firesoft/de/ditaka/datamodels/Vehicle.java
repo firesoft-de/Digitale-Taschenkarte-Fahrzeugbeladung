@@ -27,7 +27,7 @@ public class Vehicle extends BaseDataClass {
     private Bitmap image;
     private String registration;
 
-    // #region Konstruktoren
+    // region Konstruktoren
 
     /**
      * Erstellt eine neue Instanz vom Typ Vehicle
@@ -58,9 +58,9 @@ public class Vehicle extends BaseDataClass {
         setTags(tags,tagDelimiter);
     }
 
-    // #endregion
+    // endregion
 
-    // #region Getter / Setter für Variablen
+    // region Getter / Setter für Variablen
 
     public String getCallsign() {
         return callsign;
@@ -86,5 +86,5 @@ public class Vehicle extends BaseDataClass {
         this.registration = registration;
     }
 
-    // #endregion
+    // endregion
 }

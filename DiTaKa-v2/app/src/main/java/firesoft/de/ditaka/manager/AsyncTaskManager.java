@@ -16,19 +16,36 @@
 
 package firesoft.de.ditaka.manager;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.webkit.JavascriptInterface;
+
+import java.util.Objects;
+
+import javax.inject.Inject;
 
 import firesoft.de.libfirenet.http.HttpLoader;
+import firesoft.de.libfirenet.method.GET;
 import firesoft.de.libfirenet.util.ResultWrapper;
+
+import static firesoft.de.ditaka.util.Definitions.HTTP_LOADER;
 
 /**
  * Verwaltet die im Hintergrund durchzuführenden Aufgaben in Form von Ladern.
  */
 public class AsyncTaskManager implements LoaderManager.LoaderCallbacks<ResultWrapper>{
+
+    private Context context;
+
+    @Inject
+    public AsyncTaskManager(Context context) {
+
+        this.context = context;
+    }
 
     /**
      * Erstellt neue Loaderinstanzen
@@ -42,17 +59,25 @@ public class AsyncTaskManager implements LoaderManager.LoaderCallbacks<ResultWra
 
         switch (id) {
             case HTTP_LOADER:
-                // TODO: Bundle auspacken und dem Loader die benötigten Parameter mitgeben
-                return new HttpLoader();
-                break;
+
+                // Prüfen, ob die benötigten Argumente im Bundle vorhaden sind
+                if (args == null || !args.containsKey("url") || args.getString("url") == null) {
+                    throw new IllegalArgumentException("Missing argument 'url' in paramter 'args' of method onCreateLoader of class AsyncTaskManager");
+                }
+                else {
+
+                    if (Objects.equals(args.getString("url"), "")) {
+                        throw new IllegalArgumentException("Missing argument 'url' in paramter 'args' of method onCreateLoader of class AsyncTaskManager");
+                    }
+                    else {
+                        return new HttpLoader(args.getString("url"), GET.class, context, null, null, false, true);
+                    }
+                }
 
             default:
             throw new IllegalArgumentException("Couldn't match a Loader to given Loader-id");
 
         }
-
-
-        throw new IllegalArgumentException("Couldn't match a Loader to given Loader-id");
 
     }
 

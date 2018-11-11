@@ -30,7 +30,7 @@ public class Item extends BaseDataClass{
     private Bitmap image;
     private int trayId;
 
-    // #region Konstruktoren
+    // region Konstruktoren
 
     /**
      * Erstellt eine neue Instanz vom Typ Item
@@ -67,9 +67,9 @@ public class Item extends BaseDataClass{
         this.trayId = trayId;
     }
 
-    // #endregion
+    // endregion
 
-    // #region Getter / Setter für Variablen
+    // region Getter / Setter für Variablen
 
     public Bitmap getImage() {
         return image;
@@ -107,5 +107,5 @@ public class Item extends BaseDataClass{
         this.markerCoordinateUpperRight = markerCoordinateUpperRight;
     }
 
-    // #endregion
+    // endregion
 }

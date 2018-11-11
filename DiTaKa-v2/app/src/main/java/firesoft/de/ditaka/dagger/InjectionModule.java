@@ -17,6 +17,7 @@
 package firesoft.de.ditaka.dagger;
 
 import android.app.Application;
+import android.content.Context;
 
 import java.util.ArrayList;
 
@@ -28,6 +29,7 @@ import firesoft.de.ditaka.datamodels.Group;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.datamodels.Vehicle;
+import firesoft.de.ditaka.manager.AsyncTaskManager;
 
 /**
  * Diese Klasse definiert die Instanzierung der Variablen
@@ -38,10 +40,6 @@ import firesoft.de.ditaka.datamodels.Vehicle;
 public class InjectionModule {
 
     private final Application application;
-    private ArrayList<Item> itemlist;
-    private ArrayList<Tray> traylist;
-    private ArrayList<Group> grouplist;
-    private ArrayList<Vehicle> vehiclelist;
 
     InjectionModule(Application application) {this.application = application;}
 
@@ -51,6 +49,14 @@ public class InjectionModule {
     @Provides
     InjectableApplication provideApplication() {return (InjectableApplication) application;}
 
+    @Provides
+    Context provideContext() {return application.getBaseContext(); }
+
+//    @Provides
+//    AsyncTaskManager provideAsyncTaskManager(Context context) {
+//        return new AsyncTaskManager(context);
+//    }
+
     /**
      * Stellt eine Liste der Gegenstände bereit. Es wird nur eine Instanz erstellt, da die Liste in allen Klassen gleich sein muss.
      */
@@ -59,11 +65,7 @@ public class InjectionModule {
     @Singleton
     ArrayList<Item> provideItemList()
     {
-        if (itemlist == null) {
-            itemlist = new ArrayList<>();
-        }
-
-        return itemlist;
+        return new ArrayList<>();
     }
 
     /**
@@ -74,11 +76,7 @@ public class InjectionModule {
     @Singleton
     ArrayList<Tray> provideTrayList()
     {
-        if (traylist == null) {
-            traylist = new ArrayList<>();
-        }
-
-        return traylist;
+        return new ArrayList<>();
     }
 
     /**
@@ -89,11 +87,7 @@ public class InjectionModule {
     @Singleton
     ArrayList<Group> provideGroupList()
     {
-        if (grouplist == null) {
-            grouplist = new ArrayList<>();
-        }
-
-        return grouplist;
+        return new ArrayList<>();
     }
 
 
@@ -105,11 +99,7 @@ public class InjectionModule {
     @Singleton
     ArrayList<Vehicle> provideVehicleList()
     {
-        if (vehiclelist == null) {
-            vehiclelist = new ArrayList<>();
-        }
-
-        return vehiclelist;
+        return new ArrayList<>();
     }
 
 
