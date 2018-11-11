@@ -23,8 +23,20 @@ public class Definitions {
 
     // #region Loader
 
-    public final int HTTP_LOADER = 1;
-    public final int DATA_LOADER = 2;
+    // Diese Konstanten definieren die verschiedenen Loader-ID's
+    public static final int HTTP_LOADER = 1;
+    public static final int DATA_LOADER = 2;
+
+    // #endregion
+
+
+    // #region Preferences
+
+    // Hier sind alle Konstanten zur Zuordnungen der Preferences-Variablen abgelegt.
+    public static final String PREFS = "firesoft.de.ditaka";
+    public static final String URL = "url";
+    public static final String USER = "user";
+    public static final String PASSWORD = "zulu";
 
     // #endregion
 
