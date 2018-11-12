@@ -87,6 +87,6 @@ dependencies {
     }
 
     // Netlib importieren
-    implementation 'com.github.firesoft-de:libfirenet:1.0.4'
+    implementation 'com.github.firesoft-de:libfirenet:1.1'
 
 }
