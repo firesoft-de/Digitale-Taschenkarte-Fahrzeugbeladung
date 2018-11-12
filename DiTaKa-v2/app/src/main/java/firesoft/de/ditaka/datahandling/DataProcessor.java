@@ -19,19 +19,18 @@ package firesoft.de.ditaka.datahandling;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import firesoft.de.ditaka.datamodels.Group;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.datamodels.Vehicle;
-import firesoft.de.ditaka.wrapper.ExtendedResultWrapper;
+import firesoft.de.ditaka.wrapper.DataResultWrapper;
 
 /**
  * Diese Klasse erweitert einen AsyncTaskLoader. Sie stellt Methoden bereit um die vom Server heruntergeladenen Daten zu verarbeiten und in die lokale Datenstruktur zu überführen.
  */
-public class DataProcessor extends AsyncTaskLoader<ExtendedResultWrapper> {
+public class DataProcessor extends AsyncTaskLoader<DataResultWrapper> {
 
     // region Variablen
 
@@ -58,10 +57,10 @@ public class DataProcessor extends AsyncTaskLoader<ExtendedResultWrapper> {
 
     /**
      * Hauptarbeitsroutine der Klasse
-     * @return ExtendedResultWrapper welcher die extrahierten Daten als ArrayLists enthält (Zugriff mit .getItem(), .getTray(), .getVehicle(), .getGroup())
+     * @return DataResultWrapper welcher die extrahierten Daten als ArrayLists enthält (Zugriff mit .getItem(), .getTray(), .getVehicle(), .getGroup())
      */
     @Override
-    public ExtendedResultWrapper loadInBackground() {
+    public DataResultWrapper loadInBackground() {
 
         // Daten aufsplitten
         ArrayList<Item> items = extractItems();
@@ -70,8 +69,8 @@ public class DataProcessor extends AsyncTaskLoader<ExtendedResultWrapper> {
         ArrayList<Group> groups = extractGroups();
 
         // Ergebnisse in einem ResultWrapper zusammenfassen
-        ExtendedResultWrapper resultWrapper;
-        resultWrapper = new ExtendedResultWrapper(items,trays,vehicles,groups);
+        DataResultWrapper resultWrapper;
+        resultWrapper = new DataResultWrapper(items,trays,vehicles,groups);
 
         return resultWrapper;
     }

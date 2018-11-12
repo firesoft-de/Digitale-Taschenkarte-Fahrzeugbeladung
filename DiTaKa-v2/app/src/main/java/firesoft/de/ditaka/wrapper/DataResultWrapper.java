@@ -29,7 +29,7 @@ import firesoft.de.libfirenet.util.ResultWrapper;
  * Da dabei nur eine Variable übergeben werden kann, wird dieser Wrapper verwendet.
  * Er bietet die Möglichkeit sowohl Ausnahmen (Exceptions) als auch Ergebnisse (Results) zu übergeben.
  */
-public class ExtendedResultWrapper extends ResultWrapper {
+public class DataResultWrapper extends ResultWrapper {
 
     // region Variablen
 
@@ -49,7 +49,7 @@ public class ExtendedResultWrapper extends ResultWrapper {
      * @param groups Nimmt Daten als ArrayList vom Typ Group entgegen
      * @param trays Nimmt Daten als ArrayList vom Typ Tray entgegen
      */
-    public ExtendedResultWrapper(ArrayList<Item> items, ArrayList<Tray> trays, ArrayList<Vehicle> vehicles, ArrayList<Group> groups) {
+    public DataResultWrapper(ArrayList<Item> items, ArrayList<Tray> trays, ArrayList<Vehicle> vehicles, ArrayList<Group> groups) {
         super(null);
         this.vehicles = vehicles;
         this.items = items;
@@ -61,7 +61,7 @@ public class ExtendedResultWrapper extends ResultWrapper {
      * Erstellt einen neuen Resultwrapper
      * @param result Ergebnis des Loaders als Object
      */
-    public ExtendedResultWrapper(Object result) {
+    public DataResultWrapper(Object result) {
         super(result);
     }
 
@@ -69,7 +69,7 @@ public class ExtendedResultWrapper extends ResultWrapper {
      * Erstellt einen neuen Resultwrapper
      * @param exception Ausnahme die während der Ausführung des Loaders aufgetreten ist
      */
-    public ExtendedResultWrapper(Exception exception) {
+    public DataResultWrapper(Exception exception) {
         super(exception);
     }
 

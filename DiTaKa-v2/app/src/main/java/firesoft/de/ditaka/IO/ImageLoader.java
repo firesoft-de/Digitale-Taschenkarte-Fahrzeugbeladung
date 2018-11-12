@@ -20,17 +20,16 @@ import android.accounts.NetworkErrorException;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import firesoft.de.ditaka.wrapper.ExtendedResultWrapper;
+import firesoft.de.ditaka.wrapper.ImageResultWrapper;
 import firesoft.de.libfirenet.http.HttpWorker;
 import firesoft.de.libfirenet.method.GET;
 
 /**
  * iese Klasse erweitert einen AsyncTaskLoader. Sie stellt Methoden zum Download von Bildern bereit.
  */
-public class ImageLoader extends AsyncTaskLoader<ExtendedResultWrapper> {
+public class ImageLoader extends AsyncTaskLoader<ImageResultWrapper> {
 
     // region Variablen
 
@@ -56,36 +55,35 @@ public class ImageLoader extends AsyncTaskLoader<ExtendedResultWrapper> {
     // region Arbeitsmethoden
 
     @Override
-    public ExtendedResultWrapper loadInBackground() {
+    public ImageResultWrapper loadInBackground() {
 
         HttpWorker httpWorker;
+
+        // Tausend und eine Möglichkeit für eine Exception :/
 
         try {
             httpWorker = new HttpWorker(url, GET.class, this.getContext(), null, null, false, null);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
-            return new ExtendedResultWrapper(e);
+            return new ImageResultWrapper(e);
         }
 
         // Netzwerk überprüfen
         if (!httpWorker.checkNetwork(getContext())) {
-            return new ExtendedResultWrapper(new NetworkErrorException("Network not available"));
+            return new ImageResultWrapper(new NetworkErrorException("Network not available"));
         }
 
         try {
+
             httpWorker.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ExtendedResultWrapper(e);
-        }
-
-
-        try {
             FileHelper.saveImage(getContext(), id, httpWorker.extractBitmapFromResponse(true));
+
         } catch (Exception e) {
             e.printStackTrace();
-            return new ExtendedResultWrapper(e);
+            return new ImageResultWrapper(e);
         }
+
+        return new ImageResultWrapper(true);
 
     }
 
