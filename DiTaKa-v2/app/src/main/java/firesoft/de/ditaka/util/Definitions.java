@@ -21,16 +21,16 @@ package firesoft.de.ditaka.util;
  */
 public class Definitions {
 
-    // #region Loader
+    // region Loader
 
     // Diese Konstanten definieren die verschiedenen Loader-ID's
     public static final int HTTP_LOADER = 1;
     public static final int DATA_LOADER = 2;
 
-    // #endregion
+    // endregion
 
 
-    // #region Preferences
+    // region Preferences
 
     // Hier sind alle Konstanten zur Zuordnungen der Preferences-Variablen abgelegt.
     public static final String PREFS = "firesoft.de.ditaka";
@@ -38,6 +38,13 @@ public class Definitions {
     public static final String USER = "user";
     public static final String PASSWORD = "zulu";
 
-    // #endregion
+    // endregion
+
+
+    // region Filesystem
+
+    public static final String FILE_DESTINATION_IMAGE = "image";
+
+    // endregion
 
 }
