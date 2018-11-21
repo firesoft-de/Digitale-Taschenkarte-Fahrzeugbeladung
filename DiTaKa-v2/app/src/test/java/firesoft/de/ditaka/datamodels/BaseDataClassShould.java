@@ -30,6 +30,7 @@ public class BaseDataClassShould {
     private String tags;
     private String delimiter = ";";
     private ArrayList<String> tagResult;
+    private ArrayList<String> singleTagResult;
 
     @Before
     public void setUp() throws Exception {
@@ -45,6 +46,9 @@ public class BaseDataClassShould {
         tagResult.add("Desktop");
         tagResult.add("Computer");
         tagResult.add("Beispiel");
+
+        singleTagResult = new ArrayList<>();
+        singleTagResult.add("singletag");
 
     }
 
@@ -65,9 +69,50 @@ public class BaseDataClassShould {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void failSettingTagsFromNull() {
+
+        baseDataClass.setTags(null,",");
+
+    }
+
+    @Test
+    public void dontFailSettingTagsFromEmpty() {
+
+        baseDataClass.setTags("",",");
+        assertEquals(baseDataClass.tags.size(),0);
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void failSettingTagsFromString() {
+
+        baseDataClass.setTags(tags,",");
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void throwErrorWhenNoTagsFound() {
         // Wenn aus String und Trennzeichen keine Tags erzeugt wurden, sollte eine Fehlermeldung erscheinen
         baseDataClass.setTags(tags,",");
+
+    }
+
+    @Test
+    public void handleTageGenerationWithOnlyOneTag() {
+        // Wenn aus String und Trennzeichen keine Tags erzeugt wurden, sollte eine Fehlermeldung erscheinen
+        baseDataClass.setTags("singletag",null);
+        assertEquals(baseDataClass.tags,singleTagResult);
+    }
+
+    @Test
+    public void handleEmptyTagsWhileSearching() {
+
+        baseDataClass.setTags("",delimiter);
+        baseDataClass.setName("Testname");
+        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+
+        boolean searchResult = baseDataClass.search("Testname");
+        assertTrue(searchResult);
 
     }
 

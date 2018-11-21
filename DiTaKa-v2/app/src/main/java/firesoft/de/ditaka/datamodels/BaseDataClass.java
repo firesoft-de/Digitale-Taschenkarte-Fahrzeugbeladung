@@ -45,17 +45,40 @@ public class BaseDataClass {
     /**
      * Wandelt einen String (bspw. "tag1;tag2;tag3;tag4") anhand eines Trennzeichens in eine String-ArrayList. Eventuell vorhandene Daten werden überschrieben!
      * @param content Inhalt der umgewandelt werden soll (bspw. "tag1;tag2;tag3;tag4")
-     * @param delimiter Trennzeichen (bspw. ";")
+     * @param delimiter Trennzeichen (bspw. ";"). Wenn null gesetzt wird davon ausgegangen, dass nur ein Tag vorhanden ist. -> Es findet keine Trennung statt
      */
     @VisibleForTesting(otherwise = PROTECTED)
     void setTags(String content, String delimiter) {
 
-        if (!content.contains(delimiter)) {
-            throw new IllegalArgumentException("Couldn't generate Tags from given String and Delimiter.");
+        // Leere Tag-Liste erstellen
+        tags = new ArrayList<>();
+
+        // Prüfen, ob ein Trennzeichen übergeben wurde
+        if (delimiter == null || delimiter.equals("")) {
+
+            // ggf. ein Single-Tag aus dem übergebenenen content erstellen
+            if (content != null || !content.equals("")) {
+                tags.add(content);
+            }
+            return;
         }
 
-        tags = new ArrayList<>(Arrays.asList(content.split(delimiter)));
+        // Prüfen, ob content übergebene wurde
+        if (content == null) {
+            // Fehler erzeugen
+            throw new IllegalArgumentException("String representing the objects search tags was null.");
+        }
+        else if (content.equals("")) {
+            // Wenn der content leer ist, ist das nicht schön, wird aber akzeptiert.
+        }
+        else {
 
+            if (!content.contains(delimiter)) {
+                throw new IllegalArgumentException("Couldn't generate Tags from given String and Delimiter.");
+            }
+
+            tags = new ArrayList<>(Arrays.asList(content.split(delimiter)));
+        }
     }
 
     /**
