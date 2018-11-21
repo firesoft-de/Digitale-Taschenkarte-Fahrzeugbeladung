@@ -20,7 +20,13 @@ import android.arch.lifecycle.ViewModel;
 
 public class MainViewmodel extends ViewModel {
 
+    // region Livedata
+
+    // endregion
+
     public MainViewmodel() {
+
+
 
     }
 

@@ -19,16 +19,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.mainFragment.MainFragment">
+    tools:context=".fragments.trayFragment.TrayFragment">
 
-    <ListView
-        xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:drawSelectorOnTop="true"
-        android:id="@+id/ListViewMain"
-        android:dividerHeight="1dp"
-        android:divider="@drawable/list_sepeator"
-        />
+        android:text="@string/hello_blank_fragment" />
 
 </FrameLayout>
