@@ -16,9 +16,9 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
 
-    <color name="text">#455a64</color>
+    <dimen name="text_size_highlight">18sp</dimen>
+    <dimen name="text_size_normal">14sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+
 </resources>

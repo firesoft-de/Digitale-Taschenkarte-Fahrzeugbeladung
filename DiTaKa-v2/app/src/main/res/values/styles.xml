@@ -24,4 +24,20 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="FiresoftTextView">
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+    </style>
+
+    <style name="FiresoftTextView.FiresoftTextViewHeader">
+        <item name="android:textColor">@color/text</item>
+        <item name="android:textSize">@dimen/text_size_highlight</item>
+        <item name="android:layout_marginTop">8dp</item>
+    </style>
+
 </resources>
