@@ -19,6 +19,8 @@ package firesoft.de.ditaka.datahandling;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 
 import firesoft.de.ditaka.datamodels.Group;
@@ -37,7 +39,8 @@ public class DataProcessor extends AsyncTaskLoader<DataResultWrapper> {
     /**
      * Enthält die Rohdaten die vom Server heruntergeladen wurden
      */
-    String rawData;
+    private Gson gsonObject;
+
 
     // endregion
 
@@ -49,6 +52,13 @@ public class DataProcessor extends AsyncTaskLoader<DataResultWrapper> {
      */
     public DataProcessor(Context context, String rawData) {
         super(context);
+
+        if (gsonObject == null) {
+            gsonObject = new Gson();
+        }
+
+        gsonObject.toJson(rawData);
+
     }
 
     // endregion
@@ -83,6 +93,8 @@ public class DataProcessor extends AsyncTaskLoader<DataResultWrapper> {
     private ArrayList<Item> extractItems() {
 
         ArrayList<Item> items = new ArrayList<>();
+
+
 
         return items;
     }
