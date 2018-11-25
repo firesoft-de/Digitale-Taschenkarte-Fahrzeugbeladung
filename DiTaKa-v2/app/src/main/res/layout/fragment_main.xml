@@ -28,7 +28,7 @@
         android:drawSelectorOnTop="true"
         android:id="@+id/ListViewMain"
         android:dividerHeight="1dp"
-        android:divider="@drawable/list_sepeator"
+        android:divider="@drawable/list_seperator"
         />
 
 </FrameLayout>

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~     Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
-  ~     Copyright (C) 2018  David Schlossarczyk
+  ~ Diese App stellt die Beladung von BOS Fahrzeugen in digitaler Form dar.
+  ~ Copyright (C) 2018  David Schlossarczyk
   ~
-  ~     This program is free software: you can redistribute it and/or modify
-  ~     it under the terms of the GNU General Public License as published by
-  ~     the Free Software Foundation, either version 3 of the License, or any later version.
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or any later version.
   ~
-  ~     This program is distributed in the hope that it will be useful,
-  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~     GNU General Public License for more details.
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~  GNU General Public License for more details.
   ~
-  ~     For the full license visit https://www.gnu.org/licenses/gpl-3.0.
+  ~ For the full license visit https://www.gnu.org/licenses/gpl-3.0.
   -->
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,36 +20,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="fragments.ListViewItem">
 
-    <data>
-        <variable name="viewModel" type="firesoft.de.ditaka.fragments.ListViewItemViewmodel"/>
-    </data>
+<!--    <data>
+        <variable name="viewModel" type="firesoft.de.ditaka.viewmodels.ListViewItemViewmodel"/>
+    </data>-->
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:maxHeight="100dp"
+        android:minHeight="50dp">
+        <!--android:onClick="@{() -> viewModel.onClick()}">-->
 
+        <!-- Titel -->
         <TextView
             android:id="@+id/itemTitle"
             style="@style/FiresoftTextView.FiresoftTextViewHeader"
-            android:text="@{viewModel.title}"
-            tools:text="Dies ist ein Dummytitel"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Dies ist ein Dummytitel" />
+        <!--android:text="@{viewModel.title}"-->
 
+
+        <!-- Beschreibung -->
         <TextView
             android:id="@+id/itemLocation"
-            style="@style/FiresoftTextView.FiresoftTextViewHeader"
-            android:text="@{viewModel.location}"
-            tools:text="Dies ist eine ganz lange Beispielbeschreibung. Sie ist so lang das mir nicht einfällt was ich in ihr alles schreiben soll"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            style="@style/FiresoftTextView"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            />
-
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/itemTitle"
+            tools:text="Dies ist eine ganz lange Beispielbeschreibung. Sie ist so lang das mir nicht einfällt was ich in ihr alles schreiben soll" />
+        <!--android:text="@{viewModel.location}"-->
 
     </android.support.constraint.ConstraintLayout>
-
 
 </layout>

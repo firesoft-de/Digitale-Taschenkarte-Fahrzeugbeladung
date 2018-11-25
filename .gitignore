@@ -9,6 +9,7 @@ server/skripte/config/.htaccess
 *.apk
 DiTaKa/app/release/app-release.apk
 DiTaKa/keystore.properties
+*/keystore.properties
 settings.xml
 /server/skripte/Server/nbproject/private/
 /server/skripte/meta/nbproject/private/

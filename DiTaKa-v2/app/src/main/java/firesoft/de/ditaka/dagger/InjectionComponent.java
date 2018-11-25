@@ -21,14 +21,17 @@ import javax.inject.Singleton;
 import dagger.Component;
 import firesoft.de.ditaka.MainActivity;
 import firesoft.de.ditaka.fragments.aboutFragment.AboutFragment;
+import firesoft.de.ditaka.fragments.trayFragment.TrayFragment;
 
 @Singleton
 @Component(modules = InjectionModule.class)
 public interface InjectionComponent {
 
 
-    void inject(MainActivity mainActivity);
+    void inject(MainActivity fragment);
 
-    void inject(AboutFragment aboutFragment);
+    void inject(AboutFragment fragment);
+
+    void inject(TrayFragment fragment);
 
 }

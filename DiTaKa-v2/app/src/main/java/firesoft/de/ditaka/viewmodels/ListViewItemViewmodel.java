@@ -14,10 +14,11 @@
  *     For the full license visit https://www.gnu.org/licenses/gpl-3.0.
  */
 
-package firesoft.de.ditaka.fragments;
+package firesoft.de.ditaka.viewmodels;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.widget.BaseAdapter;
 
 import firesoft.de.ditaka.datamodels.BaseDataClass;
 import firesoft.de.ditaka.datamodels.Item;
@@ -27,6 +28,12 @@ import firesoft.de.ditaka.datamodels.Tray;
  * Viewmodel für die angepassten ListViewItems.
  */
 public class ListViewItemViewmodel extends ViewModel {
+
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
+    //               Klasse wird nicht mehr benötigt
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     // region UI-Livedata
 
@@ -69,6 +76,13 @@ public class ListViewItemViewmodel extends ViewModel {
 
     }
 
+    public void onClick() {
+
+        // Todo: Wenn das Item angeklickt wird, muss entweder die Liste der im Tray enthaltenen Items geöffnet werden oder die Beschreibungsseite für das Item geöffnet werden.
+        // Dazu muss das ListView im übergeordneten Fragment darüber informiert werden eine andere Liste zu laden.
+        // -> Drei Fragments erstellen. Eins für die Fahrzeuge, eins für die Trays, eins für die Items. Jedes verwendet aber das gleiche Layout.
+
+    }
 
 
 }

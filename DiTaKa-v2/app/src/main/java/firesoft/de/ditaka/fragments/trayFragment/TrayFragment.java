@@ -17,13 +17,20 @@
 package firesoft.de.ditaka.fragments.trayFragment;
 
 
+import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import javax.inject.Inject;
+
 import firesoft.de.ditaka.R;
+import firesoft.de.ditaka.dagger.CustomViewmodelFactory;
+import firesoft.de.ditaka.dagger.InjectableApplication;
+import firesoft.de.ditaka.wrapper.FactoryHelper;
 
 
 /**
@@ -31,6 +38,10 @@ import firesoft.de.ditaka.R;
  */
 public class TrayFragment extends Fragment {
 
+    @Inject
+    CustomViewmodelFactory factory;
+
+    TrayListViewmodel viewmodel;
 
     public TrayFragment() {
         // Required empty public constructor
@@ -41,7 +52,54 @@ public class TrayFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tray, container, false);
+
+        receiveViewmodel();
+        View view = bindViewmodel(inflater, container);
+
+        return view;
+
+        //return inflater.inflate(R.layout.listview_layout, container, false);
     }
+
+    // region
+
+    // TODO: Componentmethoden rauschmeißen. Listen werden mit Adaptern gemacht.
+    // TODO: Methoden einfügen um die Adapter an die Listen anzuhängen -> siehe DiTaKa v1
+    // TODO: Für Item-Liste eine Möglichkeit schaffen beim Klicken das ausgewählte Item in das von Dagger verwaltete Itemmodel zu schreiben und dann das Detailfragment anzuzeigen.
+
+    // endregion
+
+    // region Component-Model Funktionen
+
+    @Override
+    public void onAttach(Context context) {
+
+        ((InjectableApplication) getActivity().getApplication())
+                .getComponent()
+                .inject(this);
+
+        super.onAttach(context);
+    }
+
+    private void receiveViewmodel() {
+        try {
+            viewmodel = FactoryHelper.generateViewmodel(getActivity(), factory, TrayListViewmodel.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private View bindViewmodel(LayoutInflater inflater, ViewGroup container) {
+
+        FragmentTrayBinding binding = DataBindingUtil.inflate(inflater, R.layout.listview_layout, container,false);
+        binding.setViewModel(viewmodel);
+        binding.setLifecycleOwner(getActivity());
+
+        return binding.getRoot();
+    }
+
+    // endregion
+
 
 }

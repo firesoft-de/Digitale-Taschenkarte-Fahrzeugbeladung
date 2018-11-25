@@ -17,7 +17,7 @@
 
 <resources>
 
-    <dimen name="text_size_highlight">18sp</dimen>
+    <dimen name="text_size_highlight">22sp</dimen>
     <dimen name="text_size_normal">14sp</dimen>
     <dimen name="text_size_small">12sp</dimen>
 

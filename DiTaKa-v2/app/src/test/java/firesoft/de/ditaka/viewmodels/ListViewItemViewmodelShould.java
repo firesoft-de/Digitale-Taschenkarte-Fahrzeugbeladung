@@ -14,10 +14,9 @@
  *     For the full license visit https://www.gnu.org/licenses/gpl-3.0.
  */
 
-package firesoft.de.ditaka.fragments;
+package firesoft.de.ditaka.viewmodels;
 
 import android.arch.core.executor.testing.InstantTaskExecutorRule;
-import android.support.v4.util.Pair;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import firesoft.de.ditaka.datamodels.Item;
+import firesoft.de.ditaka.viewmodels.ListViewItemViewmodel;
 
 import static org.junit.Assert.*;
 

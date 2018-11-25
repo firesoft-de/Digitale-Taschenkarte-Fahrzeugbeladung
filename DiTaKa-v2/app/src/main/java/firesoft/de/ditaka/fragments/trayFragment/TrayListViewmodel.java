@@ -18,9 +18,15 @@ package firesoft.de.ditaka.fragments.trayFragment;
 
 import android.arch.lifecycle.ViewModel;
 
-public class TrayFragmentViewmodel extends ViewModel {
+public class TrayListViewmodel extends ViewModel {
 
     // region Livedata
+
+
+
+    // endregion
+
+    // region Methoden
 
 
 

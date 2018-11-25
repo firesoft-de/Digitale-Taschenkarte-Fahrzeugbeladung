@@ -39,4 +39,17 @@ public class MainActivity extends ExtendedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+
+
+    /**
+     * Zeigt das erste Fragment an. Beim ersten Start soll ein Informationsbildschirm über die App angezeigt werden.
+     * Bei allen weiteren Starts anfänglich das Fragment mit der Trayliste und später dann die Fahrzeug- oder Gruppenliste
+     */
+    private void displayFirstFragment() {
+
+
+
+    }
+
+
 }
