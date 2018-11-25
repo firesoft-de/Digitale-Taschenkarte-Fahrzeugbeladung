@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -44,6 +45,8 @@ public class TrayFragment extends Fragment {
 
     BaseData2ListViewAdapter adapter;
 
+    private ListView lv;
+
     public TrayFragment() {
         // Required empty public constructor
     }
@@ -59,6 +62,13 @@ public class TrayFragment extends Fragment {
                 .inject(this);
 
         View view = inflater.inflate(R.layout.listview_layout,container);
+        lv = view.findViewById(R.id.ListViewMain);
+
+        try {
+            setAdapter();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return view;
 
@@ -68,12 +78,21 @@ public class TrayFragment extends Fragment {
     // region
 
     // Erledigt: Componentmethoden rauschmeißen. Listen werden mit Adaptern gemacht.
-    // TODO: Methoden einfügen um die Adapter an die Listen anzuhängen -> siehe DiTaKa v1
+    // Erledigt: Methoden einfügen um die Adapter an die Listen anzuhängen -> siehe DiTaKa v1
     // TODO: Für Item-Liste eine Möglichkeit schaffen beim Klicken das ausgewählte Item in das von Dagger verwaltete Itemmodel zu schreiben und dann das Detailfragment anzuzeigen.
 
-    private void setAdapter() {
+    private void setAdapter() throws Exception{
 
         BaseData2ListViewAdapter adapter = new BaseData2ListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
+
+        if (lv == null) {
+            if (getActivity() == null) {
+                throw new Exception("Activity equals null! Thrown by TrayFragment");
+            }
+            lv = getActivity().findViewById(R.id.ListViewMain);
+        }
+
+        lv.setAdapter(adapter);
 
     }
 
