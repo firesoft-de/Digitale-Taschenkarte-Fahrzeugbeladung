@@ -24,15 +24,16 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import firesoft.de.ditaka.fragments.mainFragment.MainFragment;
+import firesoft.de.ditaka.fragments.trayFragment.TrayFragment;
+import firesoft.de.ditaka.util.Definitions;
+
+import static firesoft.de.ditaka.util.Definitions.ITEM_FRAGMENT;
+import static firesoft.de.ditaka.util.Definitions.TRAY_FRAGMENT;
 
 /**
  * Stellt erweitere Funktion für Acitivities bereit
  */
 public class ExtendedActivity extends AppCompatActivity {
-
-    public static final String MAIN_FRAGMENT = "MAIN";
-    public static final String TRAY_FRAGMENT = "TRAY";
-    public static final String ITEM_FRAGMENT = "ITEM";
 
     public FragmentManager fManager;
 
@@ -52,13 +53,13 @@ public class ExtendedActivity extends AppCompatActivity {
      * @param fragment fragment to display
      * @param tag tag of the fragment defined in ExtendedActivity
      */
-    public void switchFragment(int id, @Nullable Fragment fragment, String tag) {
+    public void switchFragment(int id, @Nullable Fragment fragment, int tag) {
 
         FragmentTransaction ft = fManager.beginTransaction();
         boolean newFragment = false;
 
         if (fragment == null) {
-            fragment = fManager.findFragmentByTag(tag);
+            fragment = fManager.findFragmentByTag(String.valueOf(tag));
 
             if (fragment == null) {
                 newFragment = true;
@@ -67,23 +68,17 @@ public class ExtendedActivity extends AppCompatActivity {
         try {
             switch (tag) {
 
-                case MAIN_FRAGMENT:
-                    if (newFragment) {
-                        fragment = new MainFragment();
-                    }
-                    break;
-
                 case TRAY_FRAGMENT:
                     if (newFragment) {
-                        fragment = new MainFragment();
+                        fragment = new TrayFragment();
                     }
                     break;
 
-                case ITEM_FRAGMENT:
-                    if (newFragment) {
-                        fragment = new MainFragment();
-                    }
-                    break;
+//                case ITEM_FRAGMENT:
+//                    if (newFragment) {
+//                        fragment = new MainFragment();
+//                    }
+//                    break;
 
                 default:
                     throw new IllegalArgumentException("Unable to parse given tag to fragment!");
@@ -95,8 +90,8 @@ public class ExtendedActivity extends AppCompatActivity {
             return;
         }
 
-        ft.replace(id, fragment, tag);
-        ft.addToBackStack(tag);
+        ft.replace(id, fragment, String.valueOf(tag));
+        ft.addToBackStack(String.valueOf(tag));
         ft.commit();
 
     }

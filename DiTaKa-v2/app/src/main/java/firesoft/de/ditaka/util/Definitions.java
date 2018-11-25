@@ -21,6 +21,15 @@ package firesoft.de.ditaka.util;
  */
 public class Definitions {
 
+    // region Debug
+
+    /**
+     * Marker der verschiedene Testmethoden aktiviert
+     */
+    public static final boolean debug_mode = false;
+
+    // endregion
+
     // region Loader
 
     // Diese Konstanten definieren die verschiedenen Loader-ID's
@@ -44,6 +53,13 @@ public class Definitions {
     // region Filesystem
 
     public static final String FILE_DESTINATION_IMAGE = "image";
+
+    // endregion
+
+    // region Fragments
+
+    public static final int TRAY_FRAGMENT = 0;
+    public static final int ITEM_FRAGMENT = 1;
 
     // endregion
 
