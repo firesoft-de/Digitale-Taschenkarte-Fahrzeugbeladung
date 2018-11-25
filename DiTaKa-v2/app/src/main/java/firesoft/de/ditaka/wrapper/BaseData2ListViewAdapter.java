@@ -17,6 +17,7 @@
 package firesoft.de.ditaka.wrapper;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +44,10 @@ public class BaseData2ListViewAdapter extends ArrayAdapter<BaseDataClass> {
 
     // endregion
 
-    public BaseData2ListViewAdapter(Activity context, ArrayList<BaseDataClass> items) {
+    /**
+     * Erstellt eine neue Instanz
+     */
+    public BaseData2ListViewAdapter(Context context, ArrayList<BaseDataClass> items) {
 
         super(context,0,items);
         data = items;

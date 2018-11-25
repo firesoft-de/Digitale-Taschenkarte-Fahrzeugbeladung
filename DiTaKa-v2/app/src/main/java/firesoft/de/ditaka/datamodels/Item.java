@@ -17,7 +17,10 @@
 package firesoft.de.ditaka.datamodels;
 
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
+
+// TODO: Test für Positionmarker = null erstellen
 
 /**
  * Stellt eine Datenstruktur für einen Gegenstand bereit
@@ -55,7 +58,7 @@ public class Item extends BaseDataClass{
      * @param image Bild das das Item zeigt
      * @param trayId ID des Trays zu welchem das Item zugeordnet ist
      */
-    public Item(int id, String name, String description, String tags, String tagDelimiter, String location, Pair<Short, Short> markerCoordinateLowerLeft, Pair<Short, Short> markerCoordinateUpperRight, Bitmap image, int trayId) {
+    public Item(int id, String name, String description, String tags, String tagDelimiter, String location, @Nullable Pair<Short, Short> markerCoordinateLowerLeft, @Nullable Pair<Short, Short> markerCoordinateUpperRight, Bitmap image, int trayId) {
         this.id = id;
         this.name = name;
         this.description = description;

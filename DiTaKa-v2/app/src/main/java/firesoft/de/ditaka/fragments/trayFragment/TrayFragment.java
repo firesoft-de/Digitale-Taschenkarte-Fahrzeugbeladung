@@ -17,20 +17,21 @@
 package firesoft.de.ditaka.fragments.trayFragment;
 
 
-import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
 import firesoft.de.ditaka.R;
-import firesoft.de.ditaka.dagger.CustomViewmodelFactory;
 import firesoft.de.ditaka.dagger.InjectableApplication;
-import firesoft.de.ditaka.wrapper.FactoryHelper;
+import firesoft.de.ditaka.datamodels.Tray;
+import firesoft.de.ditaka.util.ArrayListCoverter;
+import firesoft.de.ditaka.wrapper.BaseData2ListViewAdapter;
 
 
 /**
@@ -39,9 +40,9 @@ import firesoft.de.ditaka.wrapper.FactoryHelper;
 public class TrayFragment extends Fragment {
 
     @Inject
-    CustomViewmodelFactory factory;
+    ArrayList<Tray> trays;
 
-    TrayListViewmodel viewmodel;
+    BaseData2ListViewAdapter adapter;
 
     public TrayFragment() {
         // Required empty public constructor
@@ -53,8 +54,11 @@ public class TrayFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        receiveViewmodel();
-        View view = bindViewmodel(inflater, container);
+        ((InjectableApplication) getActivity().getApplication())
+                .getComponent()
+                .inject(this);
+
+        View view = inflater.inflate(R.layout.listview_layout,container);
 
         return view;
 
@@ -63,43 +67,16 @@ public class TrayFragment extends Fragment {
 
     // region
 
-    // TODO: Componentmethoden rauschmeißen. Listen werden mit Adaptern gemacht.
+    // Erledigt: Componentmethoden rauschmeißen. Listen werden mit Adaptern gemacht.
     // TODO: Methoden einfügen um die Adapter an die Listen anzuhängen -> siehe DiTaKa v1
     // TODO: Für Item-Liste eine Möglichkeit schaffen beim Klicken das ausgewählte Item in das von Dagger verwaltete Itemmodel zu schreiben und dann das Detailfragment anzuzeigen.
 
-    // endregion
+    private void setAdapter() {
 
-    // region Component-Model Funktionen
+        BaseData2ListViewAdapter adapter = new BaseData2ListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
 
-    @Override
-    public void onAttach(Context context) {
-
-        ((InjectableApplication) getActivity().getApplication())
-                .getComponent()
-                .inject(this);
-
-        super.onAttach(context);
-    }
-
-    private void receiveViewmodel() {
-        try {
-            viewmodel = FactoryHelper.generateViewmodel(getActivity(), factory, TrayListViewmodel.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private View bindViewmodel(LayoutInflater inflater, ViewGroup container) {
-
-        FragmentTrayBinding binding = DataBindingUtil.inflate(inflater, R.layout.listview_layout, container,false);
-        binding.setViewModel(viewmodel);
-        binding.setLifecycleOwner(getActivity());
-
-        return binding.getRoot();
     }
 
     // endregion
-
 
 }
