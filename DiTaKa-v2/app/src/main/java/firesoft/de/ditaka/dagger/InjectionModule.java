@@ -30,6 +30,8 @@ import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.datamodels.Vehicle;
 import firesoft.de.ditaka.manager.AsyncTaskManager;
+import firesoft.de.ditaka.util.Definitions;
+import firesoft.de.ditaka.util.DummyContentGenerator;
 
 /**
  * Diese Klasse definiert die Instanzierung der Variablen
@@ -76,7 +78,13 @@ public class InjectionModule {
     @Singleton
     ArrayList<Tray> provideTrayList()
     {
-        return new ArrayList<>();
+        ArrayList<Tray> list = new ArrayList<>();
+
+        if (Definitions.debug_mode) {
+            list = DummyContentGenerator.generateDummyTrayList();
+        }
+
+        return list;
     }
 
     /**

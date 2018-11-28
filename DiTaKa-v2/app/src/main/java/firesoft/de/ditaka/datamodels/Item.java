@@ -48,17 +48,17 @@ public class Item extends BaseDataClass{
     /**
      * Erstellt eine neue Instanz vom Typ Item
      * @param id ID des Items
+     * @param trayId ID des Trays zu welchem das Item zugeordnet ist
      * @param name Name des Items
      * @param description Beschreibung des Items
+     * @param location Beschreibung welche den Lagerort des Gegenstandes anzeigt
      * @param tags Tags die bei der Suche überprüft werden
      * @param tagDelimiter Trennzeichen der Tags(";")
-     * @param location Beschreibung welche den Lagerort des Gegenstandes anzeigt
      * @param markerCoordinateLowerLeft Zur Darstellung des Lagerortes des Gegenstandes wird ein Rechteck auf eine Bitmap gezeichnet. Diese Variable stellt die Koordinate der unteren linken Ecke des Rechtecks dar.
      * @param markerCoordinateUpperRight Zur Darstellung des Lagerortes des Gegenstandes wird ein Rechteck auf eine Bitmap gezeichnet. Diese Variable stellt die Koordinate der oberen rechten Ecke des Rechtecks dar.
      * @param image Bild das das Item zeigt
-     * @param trayId ID des Trays zu welchem das Item zugeordnet ist
      */
-    public Item(int id, String name, String description, String tags, String tagDelimiter, String location, @Nullable Pair<Short, Short> markerCoordinateLowerLeft, @Nullable Pair<Short, Short> markerCoordinateUpperRight, Bitmap image, int trayId) {
+    public Item(int id, int trayId, String name, String description, String location, String tags, String tagDelimiter, @Nullable Pair<Short, Short> markerCoordinateLowerLeft, @Nullable Pair<Short, Short> markerCoordinateUpperRight, @Nullable Bitmap image) {
         this.id = id;
         this.name = name;
         this.description = description;

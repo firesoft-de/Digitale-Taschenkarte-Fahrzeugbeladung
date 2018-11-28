@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import firesoft.de.ditaka.util.*;
 
 import firesoft.de.ditaka.datamodels.BaseDataClass;
 import firesoft.de.ditaka.datamodels.Group;
@@ -49,9 +48,9 @@ public class ArrayListCoverterShould {
         groups = new ArrayList<>();
 
         // Setup Items
-        items.add(new Item(0,"A","DescA","A,B,C",",","Test",null,null,null,0));
-        items.add(new Item(1,"B","DescA","A,B,C",",","Test",null,null,null,0));
-        items.add(new Item(2,"C","DescA","A,B,C",",","Test",null,null,null,0));
+        items.add(new Item(0, 0, "A","DescA", "Test", "A,B,C",",", null,null,null));
+        items.add(new Item(1, 0, "B","DescA", "Test", "A,B,C",",", null,null,null));
+        items.add(new Item(2, 0, "C","DescA", "Test", "A,B,C",",", null,null,null));
 
 
     }
@@ -70,7 +69,7 @@ public class ArrayListCoverterShould {
 
         // Nur eine kurze Prüfung ob das konvertieren überhaupt funktioniert
 
-        Item item = new Item(0,"A","DescA","A,B,C",",","Test",null,null,null,0);
+        Item item = new Item(0, 0, "A","DescA", "Test", "A,B,C",",", null,null,null);
         BaseDataClass baseDataClass = (BaseDataClass) item;
 
         assertEquals(baseDataClass.getName(),"A");

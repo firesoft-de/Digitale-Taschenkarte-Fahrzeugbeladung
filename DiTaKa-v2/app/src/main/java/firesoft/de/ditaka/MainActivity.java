@@ -25,6 +25,8 @@ import firesoft.de.ditaka.dagger.CustomViewmodelFactory;
 import firesoft.de.ditaka.dagger.InjectableApplication;
 import firesoft.de.ditaka.wrapper.ExtendedActivity;
 
+import static firesoft.de.ditaka.util.Definitions.TRAY_FRAGMENT;
+
 public class MainActivity extends ExtendedActivity {
 
     @Inject
@@ -38,8 +40,11 @@ public class MainActivity extends ExtendedActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        displayFirstFragment();
     }
 
+    // region Hilfsmethoden
 
     /**
      * Zeigt das erste Fragment an. Beim ersten Start soll ein Informationsbildschirm über die App angezeigt werden.
@@ -47,9 +52,11 @@ public class MainActivity extends ExtendedActivity {
      */
     private void displayFirstFragment() {
 
-
+        switchFragment(R.id.MainFrame,null,TRAY_FRAGMENT);
 
     }
+
+    // endregion
 
 
 }

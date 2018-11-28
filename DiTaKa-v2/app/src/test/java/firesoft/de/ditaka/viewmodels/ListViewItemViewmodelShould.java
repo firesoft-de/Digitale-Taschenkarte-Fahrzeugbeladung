@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import firesoft.de.ditaka.datamodels.Item;
-import firesoft.de.ditaka.viewmodels.ListViewItemViewmodel;
 
 import static org.junit.Assert.*;
 
@@ -39,8 +38,8 @@ public class ListViewItemViewmodelShould {
     @Before
     public void setup() {
 
-        testItem = new Item(0,"Testitem","Testdescription","testtag2,testtag2",",","Beispiellocation",null, null,null, 0);
-        testTray = new Item(0,"Testitem","Testdescription","testtag2,testtag2",",","Beispiellocation",null, null,null, 0);
+        testItem = new Item(0, 0, "Testitem","Testdescription", "Beispiellocation", "testtag2,testtag2",",", null, null,null);
+        testTray = new Item(0, 0, "Testitem","Testdescription", "Beispiellocation", "testtag2,testtag2",",", null, null,null);
 
     }
 
