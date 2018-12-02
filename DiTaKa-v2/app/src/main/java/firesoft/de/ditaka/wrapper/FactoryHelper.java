@@ -26,6 +26,9 @@ import android.support.v7.app.AppCompatActivity;
 import firesoft.de.ditaka.dagger.CustomViewmodelFactory;
 import firesoft.de.ditaka.fragments.trayFragment.TrayListViewmodel;
 
+/**
+ * Viewmodelfactory zur Umsetzung des MVVM-Pattern
+ */
 public class FactoryHelper {
 
     /**

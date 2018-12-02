@@ -25,13 +25,14 @@ import android.support.v7.app.AppCompatActivity;
 
 import firesoft.de.ditaka.R;
 import firesoft.de.ditaka.fragments.trayFragment.TrayFragment;
+import firesoft.de.ditaka.interfaces.SwitchFragmentInterface;
 
 import static firesoft.de.ditaka.util.Definitions.TRAY_FRAGMENT;
 
 /**
  * Stellt erweitere Funktion für Acitivities bereit
  */
-public class ExtendedActivity extends AppCompatActivity {
+public class ExtendedActivity extends AppCompatActivity implements SwitchFragmentInterface {
 
     public FragmentManager fManager;
 
@@ -41,6 +42,9 @@ public class ExtendedActivity extends AppCompatActivity {
         createFragmentManager();
     }
 
+    /**
+     * Ruft den FragmentManager ab
+     */
     private void createFragmentManager() {
         fManager = this.getSupportFragmentManager();
     }

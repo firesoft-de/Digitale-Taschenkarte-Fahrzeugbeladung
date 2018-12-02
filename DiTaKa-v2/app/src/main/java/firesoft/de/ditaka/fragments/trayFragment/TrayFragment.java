@@ -56,6 +56,7 @@ public class TrayFragment extends ListViewFragment {
                 .getComponent()
                 .inject(this);
 
+        View view = super.onCreateView(inflater,container,savedInstanceState,null);
 
         // ListViewAdapter einrichten.
         try {
@@ -64,7 +65,9 @@ public class TrayFragment extends ListViewFragment {
             e.printStackTrace();
         }
 
-        return super.onCreateView(inflater,container,savedInstanceState,null);
+        setupClickListener();
+
+        return view;
     }
 
 

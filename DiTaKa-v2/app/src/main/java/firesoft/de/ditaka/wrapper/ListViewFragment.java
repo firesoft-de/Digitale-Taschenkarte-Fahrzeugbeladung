@@ -21,16 +21,21 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Switch;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import firesoft.de.ditaka.R;
 import firesoft.de.ditaka.datamodels.BasicData;
+import firesoft.de.ditaka.interfaces.SwitchFragmentInterface;
 import firesoft.de.ditaka.wrapper.BaseDataListViewAdapter;
 
 /**
- * Diese Erweiterung der Fragment-Klasse stellt Methoden zum Arbeiten mit Listviews bereit
+ * Diese Erweiterung der Fragment-Klasse stellt Methoden zum Arbeiten mit Listviews bereit. Hier wird vom MVVM-Pattern abgewichen, da die Befüllung des Listviews mittels Adapter besser funktioniert und am Ende auf einen ähnlichen Aufbau erzeugt.
  */
 public class ListViewFragment extends Fragment {
 
@@ -44,6 +49,10 @@ public class ListViewFragment extends Fragment {
      * Variable zum Speichern der ListView
      */
     private ListView lv;
+
+    @Inject
+    SwitchFragmentInterface switchOperator;
+
     // endregion
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,8 +62,8 @@ public class ListViewFragment extends Fragment {
             // Um Fehler (java.lang.IllegalStateException: The specified child already has a parent. You must call removeView() on the child's parent first.) zu verhindern, muss attachToRoot = false gesetzt werden!!
             // https://stackoverflow.com/a/47064065
             view = inflater.inflate(R.layout.listview_layout,container, false);
-            lv = view.findViewById(R.id.ListViewMain);
         }
+        lv = view.findViewById(R.id.ListViewMain);
         return view;
     }
 
@@ -81,7 +90,30 @@ public class ListViewFragment extends Fragment {
 
     }
 
+    /**
+     * Richtet den ItemClickListener für die ListView ein
+     */
+    protected void setupClickListener() {
 
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                onItemClick(parent,view,position,id);
+            }
+        });
+
+    }
+
+    /**
+     * Definiert die Aktion die ausgeführt wird, wenn ein Item angeklickt wird
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
+    private void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switchOperator.switchFragment(0,null,0);
+    }
 
     // endregion
 

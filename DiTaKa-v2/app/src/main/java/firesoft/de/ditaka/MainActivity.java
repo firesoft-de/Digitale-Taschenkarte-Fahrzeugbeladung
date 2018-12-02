@@ -20,9 +20,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import firesoft.de.ditaka.dagger.CustomViewmodelFactory;
 import firesoft.de.ditaka.dagger.InjectableApplication;
+import firesoft.de.ditaka.interfaces.SwitchFragmentInterface;
 import firesoft.de.ditaka.wrapper.ExtendedActivity;
 
 import static firesoft.de.ditaka.util.Definitions.TRAY_FRAGMENT;
@@ -31,6 +33,9 @@ public class MainActivity extends ExtendedActivity {
 
     @Inject
     CustomViewmodelFactory factory;
+
+    @Inject
+    SwitchFragmentInterface switchFragmentOperator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
