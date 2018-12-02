@@ -23,6 +23,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import firesoft.de.ditaka.R;
 import firesoft.de.ditaka.fragments.trayFragment.TrayFragment;
 
 import static firesoft.de.ditaka.util.Definitions.TRAY_FRAGMENT;
@@ -93,14 +94,39 @@ public class ExtendedActivity extends AppCompatActivity {
         ft.addToBackStack(String.valueOf(tag));
         ft.commit();
 
+        // ActionBar entsprechend der gemachten Änderungen anpassen
+        manageActionBar(tag);
+
     }
 
     /**
-     * Ändert den Titel der in der ActionBar (?) angezeigt wird.
+     * Zentrale Methode über die die ActionBar an Änderung des App-Zustandes angepasst wird
+     * @param tag Tag des aktuell angezeigten Fragments
+     */
+    private void manageActionBar(int tag) {
+        switchTitle(tag);
+    }
+
+    // region ActionBar-Managment Methods
+
+    /**
+     * Ändert den Titel der in der ActionBar angezeigt wird.
      * @param tag Tag des aktuell angezeigten Fragments
      */
     private void switchTitle(int tag) {
 
+        switch (tag) {
+
+            case TRAY_FRAGMENT:
+                this.getSupportActionBar().setTitle(R.string.fragment_tray_title);
+                break;
+
+        }
+
     }
+
+    // endregion
+
+
 
 }

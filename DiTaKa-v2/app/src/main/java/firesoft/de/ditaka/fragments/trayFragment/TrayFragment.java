@@ -32,7 +32,7 @@ import firesoft.de.ditaka.R;
 import firesoft.de.ditaka.dagger.InjectableApplication;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.util.ArrayListCoverter;
-import firesoft.de.ditaka.wrapper.BaseData2ListViewAdapter;
+import firesoft.de.ditaka.wrapper.BaseDataListViewAdapter;
 
 
 /**
@@ -43,7 +43,7 @@ public class TrayFragment extends Fragment {
     @Inject
     ArrayList<Tray> trays;
 
-    BaseData2ListViewAdapter adapter;
+    BaseDataListViewAdapter adapter;
 
     private ListView lv;
 
@@ -66,18 +66,14 @@ public class TrayFragment extends Fragment {
         View view = inflater.inflate(R.layout.listview_layout,container, false);
         lv = view.findViewById(R.id.ListViewMain);
 
-        return view;
-    }
-
-    @Override
-    public void onAttachFragment(Fragment childFragment) {
-        super.onAttachFragment(childFragment);
-
+        // ListViewAdapter einrichten.
         try {
             setAdapter();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return view;
     }
 
     // region
@@ -92,7 +88,7 @@ public class TrayFragment extends Fragment {
             throw new Exception("Activity equals null! Thrown by TrayFragment");
         }
 
-        BaseData2ListViewAdapter adapter = new BaseData2ListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
+        BaseDataListViewAdapter adapter = new BaseDataListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
 
         lv.setAdapter(adapter);
 

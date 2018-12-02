@@ -36,7 +36,7 @@ import firesoft.de.ditaka.datamodels.Tray;
  * Adapterklasse um Daten die von BaseDataClass abgeleitet sind in einem ListView darzustellen.
  * Basierend auf https://stackoverflow.com/q/10584606
  */
-public class BaseData2ListViewAdapter extends ArrayAdapter<BaseDataClass> {
+public class BaseDataListViewAdapter extends ArrayAdapter<BaseDataClass> {
 
     // region Variablen
 
@@ -47,26 +47,11 @@ public class BaseData2ListViewAdapter extends ArrayAdapter<BaseDataClass> {
     /**
      * Erstellt eine neue Instanz
      */
-    public BaseData2ListViewAdapter(Context context, ArrayList<BaseDataClass> items) {
+    public BaseDataListViewAdapter(Context context, ArrayList<BaseDataClass> items) {
 
         super(context,0,items);
         data = items;
 
-    }
-
-    @Override
-    public int getCount() {
-        return data.size();
-    }
-
-    @Override
-    public BaseDataClass getItem(int i) {
-        return data.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return i;
     }
 
     @Override
@@ -94,4 +79,23 @@ public class BaseData2ListViewAdapter extends ArrayAdapter<BaseDataClass> {
 
         return view;
     }
+
+    // region Vorgegebene Methoden
+
+    @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public BaseDataClass getItem(int i) {
+        return data.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    // endregion
 }
