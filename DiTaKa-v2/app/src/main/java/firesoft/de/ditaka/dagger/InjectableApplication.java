@@ -44,6 +44,7 @@ public class InjectableApplication extends Application {
             mComponent = DaggerInjectionComponent.builder()
                     // Das Modul implementieren und mit den Basisabhängigkeiten versorgen (MainActivity)
                     .injectionModule(new InjectionModule(this))
+                    .switchInjectionModule(new SwitchInjectionModule())
                     .build();
         }
 

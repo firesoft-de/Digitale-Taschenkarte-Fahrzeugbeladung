@@ -18,6 +18,7 @@ package firesoft.de.ditaka.dagger;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 
@@ -29,6 +30,7 @@ import firesoft.de.ditaka.datamodels.Group;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.datamodels.Vehicle;
+import firesoft.de.ditaka.interfaces.SwitchFragmentInterface;
 import firesoft.de.ditaka.util.Definitions;
 import firesoft.de.ditaka.util.DummyContentGenerator;
 
@@ -42,7 +44,11 @@ public class InjectionModule {
 
     private final Application application;
 
-    InjectionModule(Application application) {this.application = application;}
+    InjectionModule(Application application) //
+    {
+        this.application = application;
+    }
+
 
     /**
      * Stellt eine Instanz der Application bereit

@@ -22,13 +22,13 @@ import dagger.Component;
 import firesoft.de.ditaka.MainActivity;
 import firesoft.de.ditaka.fragments.aboutFragment.AboutFragment;
 import firesoft.de.ditaka.fragments.trayFragment.TrayFragment;
+import firesoft.de.ditaka.interfaces.SwitchFragmentInterface;
 
 @Singleton
-@Component(modules = InjectionModule.class)
+@Component(modules = {InjectionModule.class, SwitchInjectionModule.class})
 public interface InjectionComponent {
 
-
-    void inject(MainActivity fragment);
+    void inject(MainActivity mainActivity);
 
     void inject(AboutFragment fragment);
 
