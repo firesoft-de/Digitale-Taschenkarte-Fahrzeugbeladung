@@ -24,7 +24,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 
 import firesoft.de.ditaka.dagger.CustomViewmodelFactory;
-import firesoft.de.ditaka.fragments.mainFragment.MainViewmodel;
 import firesoft.de.ditaka.fragments.trayFragment.TrayListViewmodel;
 
 public class FactoryHelper {
@@ -41,14 +40,14 @@ public class FactoryHelper {
 
         T newViewmodel;
 
-        if (viewModel.isAssignableFrom(TrayListViewmodel.class)) {
-            newViewmodel = (T) ViewModelProviders.of(activity, factory).get(TrayListViewmodel.class);
-            return newViewmodel;
-        }
-        else if (viewModel.isAssignableFrom(MainViewmodel.class)) {
-            newViewmodel = (T) ViewModelProviders.of(activity, factory).get(MainViewmodel.class);
-            return newViewmodel;
-        }
+//        if (viewModel.isAssignableFrom(TrayListViewmodel.class)) {
+//            newViewmodel = (T) ViewModelProviders.of(activity, factory).get(TrayListViewmodel.class);
+//            return newViewmodel;
+//        }
+//        else if (viewModel.isAssignableFrom(MainViewmodel.class)) {
+//            newViewmodel = (T) ViewModelProviders.of(activity, factory).get(MainViewmodel.class);
+//            return newViewmodel;
+//        }
 
         throw new Exception("Unable to parse give viewmodelclass");
 

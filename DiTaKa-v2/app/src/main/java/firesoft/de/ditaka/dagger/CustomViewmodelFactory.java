@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import firesoft.de.ditaka.models.ItemModel;
-import firesoft.de.ditaka.fragments.mainFragment.MainViewmodel;
 
 @Singleton
 public class CustomViewmodelFactory implements ViewModelProvider.Factory {
@@ -40,9 +39,9 @@ public class CustomViewmodelFactory implements ViewModelProvider.Factory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
 
-        if (modelClass.isAssignableFrom(MainViewmodel.class)) {
-                return modelClass.cast(new MainViewmodel());
-            }
+//        if (modelClass.isAssignableFrom(MainViewmodel.class)) {
+//                return modelClass.cast(new MainViewmodel());
+//            }
 //        else if (modelClass.isAssignableFrom(InputViewmodel.class)) {
 //            return (T) new InputViewmodel(model);
 //        }

@@ -34,12 +34,11 @@ public class MainActivity extends ExtendedActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         // Application für Dagger bereitstellen
         ((InjectableApplication) getApplication()).getComponent().inject(this);
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         displayFirstFragment();
     }

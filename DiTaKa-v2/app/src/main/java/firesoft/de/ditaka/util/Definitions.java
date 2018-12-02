@@ -16,6 +16,8 @@
 
 package firesoft.de.ditaka.util;
 
+import firesoft.de.ditaka.BuildConfig;
+
 /**
  * Diese Klasse enthält verschiedenen Definitionen und Konstanten
  */
@@ -26,7 +28,7 @@ public class Definitions {
     /**
      * Marker der verschiedene Testmethoden aktiviert
      */
-    public static final boolean debug_mode = false;
+    public static final boolean dev_mode = true; // TODO: Deaktivieren
 
     // endregion
 

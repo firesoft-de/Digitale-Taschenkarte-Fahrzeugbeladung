@@ -61,18 +61,23 @@ public class TrayFragment extends Fragment {
                 .getComponent()
                 .inject(this);
 
-        View view = inflater.inflate(R.layout.listview_layout,container);
+        // Um Fehler (java.lang.IllegalStateException: The specified child already has a parent. You must call removeView() on the child's parent first.) zu verhindern, muss attachToRoot = false gesetzt werden!!
+        // https://stackoverflow.com/a/47064065
+        View view = inflater.inflate(R.layout.listview_layout,container, false);
         lv = view.findViewById(R.id.ListViewMain);
+
+        return view;
+    }
+
+    @Override
+    public void onAttachFragment(Fragment childFragment) {
+        super.onAttachFragment(childFragment);
 
         try {
             setAdapter();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return view;
-
-        //return inflater.inflate(R.layout.listview_layout, container, false);
     }
 
     // region
@@ -83,14 +88,11 @@ public class TrayFragment extends Fragment {
 
     private void setAdapter() throws Exception{
 
-        BaseData2ListViewAdapter adapter = new BaseData2ListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
-
-        if (lv == null) {
-            if (getActivity() == null) {
-                throw new Exception("Activity equals null! Thrown by TrayFragment");
-            }
-            lv = getActivity().findViewById(R.id.ListViewMain);
+        if (getActivity() == null) {
+            throw new Exception("Activity equals null! Thrown by TrayFragment");
         }
+
+        BaseData2ListViewAdapter adapter = new BaseData2ListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
 
         lv.setAdapter(adapter);
 

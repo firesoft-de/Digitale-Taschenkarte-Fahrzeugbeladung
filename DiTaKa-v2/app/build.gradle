@@ -91,7 +91,7 @@ dependencies {
     }
 
     // Netlib importieren
-    implementation 'com.github.firesoft-de:libfirenet:1.1'
+    implementation 'com.github.firesoft-de:libfirenet:1.1.1'
 
     // Google JSON
     implementation 'com.google.code.gson:gson:2.8.5'

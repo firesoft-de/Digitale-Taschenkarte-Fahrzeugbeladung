@@ -29,7 +29,6 @@ import firesoft.de.ditaka.datamodels.Group;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.datamodels.Vehicle;
-import firesoft.de.ditaka.manager.AsyncTaskManager;
 import firesoft.de.ditaka.util.Definitions;
 import firesoft.de.ditaka.util.DummyContentGenerator;
 
@@ -80,7 +79,7 @@ public class InjectionModule {
     {
         ArrayList<Tray> list = new ArrayList<>();
 
-        if (Definitions.debug_mode) {
+        if (Definitions.dev_mode) {
             list = DummyContentGenerator.generateDummyTrayList();
         }
 

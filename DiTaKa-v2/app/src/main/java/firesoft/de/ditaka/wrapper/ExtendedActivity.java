@@ -23,11 +23,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
-import firesoft.de.ditaka.fragments.mainFragment.MainFragment;
 import firesoft.de.ditaka.fragments.trayFragment.TrayFragment;
-import firesoft.de.ditaka.util.Definitions;
 
-import static firesoft.de.ditaka.util.Definitions.ITEM_FRAGMENT;
 import static firesoft.de.ditaka.util.Definitions.TRAY_FRAGMENT;
 
 /**
@@ -58,6 +55,7 @@ public class ExtendedActivity extends AppCompatActivity {
         FragmentTransaction ft = fManager.beginTransaction();
         boolean newFragment = false;
 
+        // Prüfen, ob bereits ein entsprechendes Fragment im FragmentManager vorhanden ist. Falls ja, soll dieses wiederverwendet werden.
         if (fragment == null) {
             fragment = fManager.findFragmentByTag(String.valueOf(tag));
 
@@ -65,6 +63,7 @@ public class ExtendedActivity extends AppCompatActivity {
                 newFragment = true;
             }
         }
+
         try {
             switch (tag) {
 
@@ -93,6 +92,14 @@ public class ExtendedActivity extends AppCompatActivity {
         ft.replace(id, fragment, String.valueOf(tag));
         ft.addToBackStack(String.valueOf(tag));
         ft.commit();
+
+    }
+
+    /**
+     * Ändert den Titel der in der ActionBar (?) angezeigt wird.
+     * @param tag Tag des aktuell angezeigten Fragments
+     */
+    private void switchTitle(int tag) {
 
     }
 
