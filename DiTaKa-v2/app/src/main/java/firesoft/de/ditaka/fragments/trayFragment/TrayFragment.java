@@ -22,30 +22,25 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import firesoft.de.ditaka.R;
 import firesoft.de.ditaka.dagger.InjectableApplication;
 import firesoft.de.ditaka.datamodels.Tray;
 import firesoft.de.ditaka.util.ArrayListCoverter;
-import firesoft.de.ditaka.wrapper.BaseDataListViewAdapter;
+import firesoft.de.ditaka.wrapper.ListViewFragment;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TrayFragment extends Fragment {
+public class TrayFragment extends ListViewFragment {
 
     @Inject
     ArrayList<Tray> trays;
 
-    BaseDataListViewAdapter adapter;
-
-    private ListView lv;
 
     public TrayFragment() {
         // Required empty public constructor
@@ -61,39 +56,17 @@ public class TrayFragment extends Fragment {
                 .getComponent()
                 .inject(this);
 
-        // Um Fehler (java.lang.IllegalStateException: The specified child already has a parent. You must call removeView() on the child's parent first.) zu verhindern, muss attachToRoot = false gesetzt werden!!
-        // https://stackoverflow.com/a/47064065
-        View view = inflater.inflate(R.layout.listview_layout,container, false);
-        lv = view.findViewById(R.id.ListViewMain);
 
         // ListViewAdapter einrichten.
         try {
-            setAdapter();
+            setAdapter(ArrayListCoverter.convertToBasicData(trays));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return view;
+        return super.onCreateView(inflater,container,savedInstanceState,null);
     }
 
-    // region
 
-    // Erledigt: Componentmethoden rauschmeißen. Listen werden mit Adaptern gemacht.
-    // Erledigt: Methoden einfügen um die Adapter an die Listen anzuhängen -> siehe DiTaKa v1
-    // TODO: Für Item-Liste eine Möglichkeit schaffen beim Klicken das ausgewählte Item in das von Dagger verwaltete Itemmodel zu schreiben und dann das Detailfragment anzuzeigen.
-
-    private void setAdapter() throws Exception{
-
-        if (getActivity() == null) {
-            throw new Exception("Activity equals null! Thrown by TrayFragment");
-        }
-
-        BaseDataListViewAdapter adapter = new BaseDataListViewAdapter(getActivity(), ArrayListCoverter.convertToBaseData(trays));
-
-        lv.setAdapter(adapter);
-
-    }
-
-    // endregion
 
 }
