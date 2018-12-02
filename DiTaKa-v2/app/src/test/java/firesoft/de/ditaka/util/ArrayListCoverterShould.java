@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-import firesoft.de.ditaka.datamodels.BaseDataClass;
+import firesoft.de.ditaka.datamodels.BasicData;
 import firesoft.de.ditaka.datamodels.Group;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
@@ -33,7 +33,7 @@ public class ArrayListCoverterShould {
 
     ArrayList<Item> items;
     ArrayList<Tray> trays;
-    ArrayList<BaseDataClass> baseDataClasses;
+    ArrayList<BasicData> basicData;
     ArrayList<Vehicle> vehicles;
     ArrayList<Group> groups;
 
@@ -43,7 +43,7 @@ public class ArrayListCoverterShould {
         // Listen initalisieren
         items = new ArrayList<>();
         trays = new ArrayList<>();
-        baseDataClasses = new ArrayList<>();
+        basicData = new ArrayList<>();
         vehicles = new ArrayList<>();
         groups = new ArrayList<>();
 
@@ -58,7 +58,7 @@ public class ArrayListCoverterShould {
     @Test
     public void convertItemListToBaseDataList() {
 
-        ArrayList<BaseDataClass> base =  ArrayListCoverter.convertToBaseData(items);
+        ArrayList<BasicData> base =  ArrayListCoverter.convertToBasicData(items);
 
         assertEquals(base.get(0).getName(),items.get(0).getName());
     }
@@ -70,9 +70,9 @@ public class ArrayListCoverterShould {
         // Nur eine kurze Prüfung ob das konvertieren überhaupt funktioniert
 
         Item item = new Item(0, 0, "A","DescA", "Test", "A,B,C",",", null,null,null);
-        BaseDataClass baseDataClass = (BaseDataClass) item;
+        BasicData basicData = (BasicData) item;
 
-        assertEquals(baseDataClass.getName(),"A");
+        assertEquals(basicData.getName(),"A");
 
     }
 

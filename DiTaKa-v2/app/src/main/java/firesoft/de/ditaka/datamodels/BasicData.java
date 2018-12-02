@@ -28,7 +28,7 @@ import static android.support.annotation.VisibleForTesting.PROTECTED;
 /**
  * Definiert grundlegende Datenstrukturen die in allen Datenklassen vorhanden sind.
  */
-public class BaseDataClass {
+public class BasicData {
 
     // region Variablen
 

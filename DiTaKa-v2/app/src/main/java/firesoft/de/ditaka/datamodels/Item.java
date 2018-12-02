@@ -25,7 +25,7 @@ import android.support.v4.util.Pair;
 /**
  * Stellt eine Datenstruktur für einen Gegenstand bereit
  */
-public class Item extends BaseDataClass{
+public class Item extends BasicData {
 
     private String location;
     private Pair<Short,Short> markerCoordinateLowerLeft;

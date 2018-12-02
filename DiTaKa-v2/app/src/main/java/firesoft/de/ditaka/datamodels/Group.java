@@ -19,7 +19,7 @@ package firesoft.de.ditaka.datamodels;
 /**
  * Stellt eine Datenstruktur für eine Gruppe bereit.
  */
-public class Group extends BaseDataClass{
+public class Group extends BasicData {
 
     // region Konstruktoren
 

@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 /**
  * Stellt eine Datenstruktur für ein Fahrzeug bereit
  */
-public class Vehicle extends BaseDataClass {
+public class Vehicle extends BasicData {
 
     private String callsign;
     private Bitmap image;

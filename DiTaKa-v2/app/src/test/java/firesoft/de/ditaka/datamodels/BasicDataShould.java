@@ -23,9 +23,9 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-public class BaseDataClassShould {
+public class BasicDataShould {
 
-    private BaseDataClass baseDataClass;
+    private BasicData basicData;
 
     private String tags;
     private String delimiter = ";";
@@ -35,7 +35,7 @@ public class BaseDataClassShould {
     @Before
     public void setUp() throws Exception {
 
-        baseDataClass = new BaseDataClass();
+        basicData = new BasicData();
 
         // Beispieltags erstellen
         tags = "Test;BaseData;Desktop;Computer;Beispiel";
@@ -55,63 +55,63 @@ public class BaseDataClassShould {
     @Test
     public void setName() {
 
-        baseDataClass.setName("Test");
-        assertEquals("Test",baseDataClass.getName());
+        basicData.setName("Test");
+        assertEquals("Test", basicData.getName());
 
     }
 
     @Test
     public void setTagsFromString() {
 
-        baseDataClass.setTags(tags,delimiter);
-        assertEquals(tagResult,baseDataClass.tags);
+        basicData.setTags(tags,delimiter);
+        assertEquals(tagResult, basicData.tags);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void failSettingTagsFromNull() {
 
-        baseDataClass.setTags(null,",");
+        basicData.setTags(null,",");
 
     }
 
     @Test
     public void dontFailSettingTagsFromEmpty() {
 
-        baseDataClass.setTags("",",");
-        assertEquals(baseDataClass.tags.size(),0);
+        basicData.setTags("",",");
+        assertEquals(basicData.tags.size(),0);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void failSettingTagsFromString() {
 
-        baseDataClass.setTags(tags,",");
+        basicData.setTags(tags,",");
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwErrorWhenNoTagsFound() {
         // Wenn aus String und Trennzeichen keine Tags erzeugt wurden, sollte eine Fehlermeldung erscheinen
-        baseDataClass.setTags(tags,",");
+        basicData.setTags(tags,",");
 
     }
 
     @Test
     public void handleTageGenerationWithOnlyOneTag() {
         // Wenn aus String und Trennzeichen keine Tags erzeugt wurden, sollte eine Fehlermeldung erscheinen
-        baseDataClass.setTags("singletag",null);
-        assertEquals(baseDataClass.tags,singleTagResult);
+        basicData.setTags("singletag",null);
+        assertEquals(basicData.tags,singleTagResult);
     }
 
     @Test
     public void handleEmptyTagsWhileSearching() {
 
-        baseDataClass.setTags("",delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags("",delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("Testname");
+        boolean searchResult = basicData.search("Testname");
         assertTrue(searchResult);
 
     }
@@ -119,11 +119,11 @@ public class BaseDataClassShould {
     @Test
     public void searchAndFindValidCandidatesInName() {
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("Testname");
+        boolean searchResult = basicData.search("Testname");
         assertTrue(searchResult);
 
     }
@@ -131,11 +131,11 @@ public class BaseDataClassShould {
     @Test
     public void searchAndFindValidPartialCandidatesInName() {
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("ame");
+        boolean searchResult = basicData.search("ame");
         assertTrue(searchResult);
 
     }
@@ -143,11 +143,11 @@ public class BaseDataClassShould {
     @Test
     public void searchAndFindValidCandidatesInDescription() {
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("Beispielbeschreibung");
+        boolean searchResult = basicData.search("Beispielbeschreibung");
         assertTrue(searchResult);
 
     }
@@ -155,11 +155,11 @@ public class BaseDataClassShould {
     @Test
     public void searchAndFindValidPartialCandidatesInDescription() {
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("ist eine Beispie");
+        boolean searchResult = basicData.search("ist eine Beispie");
         assertTrue(searchResult);
 
     }
@@ -167,11 +167,11 @@ public class BaseDataClassShould {
     @Test
     public void searchAndFindValidCandidatesInTags() {
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("Computer");
+        boolean searchResult = basicData.search("Computer");
         assertTrue(searchResult);
     }
 
@@ -179,22 +179,22 @@ public class BaseDataClassShould {
     public void searchAndFindValidPartialCandidatesInTags() {
         // Testet die Suchfunktion für Fragmente in Tags
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("puter");
+        boolean searchResult = basicData.search("puter");
         assertTrue(searchResult);
     }
 
     @Test
     public void searchAndNotFindInvalidCandidatesInTags() {
 
-        baseDataClass.setTags(tags,delimiter);
-        baseDataClass.setName("Testname");
-        baseDataClass.setDescription("Das ist eine Beispielbeschreibung");
+        basicData.setTags(tags,delimiter);
+        basicData.setName("Testname");
+        basicData.setDescription("Das ist eine Beispielbeschreibung");
 
-        boolean searchResult = baseDataClass.search("Kartoffel");
+        boolean searchResult = basicData.search("Kartoffel");
         assertFalse(searchResult);
 
     }

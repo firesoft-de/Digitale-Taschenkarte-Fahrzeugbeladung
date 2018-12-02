@@ -18,11 +18,7 @@ package firesoft.de.ditaka.util;
 
 import java.util.ArrayList;
 
-import firesoft.de.ditaka.datamodels.BaseDataClass;
-import firesoft.de.ditaka.datamodels.Group;
-import firesoft.de.ditaka.datamodels.Item;
-import firesoft.de.ditaka.datamodels.Tray;
-import firesoft.de.ditaka.datamodels.Vehicle;
+import firesoft.de.ditaka.datamodels.BasicData;
 
 import static android.media.CamcorderProfile.get;
 
@@ -32,16 +28,16 @@ import static android.media.CamcorderProfile.get;
 public class ArrayListCoverter {
 
     /**
-     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BaseDataClass.
+     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BasicData.
      */
-    public static <T> ArrayList<BaseDataClass> convertToBaseData(ArrayList<T> list) {
+    public static <T> ArrayList<BasicData> convertToBasicData(ArrayList<T> list) {
 
-        ArrayList<BaseDataClass> convertedList = new ArrayList<>();
+        ArrayList<BasicData> convertedList = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
 
             if (list.get(i) != null) {
-                convertedList.add((BaseDataClass) list.get(i));
+                convertedList.add((BasicData) list.get(i));
             }
         }
 
@@ -49,11 +45,11 @@ public class ArrayListCoverter {
     }
 
     /**
-     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BaseDataClass.
+     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BasicData.
      *//*
-    public static ArrayList<BaseDataClass> convertToBaseData(ArrayList<Tray> list) {
+    public static ArrayList<BasicData> convertToBasicData(ArrayList<Tray> list) {
 
-        ArrayList<BaseDataClass> convertedList = new ArrayList<>();
+        ArrayList<BasicData> convertedList = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
 
@@ -66,11 +62,11 @@ public class ArrayListCoverter {
     }
 
     *//**
-     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BaseDataClass.
+     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BasicData.
      *//*
-    public static ArrayList<BaseDataClass> convertToBaseData(ArrayList<Vehicle> list) {
+    public static ArrayList<BasicData> convertToBasicData(ArrayList<Vehicle> list) {
 
-        ArrayList<BaseDataClass> convertedList = new ArrayList<>();
+        ArrayList<BasicData> convertedList = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
 
@@ -83,11 +79,11 @@ public class ArrayListCoverter {
     }
 
     *//**
-     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BaseDataClass.
+     * Konvertiert die Liste der Klasse in eine ArrayList vom Typ BasicData.
      *//*
-    public static ArrayList<BaseDataClass> convertToBaseData(ArrayList<Group> list) {
+    public static ArrayList<BasicData> convertToBasicData(ArrayList<Group> list) {
 
-        ArrayList<BaseDataClass> convertedList = new ArrayList<>();
+        ArrayList<BasicData> convertedList = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
 

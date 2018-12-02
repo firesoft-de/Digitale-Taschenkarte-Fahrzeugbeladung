@@ -21,7 +21,7 @@ import android.graphics.Bitmap;
 /**
  * Stellt eine Datenstruktur für ein Gertätefach bereit
  */
-public class Tray extends BaseDataClass{
+public class Tray extends BasicData {
 
     private int vehicleId;
     private String location;

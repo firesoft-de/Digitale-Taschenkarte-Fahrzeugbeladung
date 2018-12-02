@@ -18,9 +18,8 @@ package firesoft.de.ditaka.viewmodels;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.widget.BaseAdapter;
 
-import firesoft.de.ditaka.datamodels.BaseDataClass;
+import firesoft.de.ditaka.datamodels.BasicData;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 
@@ -45,9 +44,9 @@ public class ListViewItemViewmodel extends ViewModel {
     // region Datenvariablen
 
     /**
-     * Die Daten werden als BaseDataClass bereitgestellt, da von dieser Klasse alle anzuzeigenden Datentypen abgeleitet werden.
+     * Die Daten werden als BasicData bereitgestellt, da von dieser Klasse alle anzuzeigenden Datentypen abgeleitet werden.
      */
-    BaseDataClass data;
+    BasicData data;
 
     // endregion
 
@@ -55,7 +54,7 @@ public class ListViewItemViewmodel extends ViewModel {
      * Erstellt ein neues Viewmodel für ein ListViewItem. Für jedes Item wird ein eigenes Viewmodel benötigt.
      * @param data
      */
-    public ListViewItemViewmodel(BaseDataClass data) {
+    public ListViewItemViewmodel(BasicData data) {
 
         this.data = data;
 

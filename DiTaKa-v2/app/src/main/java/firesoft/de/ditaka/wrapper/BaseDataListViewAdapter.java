@@ -16,7 +16,6 @@
 
 package firesoft.de.ditaka.wrapper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,27 +26,27 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import firesoft.de.ditaka.R;
-import firesoft.de.ditaka.datamodels.BaseDataClass;
+import firesoft.de.ditaka.datamodels.BasicData;
 import firesoft.de.ditaka.datamodels.Item;
 import firesoft.de.ditaka.datamodels.Tray;
 
 
 /**
- * Adapterklasse um Daten die von BaseDataClass abgeleitet sind in einem ListView darzustellen.
+ * Adapterklasse um Daten die von BasicData abgeleitet sind in einem ListView darzustellen.
  * Basierend auf https://stackoverflow.com/q/10584606
  */
-public class BaseDataListViewAdapter extends ArrayAdapter<BaseDataClass> {
+public class BaseDataListViewAdapter extends ArrayAdapter<BasicData> {
 
     // region Variablen
 
-    private ArrayList<BaseDataClass> data;
+    private ArrayList<BasicData> data;
 
     // endregion
 
     /**
      * Erstellt eine neue Instanz
      */
-    public BaseDataListViewAdapter(Context context, ArrayList<BaseDataClass> items) {
+    public BaseDataListViewAdapter(Context context, ArrayList<BasicData> items) {
 
         super(context,0,items);
         data = items;
@@ -57,7 +56,7 @@ public class BaseDataListViewAdapter extends ArrayAdapter<BaseDataClass> {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
 
-        BaseDataClass currentElement = data.get(position);
+        BasicData currentElement = data.get(position);
 
         if (view == null) {
             view = LayoutInflater.from(getContext()).inflate(R.layout.listview_item, parent, false);
@@ -66,7 +65,7 @@ public class BaseDataListViewAdapter extends ArrayAdapter<BaseDataClass> {
         // Titel setzen
         ((TextView) view.findViewById(R.id.itemTitle)).setText(currentElement.getName());
 
-        // Position setzen. Hierzu wird geprüft, ob es sich um ein Tray oder ein Item handelt, da diese beiden Klassen über Felder zur Positionsbeschreibung verfügen. Für andere von BaseDataClass abgeleitete Klassen wird die Beschreibung eingesetzt.
+        // Position setzen. Hierzu wird geprüft, ob es sich um ein Tray oder ein Item handelt, da diese beiden Klassen über Felder zur Positionsbeschreibung verfügen. Für andere von BasicData abgeleitete Klassen wird die Beschreibung eingesetzt.
         if (currentElement instanceof Tray) {
             ((TextView) view.findViewById(R.id.itemLocation)).setText(((Tray) currentElement).getLocation());
         }
@@ -88,7 +87,7 @@ public class BaseDataListViewAdapter extends ArrayAdapter<BaseDataClass> {
     }
 
     @Override
-    public BaseDataClass getItem(int i) {
+    public BasicData getItem(int i) {
         return data.get(i);
     }
 
