@@ -23,16 +23,14 @@ import android.support.annotation.NonNull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import firesoft.de.ditaka.models.ItemModel;
-
 @Singleton
 public class CustomViewmodelFactory implements ViewModelProvider.Factory {
 
-    private ItemModel itemModel;
+    // private ItemModel itemModel;
 
     @Inject
-    public CustomViewmodelFactory(ItemModel itemModel) {
-        this.itemModel = itemModel;
+    public CustomViewmodelFactory() { //ItemModel itemModel) {
+        //this.itemModel = itemModel;
     }
 
     @NonNull

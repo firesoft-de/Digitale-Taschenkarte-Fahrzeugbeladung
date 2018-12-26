@@ -98,21 +98,10 @@ public class ListViewFragment extends Fragment {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onItemClick(parent,view,position,id);
+                switchOperator.switchFragment(0,null,0);
             }
         });
 
-    }
-
-    /**
-     * Definiert die Aktion die ausgeführt wird, wenn ein Item angeklickt wird
-     * @param parent
-     * @param view
-     * @param position
-     * @param id
-     */
-    private void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        switchOperator.switchFragment(0,null,0);
     }
 
     // endregion
