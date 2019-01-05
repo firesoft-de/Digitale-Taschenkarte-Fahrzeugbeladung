@@ -14,7 +14,6 @@
   ~
   ~     For the full license visit https://www.gnu.org/licenses/gpl-3.0.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="firesoft.de.ditaka">
 
@@ -29,10 +28,8 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
