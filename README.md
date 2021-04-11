@@ -1,3 +1,8 @@
+# NOT MAINTAINED!
+**Die Inhalte dieses Repos werden nicht mehr aktiv gewartet oder weiter entwickelt. Mit meinem heutigen Wissensstand, würde ich vieles anders machen. Insbesondere die API auf dem Server sollte mit einer richtigen REST-API realisiert werden.**
+
+Gerne kann das Repo geforkt werden um die App fort zu führen. Ich würde mich freuen, wenn ich eines Tages die App von jeamand mit mehr Zeit und KnowHow in den Händen halten könnte.
+
 # Digitale Taschenkarte Fahrzeugbeladung 
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung.svg)](https://github.com/firesoft-de/Digitale-Taschenkarte-Fahrzeugbeladung/commits/dev)
